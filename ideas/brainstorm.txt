@@ -1,0 +1,75 @@
+follow ups to dissertation stuff
+
+	experiment where i move the actual reference point
+		would prob need to be between subjects
+		anchor low vs. anchor high
+
+		think about what else might be impacted by seeing repeated effort prospects as gains vs losses
+
+	change the effortful task
+
+	maybe investigate more on how reward is processed during effort decisions
+		especially going into the effort involved in calculating the EVC essentially
+
+	just undertake the exercise of generating possible explanations for why the effect is backwards and put them to the test
+		yea all the explanations from the og document are pretty trash
+
+	is there something about their performance across cued trials that i think might impact choice?
+
+	use relative framing but just with number of switches vs. number of repetitions
+		rules out any explanations having to do with that it's something about the effort units or their exaggerated scale
+
+
+possible explanations
+	
+	keeping in mind the evidence from the new study that this effect might be the result of learning
+
+	the jessecae explanation
+		once people experience the effort, they become accepting of the moderate amount of effort
+		not much disutility attached to the reference level of effort in gain framing, so they're biased to go for the gamble
+		might be much aversion to hardest possible outcome, leading them to prefer a moderately more difficult amount of effort vs. risk the hardest possible effort
+
+		tricky bc easiest risky (hard) outcome is only one switch more than hardest (hard) safe outcome
+			if this explanation is true, it might be being influenced by the exaggerated scale of the effort units
+			although doesn't quite explain why the effect seems to be learned
+
+	control mode explanation
+		the number of switches performed on the previous trial might impact risk preference in the current trial
+		looking at the plots, it certainly seems like there might be some evidence for this
+		eg, ppl are much more willing to accept risk of extremely hard when they have just done extremely hard (max switches) on prev trial
+
+		after looking more at the data, i don't think this one is supported based on what im seeing
+			it just looks like ppl who align with the overall trend on trial t-1 also align with also align with it on trial t
+				rather than risk preferences really having much to do with number of switches performed per se
+
+	try to relate it back to evc
+		see notes in notebook
+		keep going with this one
+
+	dumb explanations
+		it's bc of the colors
+		it's bc of the +/- signs
+
+
+questions
+
+	will it extend to types of effort beyond cognitive control?
+		other tasks:
+			memory load
+			searching visual array
+			math problems
+			reading comprehension
+			the apps task, shifts in visual attention
+			n back
+	is it more about wanting to save effort or time?
+		manipulating the size of some visual search array will have a huge impact on time
+		can keep time constant and see if the effect still shows up
+			might undermine their motivation, but something like accurate performance will have to do less blocks or whatever
+
+	what about the evidence of learning effects in the data that i have?
+		take the rapid fire approach and test that separately
+		counterbalance it with the traditional performance
+
+
+go with visual search
+manipulate time vs. effort

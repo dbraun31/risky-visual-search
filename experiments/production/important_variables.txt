@@ -1,0 +1,11 @@
+
+## conditionOrder: ##
+
+[{'name': 'HE', outcome: {'safe': numeric_constant, 'risky', numeric_constant}}, {...}, ...]
+where the order is randomized and is drawn from one at a time to determine deck outcomes across cycles
+
+
+## deck_code ##
+
+{'left': {'name': 'riskyDeck' | 'safeDeck', 'outcome': {'top': numeric_constant}}, 'right': ...}
+safe deck only has 'top' entry

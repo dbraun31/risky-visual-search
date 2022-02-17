@@ -1,0 +1,1 @@
+{"subject":"izxqull7so_pilot","sona_id":"test_id","curTime":"14/02/2022@11:56:35","totalTime_mins":"null","screen_width":1440,"screen_height":900,"window_width":1440,"window_height":1052,"age":"22","gender":"female","race":"white","ethnicity":"not_hispanic","vision":"normal","comments":"No issues/comments. It didn't quit out/crash or anything, it went well! Thanks!"}
