@@ -1,1 +1,0 @@
-{"subject":"d3q4d15s93f_pilot","sona_id":"test_id","curTime":"14/02/2022@15:34:22","totalTime_mins":"null","screen_width":1920,"screen_height":1080,"window_width":1903,"window_height":1039,"age":"19","gender":"female","race":"white","ethnicity":"not_hispanic","vision":"corrected","comments":"No bugs! I thought this experiment was very well designed and it seems very thoughtout"}

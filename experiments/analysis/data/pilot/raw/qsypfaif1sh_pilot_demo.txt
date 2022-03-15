@@ -1,1 +1,0 @@
-{"subject":"qsypfaif1sh_pilot","sona_id":"test_id","curTime":"14/02/2022@14:08:33","totalTime_mins":"null","screen_width":1728,"screen_height":1117,"window_width":1728,"window_height":1054,"age":"20","gender":"no_answer","race":"na","ethnicity":"no_response","vision":"no_response","comments":"I took this about 50 min"}

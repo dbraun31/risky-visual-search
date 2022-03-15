@@ -1,0 +1,109 @@
+---
+title: 'Risky Visual Search - Experiment 1 Choice Analysis'
+author: 'Dave Braun'
+date: March 3, 2022
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+    toc: true
+    after_body: ../../../../footer.html
+    in_header: ../../../../favicon.html
+knit:
+  (function(inputFile, encoding) {
+    rmarkdown::render(inputFile,
+    encoding = encoding,
+    output_file = 'index.html')})
+---
+
+
+This document was last updated at `r Sys.time()`.
+
+```{r include = FALSE}
+library(tidyverse)
+```
+
+
+```{r}
+d <- read.csv('../../../data/exp1_main.csv')
+N <- length(unique(d$subject))
+d$ssd = 1 - d$selectedRiskyDeck
+head(d)
+```
+
+Initial sample size is `r N`.
+
+
+```{r}
+d %>% 
+  group_by(subject, direction, magnitude) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction, magnitude) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N)) %>% 
+  ggplot(aes(x = direction, y = ssd)) + 
+  geom_bar(stat = 'identity', aes(fill = magnitude), position = position_dodge(width= .9)) + 
+  geom_errorbar(aes(ymin = ssd - se, ymax = ssd + se, group = magnitude), width = .5, position = position_dodge(width= .9)) + 
+  ylim(0,1) + 
+  labs(
+    x = 'Framing',
+    y = 'Proportion Selection of Safe Deck',
+    caption = paste0('N = ', N, '. N needed is 50.')
+  ) + 
+  theme_bw() 
+```
+
+### Individual differences in direction effect
+
+```{r}
+m <- d %>% 
+  group_by(subject, direction) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction) %>% 
+  summarize(ssd = mean(ssd_))
+
+d %>% 
+  group_by(subject, direction) %>% 
+  summarize(ssd = mean(ssd)) %>% 
+  ggplot(aes(x = direction, y = ssd)) + 
+```
+
+
+
+```{r}
+ggsave('risky_visual_search.pdf', height = 5.5, width = 7.5)
+ggsave('risy_visual_search.png', height = 720/96, width = 1280/96, dpi = 96, units = 'in')
+```
+
+
+```{r}
+library(ez)
+
+ad <- d %>% 
+  mutate(ssd = 1 - selectedRiskyDeck) %>% 
+  group_by(subject, direction, magnitude) %>% 
+  summarize(ssd_ = mean(ssd)) 
+
+ezANOVA(wid = subject, within = .(direction, magnitude), dv = ssd_, detailed = TRUE, data = ad)
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

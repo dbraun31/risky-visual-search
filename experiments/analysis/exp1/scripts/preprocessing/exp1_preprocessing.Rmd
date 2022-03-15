@@ -1,0 +1,223 @@
+---
+title: 'Risky Visual Search - Experiment 1 Preprocessing'
+author: 'Dave Braun'
+date: February 15, 2022
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+    toc: true
+    after_body: ../../../footer.html
+    in_header: ../../../favicon.html
+knit:
+  (function(inputFile, encoding) {
+    rmarkdown::render(inputFile,
+    encoding = encoding,
+    output_file = 'index.html')})
+---
+
+
+This document was last updated at `r Sys.time()`.
+
+```{r include = FALSE}
+library(tidyverse)
+```
+
+
+```{r}
+d <- read.csv('../../data/exp1_main_raw.csv')
+N <- length(unique(d$subject))
+head(d)
+```
+
+Initial sample size is `r N`.
+
+
+## Check runtimes
+
+(mostly for adjusting after pilot)
+
+```{r}
+d %>% 
+  group_by(subject) %>% 
+  summarize(runtime = max(phase_runtime_mins)) %>% 
+  ggplot(aes(x = reorder(subject, runtime), y = runtime)) + 
+  geom_bar(stat = 'identity') +
+  geom_hline(yintercept = 30, linetype = 'dashed') +
+  labs(
+    x = 'Subject',
+    y = 'Main Phase Runtime (mins)'
+  ) + 
+  theme(axis.text.x = element_blank())
+```
+
+Going to take everyone under an hour and average as the completion time.
+
+```{r}
+runtimes <- d %>% 
+  group_by(subject) %>% 
+  summarize(runtime = max(phase_runtime_mins)) 
+avg_runtime <- mean(runtimes[runtimes$runtime < 60,]$runtime)
+
+
+desired_trials <- function(avg_runtime, n_trials = 308) {
+  mins_per_trial <- avg_runtime / n_trials
+  return(30 / mins_per_trial)
+}
+
+print(paste0('Target trials to be 30 min: ', round(desired_trials(avg_runtime))))
+```
+
+
+
+
+## Accuracy & Response Time
+
+For visual search
+
+```{r}
+## rt distribution
+d %>% 
+  filter(subject %in% sample(unique(d$subject), 10)) %>% 
+  ggplot(aes(x = search_rt)) + 
+  geom_histogram() + 
+  facet_wrap(~subject, scales = 'free') + 
+  labs(
+    caption = 'A randomly-sampled ten participants'
+  )
+
+
+## calc proportion dropped
+proportion_dropped <- function(rows_before, rows_now) {
+  return((rows_before - rows_now) / rows_before)
+}
+
+## gross rt threshold
+rows_before <- nrow(d)
+d <- d[d$search_rt < 20000,]
+trim_summary <- data.frame(reason = 'Search RTs above 20s', proportion_trimmed = proportion_dropped(rows_before, nrow(d)))
+rows_before <- nrow(d)
+d <- d[d$choice_rt < 20000,]
+trim_summary <- rbind(trim_summary, data.frame(reason = 'Choice RTs above 20s', proportion_trimmed = proportion_dropped(rows_before, nrow(d))))
+
+d %>% 
+  group_by(subject) %>% 
+  summarize(accuracy = 1 - mean(error), rt = mean(search_rt)) %>% 
+  ggplot(aes(x = rt/1000, y = accuracy, group = subject)) + 
+  geom_hline(yintercept = .75, linetype = 'dotted') + 
+  geom_vline(xintercept = .03, linetype = 'dotted') + 
+  geom_point() + 
+  labs(
+    x = ' Average Response Time (s)',
+    y = 'Average Accuracy'
+  ) + 
+  theme_bw()
+```
+
+## Location bias
+
+```{r}
+d$selected_deck_location_num <- ifelse(d$selected_deck_location == 'right', 1, -1)
+d %>% 
+  group_by(subject) %>% 
+  summarize(sdln = mean(selected_deck_location_num)) %>% 
+  ggplot(aes(x = subject, y = abs(sdln))) + 
+  geom_hline(yintercept = .9, linetype = 'dotted') + 
+  geom_point() + 
+  coord_flip() + 
+  ylim(0,1) +
+  labs(
+    x = 'Subject',
+    y = 'Location Bias'
+  ) + 
+  theme_bw() + 
+  theme(axis.text.y = element_blank(),
+        axis.ticks = element_blank())
+```
+
+
+## Data Trimming
+
+```{r}
+## cut subjects under 75% accuracy
+bad_subjects <- d %>% 
+  group_by(subject) %>% 
+  summarize(error = mean(error), rt = mean(search_rt), location_bias = abs(mean(d$selected_deck_location_num))) %>% 
+  filter(error > .25 | rt < .03 | location_bias > .9) %>% 
+  select(subject)
+n_bad_subjects <- nrow(bad_subjects)
+d <- d[!(d$subject %in% bad_subjects$subject),]
+```
+
+There were `r n_bad_subjects` subjects dropped for having less than 75% accuracy.
+
+```{r}
+## remove choice rts beyond 
+hist(d$choice_rt)
+```
+
+
+```{r}
+rows_before <- nrow(d)
+d <- d[d$choice_rt > 300 & d$choice_rt < 10000,]
+print(paste0('Proportion dropped: ', round(proportion_dropped(rows_before, nrow(d)), 3), ', ', rows_before - nrow(d), '/', nrow(d)))
+```
+
+
+### Trimming choice trials by participant-wise rt sds
+
+```{r}
+rows_before <- nrow(d)
+d <- d %>% 
+  group_by(subject) %>% 
+  summarize(choice_rt_m = mean(choice_rt), choice_rt_sd = sd(choice_rt)) %>% 
+  inner_join(d) %>% 
+  filter(choice_rt >= choice_rt_m - (2*choice_rt_sd) & choice_rt <= choice_rt_m + (2*choice_rt_sd))
+print(paste0('Proportion dropped: ', round(proportion_dropped(rows_before, nrow(d)), 3), ', ', rows_before - nrow(d), '/', nrow(d)))
+```
+
+
+
+
+```{r}
+write.csv(d, '../../data/exp1_main.csv', row.names = FALSE)
+```
+
+
+
+## Compute min trial time for E2
+
+```{r}
+library(ggrepel)
+## make a model that coverts a summary of choice rt to overall mins
+d <- d[d$choice_rt < 7500,]
+
+percentile <- quantile(d$choice_rt, c(.75,.85,.95))
+percentile <- data.frame(percent = names(percentile), values = percentile)
+
+d %>% 
+  ggplot(aes(x = choice_rt)) + 
+  geom_histogram() +
+  geom_vline(data = percentile, aes(xintercept = values), linetype = 'dashed') + 
+  geom_text_repel(data = percentile, aes(x = values - 1, label = percent), y = 3000) +
+  labs(
+    x = 'Choice RT (ms)',
+    y = 'Frequency'
+  ) + 
+  theme_bw()
+  
+
+d <- d %>% 
+  mutate(choice_rt_c = (choice_rt - choice_rt_m) / choice_rt_sd)
+
+m1 <- lm(phase_runtime_mins ~ choice_rt_c, data = d)
+summary(m1)
+```
+
+
+
+
+
+
+

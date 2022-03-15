@@ -1,13 +1,13 @@
 ---
-title: "Experiment 3 Power Analysis"
+title: "Experiment 1 Power Analysis"
 author: "Dave Braun"
-date: "8/5/2019"
+date: "2/17/2022"
 output: 
   html_document:
     df_print: paged
     includes:
-      after_body: ../../analysis/footer.html
-      in_header: ../../analysis/favicon.html
+      after_body: ../analysis/footer.html
+      in_header: ../analysis/favicon.html
 knit:
   (function(inputFile, encoding) {
       rmarkdown::render(inputFile,
@@ -23,25 +23,25 @@ library(ez)
 
 *This document was last updated at `r Sys.time()`.*
 
-This document is dedicated to the power analysis for Experiment 3. I'm taking a different approach here than I did for Experiments 1 and 2. Since Experiment 2 is so similar to this one, and I fit a GLMM to the data, which captures the fixed and random effects estimates from that data, I'll use simulations from that model to estimate the necessary sample for 0.8 power in Experiment 3.  
+This document is dedicated to the power analysis for Experiment 1. I'm using a model fitted to the data from the decks exp I ran on the py pool in the fall, and using simulations from that model to estimate power in the present study.
 
 **TL;DR**: I'll want a sample size of 130 for Experiment 3.
 
 
 ```{r}
-d <- read.csv('../../analysis/exp2/data/dstCleanChoice.csv')
-d$selSafeDeck <- ifelse(d$selectedRiskyDeck == 1, 0, 1)
+d <- read.csv('dstCleanChoice1.csv')
+d$ssd <- ifelse(d$selectedRiskyDeck == 1, 0, 1)
 head(d)
 ```
 
 
-## Fit the model to Experiment 2 data
-I'm using the optimal model determined from [Experiment 2 Random Effects Analysis](../../analysis/exp2/scripts/exploratory/randomEffects/), which estimates a random intercept and two random slopes grouped by subject.
+## Fit the model to Experiment 3 data
+I'm using the optimal model from both E2 and E3 of my dissertation, which estimates a random intercept and two random slopes grouped by subject.
 
 ```{r}
 d$differenceE <- ifelse(d$difference == 'Moderate', -0.5, 0.5)
 d$difficultyE <- ifelse(d$difficulty == 'Easier than Reference', -0.5, 0.5)
-m1 <- glmer(selSafeDeck ~ difficultyE * differenceE + (1 | subject) + (0 + difficultyE | subject) + (0 + differenceE | subject), data = d , family = binomial, control = glmerControl(optimizer = 'bobyqa'))
+m1 <- glmer(ssd ~ difficultyE * differenceE + (1 | subject) + (0 + difficultyE | subject) + (0 + differenceE | subject), data = d , family = binomial, control = glmerControl(optimizer = 'bobyqa'))
 ```
 
 ## Use fitted model to run simulations
@@ -59,7 +59,8 @@ sim_ext_subject
 
 
 ```{r warning = FALSE, eval = FALSE}
-powerResult <- powerCurve(sim_ext_subject, test=fcompare(selSafeDeck ~ differenceE), along = 'subject', breaks = seq(70,150,by = 10), nsim = 100)
+## logic of the below line: https://humburg.github.io/Power-Analysis/simr_power_analysis.html
+powerResult <- powerCurve(sim_ext_subject, test=fcompare(ssd ~ differenceE), along = 'subject', breaks = seq(70,150,by = 10), nsim = 100)
 powerResultDf <- data.frame(summary(powerResult))
 save(powerResultDf, file = 'powerResultDf.Rdata')
 ```
@@ -85,9 +86,46 @@ ggplot(powerResultDf, aes(x = factor(nlevels), y = mean, group = 1)) +
   annotate('text', x = factor(70), y = .85, label = '0.8 Power')
 ```
 
-That was so much easier than what I did for the first two experiments, and probably much more accurate.  
+Alright...
 
-**I'll want a sample size of 130 for Experiment 3.**
+
+
+
+
+
+```{r warning = FALSE, eval = FALSE}
+## logic of the below line: https://humburg.github.io/Power-Analysis/simr_power_analysis.html
+powerResult <- powerCurve(sim_ext_subject, test=fcompare(ssd ~ differenceE), along = 'subject', breaks = seq(10, 70,by = 10), nsim = 100)
+powerResultDf <- data.frame(summary(powerResult))
+save(powerResultDf, file = 'powerResultDf10-70.Rdata')
+```
+```{r}
+load('powerResultDf10-70.Rdata')
+```
+```
+
+
+
+
+
+```{r}
+ggplot(powerResultDf, aes(x = factor(nlevels), y = mean, group = 1)) + 
+  geom_line(linetype = 'dotdash', color = 'dodgerblue4') +
+  geom_errorbar(aes(ymin = lower, ymax = upper), color = 'dodgerblue4') +
+  geom_point(shape = 19, color = 'dodgerblue4', fill = 'dodgerblue4') +
+  geom_hline(yintercept = .8, linetype = 'dashed') + 
+  labs(
+    x = 'Sample Size',
+    y = 'Power to Detect Difficulty Effect',
+    caption = 'Each estimate computed via 100 MCMC simulations'
+  ) + 
+  ylim(0,1) +
+  theme_bw() +
+  annotate('text', x = factor(70), y = .85, label = '0.8 Power')
+```
+
+
+
 
 
 

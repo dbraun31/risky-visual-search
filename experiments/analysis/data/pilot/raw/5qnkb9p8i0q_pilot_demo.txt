@@ -1,1 +1,0 @@
-{"subject":"5qnkb9p8i0q_pilot","sona_id":"test_id","curTime":"16/02/2022@18:11:44","totalTime_mins":"null","screen_width":1440,"screen_height":900,"window_width":1324,"window_height":1055,"age":"18","gender":"female","race":"asian","ethnicity":"not_hispanic","vision":"corrected","comments":""}
