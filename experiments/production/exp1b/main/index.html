@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8' />
+  <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no'>
+  <title>Risky Visual Search</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle.css?v=1'>
+  <link rel='stylesheet' type='text/css' href='../../global_css/deckStyle.css'>
+  <link rel='stylesheet' type='text/css' href='../css/exp1Style.css?v=1'>
+  <script src='../js/exp1bFunctions.js?v=5'></script>
+  <script src='../../global_js/search_array.js?v=1'></script>
+  <script src='../../global_js/TimTurkTools.js'></script>
+  <script src='../../global_js/jquery-bbq.js'></script>
+
+<script>
+
+$(document).ready(function(){
+// id params
+var sona_id = getParam('sona_id', '');
+var subject = getParam('subject', '');
+var experiment_start_time = urlArgsToVar('experiment_start_time');
+
+// making things wayy simpler and just controlling everything with a trial count
+// GLOBAL VARS
+var trial_count = 0;
+var trial_threshold = 308;
+var block_interval = 44;
+
+
+
+// timing
+var pre_choice_wait = 500;
+var post_choice_wait = 1000;
+var error_timeout = 2000;
+
+var trialStruct = new Array();
+var experimentName = 'gaita_exp1';
+var phase = 'main';
+var phase_start_time = new Date();
+var error = 0;
+var error_count = 0;
+var chosen_deck_location = '';
+var selection_key = 0;
+var trial_struct = new Array();
+var deck_code = {};
+var start_time = new Date();
+var cued_rt = new Date();
+var active_separator = '';
+var cued_response_key = '';
+var choice_response_key = '';
+
+var vid = document.getElementById('tutorial');
+var instructions_received = 0;
+
+vid.onended = function() {
+  instructions_received = 1;
+}
+
+
+// control conditions
+var condition_order = new Array();
+var direction = '';
+var magnitude = '';
+var present_or_absent = '';
+
+
+// set initial state
+$('#detailSlide').hide();
+$('#keyRemindSlide').hide();
+$('.expSlide').hide();
+$('#blockTransitionSlide').hide();
+$('#development').hide();
+$('.searchArray').hide();
+$('#blockRest').hide();
+
+
+// button controls
+$('#detail').click(function(){
+  $('#titleSlide').hide();
+  $('#detailSlide').show();
+  vid.pause();
+});
+
+$('.resetTitle').click(function(){
+  $('#titleSlide').show();
+  $('#detailSlide').hide();
+  $('#keyRemindSlide').hide();
+});
+
+$('#seeKeys').click(function(){
+  if (instructions_received) {
+    $('#keyRemindSlide').show();
+    $('#titleSlide').hide();
+    vid.pause();
+  } else {
+    vid.pause();
+    alert('Please finish the video before continuing.');
+  }
+});
+
+
+
+$('#seeKeysFromDetailSlide').click(function(){
+  $('#detailSlide').hide();
+  $('#keyRemindSlide').show();
+});
+
+$('#startSegment').click(function(){
+  startSegment();
+});
+
+
+function startSegment() {
+
+  $('#keyRemindSlide').hide();
+  $('.expSlide').show();
+
+  run_trial();
+
+} // end startSegment()
+
+
+// on the subject of multiple handlers
+// i *think* what happens is if you put this code inside a function that gets called multiple times, you're binding a new event handler to the button press each time this code is run. Which is why on the third block (ie, the second time you push this button) you get two handlers. Keeping this code out here seems to work bc it's only defined once.
+// seems to work
+$('#nextBlock').click(function(){
+    $('.expSlide').show();
+    run_trial();
+});
+
+function block_rest() {
+  $('.searchArray').hide();
+  $('#blockRest').show();
+  remaining_blocks = compute_remaining_blocks(trial_threshold = trial_threshold, block_interval = block_interval, trial_count = trial_count);
+  s = remaining_blocks == 1 ? '' : 's';
+  $('#blockText').html('<p>That was the end of that block of trials. You have ' + remaining_blocks + ' block' + s +' left to go.\nPress the button below to continue.</p>')  
+}
+
+
+function run_trial() {
+
+  // control display
+  $('#blockRest').hide();
+  $('.searchArray').hide();
+  $('.deckAttributeContainer').hide();
+  $('.deckAttributeSeparator').hide();
+  $('#leftDeckBottom').hide();
+  $('#rightDeckBottom').hide();
+
+  // look for decks that might have been selected on prev trial and remove the black box around outcome
+  if (chosen_deck_location) {
+    $('#' + selected_outcome['horizontal'] + 'Deck' + selected_outcome['vertical']).removeClass('selectedAttribute').addClass('deSelectedAttribute');
+  }
+
+
+  // update conditions and check against threshold
+  if (!(trial_count % 4) | trial_count == 0) {
+    condition_order = createConditionOrder();
+
+    if (trial_count >= trial_threshold) {
+      endSegment();
+      return
+    }
+  }
+
+  // set condition and update counters
+  current_condition = condition_order[trial_count % 4];
+
+  trial_count += 1;
+  direction = current_condition['name'] == 'HE' || current_condition['name'] == 'HM' ? 'Harder than Reference' : 'Easier than Reference';
+  magnitude = current_condition['name'] == 'HE' || current_condition['name'] == 'EE' ? 'Extreme' : 'Moderate';
+  // Get deck code that maps condition to decks
+  deck_code = get_deck_code(current_condition);
+
+  update_deck_attributes(deck_code, direction);
+  updateAttributeColors(deck_code);
+  active_separator = get_active_separator(deck_code);
+
+
+
+  setTimeout(function(){
+    
+    // Control Display
+    $('.deckAttributeContainer').show();
+    $('#' + active_separator + 'DeckBottom').show();
+    $('#' + active_separator + 'DeckAttributeSeparator').show();
+
+    // start rt choice timer
+    start_time = new Date();
+
+    // listen for choice keys
+    $(document).bind('keydown.listenForChoiceKeys', function(e){
+
+      if ($.inArray(e.which, [68, 70]) + 1) {
+
+        // record choice rt
+        choice_rt = new Date() - start_time;
+
+        // Get the location of choice
+        chosen_deck_location = e.which == 68 ? 'left' : 'right';
+
+        // record choice key
+        choice_response_key = e.which == 68 ? 'D' : 'F';
+
+        // stop listening for choice keys
+        $(document).unbind('keydown.listenForChoiceKeys');
+
+        // reset cued vars
+        response_count = 0;
+
+        // determine outcome
+        selected_outcome = determine_outcome(chosen_deck_location, deck_code);
+
+        // Draw box around selected outcome
+        $('#' + selected_outcome['horizontal'] + 'Deck' + selected_outcome['vertical']).addClass('selectedAttribute').removeClass('deSelectedAttribute');
+
+        setTimeout(function(){
+          visual_search();
+        }, post_choice_wait); // show selected outcome before proceeding
+        
+
+      } // end is response key valid?
+
+    }) // end listenForChoiceKeys()
+
+  }, pre_choice_wait); // end timeout
+
+} // end runTrial()
+
+
+function visual_search() {
+  $('.expSlide').hide();
+  $('.searchArray').show();
+  $('.errorContainer').hide();
+
+
+  present_or_absent = (Math.random() > .5) ? 'present' : 'absent';
+  stim_ids = generate_array(present_or_absent = present_or_absent, n_stimuli = 32 + selected_outcome['outcome'])
+  start_time = new Date();
+  error = 0;
+
+  $(document).bind('keydown.listenForKeys', function(e){
+    if ($.inArray(e.which, [74,75]) + 1) {
+
+      search_rt = new Date() - start_time;
+
+      clear_array(stim_ids);
+
+      $(document).unbind('keydown.listenForKeys');
+
+      error = code_error(key = e.which, condition = present_or_absent);
+
+      // save data
+
+      search_response_key = e.which == 74 ? 'j' : 'k';
+
+      save_trial_data();
+
+      if (error) {
+        $('.errorContainer').show();
+        setTimeout(function(){
+          $('.errorContainer').hide();
+          $('.searchArray').hide();
+          if (trial_count % block_interval) {
+            $('.expSlide').show();
+            run_trial();
+          } else {
+            block_rest();
+          }
+        }, error_timeout);
+
+      } else {
+        $('.errorContainer').hide();
+        $('.searchArray').hide();
+        if (trial_count % block_interval) {
+          $('.expSlide').show();
+          run_trial();
+        } else {
+          block_rest();
+        }
+      }
+
+    }
+
+
+  }) // end listen for keys
+
+
+
+
+
+ 
+
+} // end cuedTrial()
+
+
+function save_trial_data() {
+
+  if (deck_code['left']['name'] == 'riskyDeck') {
+    var safe_deck_outcome = deck_code['right']['outcome']['top'];
+    var risky_deck_outcome = [deck_code['left']['outcome']['top'], deck_code['left']['outcome']['bottom']];
+  } else {
+    var safe_deck_outcome = deck_code['left']['outcome']['top'];
+    var risky_deck_outcome = [deck_code['right']['outcome']['top'], deck_code['right']['outcome']['bottom']];
+  }
+
+  var selectedRiskyDeck = 0;
+  if (chosen_deck_location == 'left' && deck_code['left']['name'] == 'riskyDeck') {
+    selectedRiskyDeck = 1;
+  } else if (chosen_deck_location == 'right' && deck_code['right']['name'] == 'riskyDeck') {
+    selectedRiskyDeck = 1;
+  }
+
+  trialStruct.push({
+    'trial': trial_count,
+    'exp_runtime_mins': experiment_start_time ? Math.round((Date.now() - experiment_start_time) / 1000 / 60) : 'null',
+    'phase_runtime_mins': Math.round((Date.now() - phase_start_time) / 1000 / 60),
+    'condition': current_condition['name'],
+    'magnitude': magnitude,
+    'direction': direction,
+    'choice_response_key': choice_response_key,
+    'search_response_key': search_response_key,
+    'left_deck_id': deck_code['left']['name'],
+    'right_deck_id': deck_code['right']['name'],
+    'risky_deck_outcome_top': risky_deck_outcome[0],
+    'risky_deck_outcome_bottom': risky_deck_outcome[1],
+    'safe_deck_outcome': safe_deck_outcome,
+    'selected_deck_location': chosen_deck_location,
+    'selectedRiskyDeck': selectedRiskyDeck,
+    'error': error,
+    'n_stimuli': 32 + selected_outcome['outcome'],
+    'present_or_absent': present_or_absent,
+    'chosenDeckId': deck_code[chosen_deck_location]['name'],
+    'choice_rt': choice_rt,
+    'search_rt': search_rt
+  });
+
+  console.log(trialStruct);
+
+}
+
+function endSegment() {
+
+  var curDate = new Date();
+  var finish_time = new Date() - phase_start_time;
+
+  var currentData = {
+    'subject': subject,
+    'sona_id': sona_id,
+    'curTime': curDate.today() + '@' + curDate.timeNow(),
+    'userAgent': navigator.userAgent,
+    'screenWidth': screen.width,
+    'screenHeight': screen.height,
+    'windowWidth': $(window).width(),
+    'windowHeight': $(window).height(),
+    'phase': phase,
+    'phase_run_time': finish_time,
+    'trialStruct': trialStruct
+  };
+
+  sendToServer(subject, currentData);
+
+} // end endSegment()
+
+function sendToServer(subject, currentData) {
+
+  var dataToServer = {
+    'curId': subject,
+    'experiment': experimentName,
+    'sessionCode': phase,
+    'currentData': JSON.stringify(currentData)
+  };
+
+  var urlArgs = {
+    'subject': subject,
+    'sona_id': sona_id,
+    'experiment_start_time': experiment_start_time
+  };
+
+  $.post(
+    url = '../../../../../cgi-bin/saveData_gaita.py',
+    data = dataToServer,
+    success = function(data){
+      window.location.replace('../demo/?' + $.param(urlArgs));
+    }).fail(function(data){
+      console.log('FAILURE');
+      window.location.replace('../demo/?' + $.param(urlArgs));
+    });
+
+} // end sendToServer()
+
+
+}); // end document.ready()
+
+</script>
+
+</head>
+
+<body>
+
+<!-- the entire display -->
+<div class='container'>
+  <!-- the 800 x 600 experiment area -->
+  <div class='screen'>
+
+    <!-- BEGIN TITLE SLIDE -->
+      <div id='titleSlide'>
+        <div class='titleBar'>
+          <h2>You are about to begin the main experiment.</h2>
+        </div>
+
+        <div class='leftTwoThirds'>
+          <p>That is it for the practice. The next phase will run throughout most of the rest of the experiment (about 25 min). Watch the video below to get final instructions before beginning. <i class='small'>(Runtime: 2 min 05 sec)</i>.</p><br>
+          <p class='small'>If you don't have speakers, you can click "See Text Instructions" to read the instructions in text form.</p>
+
+        
+          <video id='tutorial' width='510' height='290' controls>
+            <source src = "exp1_instructions.mp4" type = "video/mp4">
+          </video>
+        
+
+        </div>
+
+        <div class='rightOneThirdsDown'>
+          <button id='detail' class='experimentButton center smallButton'>See Text Instructions</button>
+          <button id='seeKeys' class='experimentButton center'>See Controls</button>
+        </div>
+      </div> <!-- end title slide -->
+
+    <!-- BEGIN DETAIL SLIDE -->
+    <div id='detailSlide'>
+      <div class='textInstructionsContainer'>
+      <p>In that last practice phase, you searched through 32 objects on each screen. We’ve had a lot of people take this study, and most people would say that’s about a medium level of difficulty. If we added objects to the array, the search would become more difficult; if we took objects away, the search would become easier. Throughout the rest of this experiment, you're going to be seeing two options appearing on the screen. The outcomes on these options tell you how many more or fewer objects than 32 will appear in the search array. For example, the outcome "0" means you'll be searching through 32 objects. The outcome "-14" means you'll be searching through 14 objects fewer than 32. You'll notice one of these options always has two outcomes, while the other option only has one. This option with two outcomes is like a "risky" option, because it's like flipping a coin to determine which outcome you'll get. The other option is a safe option, because if you choose this option you will always get the one outcome displayed on this option. If you make an error, like signal that the target is absent when it is indeed present, you'll see the word "ERROR" appear on the screen. These error screens will slow down your overall progress---so more errors means you're completing a longer experiment. Throughout the experiment, you will periodically encounter breaks after a period of trials. Feel free to take a rest during these breaks before continuing. When you're ready to begin this phase, you can press the "See Controls" button below to see you controls before beginning.</p>
+    </div>
+
+      <div class='rightOneThirdsDown'>
+        <button class='experimentButton resetTitle smallButton textInstructionsButtons'>Go Back</button>
+        <button class='experimentButton textInstructionsButtons' id='seeKeysFromDetailSlide'>See Controls</button>
+      </div>
+    </div> <!-- end detail slide -->
+
+
+
+    <!-- KEY REMIND SLIDE -->
+    <div id='keyRemindSlide'>
+      <div class='titleBar'>
+        <p><strong>Controls:</strong></p>
+      </div>
+
+      <div class='leftTwoThirds' id='controlsFill'>
+        <p><strong>Deck Choice: </strong></p>
+        <p>D = Left Deck, F = Right Deck</p>
+        <br>
+        <p><strong>Object Search: </strong></p>
+        <p>J = Target Present, K = Target Absent</p>
+      </div>
+
+      <div class='rightOneThirdsDown'>
+        <button class='resetTitle experimentButton smallButton center'>Go Back</button>
+        <button id='startSegment' class='experimentButton center'>Begin Phase</button>
+      </div>
+    </div> <!-- end key remind slide -->
+
+
+
+    <!-- BLOCK REST -->
+    <div id='blockRest'>
+      <div class='titleBar' id='blockText'>
+      </div>
+
+      <div class='leftTwoThirds' id='controlsFill'>
+      </div>
+
+      <div class='rightOneThirdsDown'>
+        <button id='nextBlock' class='experimentButton center'>Continue</button>
+      </div>
+    </div> <!-- end key remind slide -->
+
+
+
+    <div class='expSlide'>
+      <div class='feedbackContainer'>
+
+        <div class='feedbackLevelTwo'>
+          <div id='keyToggle' class='keyFormat'>
+          </div>
+        </div>
+
+      </div>
+      
+
+      <div class='bottomHalf'>
+        <div class='deckOutline' id='leftDeck'>
+          <div class='deckAttributeContext'>
+            <p>Extra Objects:</p>
+          </div>
+          <div class='deckAttributeContainer'>
+            <div class='deckAttribute' id='leftDeckTop'>
+            </div>
+            <div class='deckAttributeSeparator' id='leftDeckAttributeSeparator'>
+              <p>OR</p>
+            </div>                   
+            <div class='deckAttribute' id='leftDeckBottom'>
+            </div>
+          </div>
+        </div>
+
+        <div class='deckOutline' id='rightDeck'>
+          <div class='deckAttributeContext'>
+            <p>Extra Objects:</p>
+          </div>
+          <div class='deckAttributeContainer'>
+            <div class='deckAttribute' id='rightDeckTop'>
+            </div>
+            <div class='deckAttributeSeparator' id='rightDeckAttributeSeparator'>
+              <p>OR</p>
+            </div>                   
+            <div class='deckAttribute' id='rightDeckBottom'>
+            </div>
+          </div>
+        </div>
+      </div> <!-- end bottom half -->
+
+
+    </div> <!-- end expSlide -->
+
+    <div class='searchArray' id='the_search_array'>
+      <div class='errorContainer'>
+        <p><strong>ERROR!</strong></p>
+      </div>
+    </div>  
+
+
+
+  </div> <!-- end screen -->
+
+</div> <!-- end container -->
+
+
+</body>
+</html>
