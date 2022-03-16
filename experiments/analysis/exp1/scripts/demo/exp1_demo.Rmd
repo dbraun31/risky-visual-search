@@ -1,5 +1,5 @@
 ---
-title: 'Risky Visual Search - Experiment 1 Choice Analysis'
+title: 'Risky Visual Search - Experiment 1 Demo Analysis'
 author: 'Dave Braun'
 date: March 3, 2022
 output:
@@ -20,13 +20,16 @@ knit:
 
 This document was last updated at `r Sys.time()`.
 
+I'm just taking a quick look today (3/15/2022) to see the text responses of people who show the effect vs. those who don't.
+
 ```{r include = FALSE}
 library(tidyverse)
 ```
 
 
 ```{r}
-d <- read.csv('../../../data/exp1_main.csv')
+d <- read.csv('../../data/exp1_main.csv')
+demo <- read.csv('../../data/exp1_demo.csv')
 N <- length(unique(d$subject))
 d$ssd = 1 - d$selectedRiskyDeck
 head(d)
@@ -35,60 +38,33 @@ head(d)
 Initial sample size is `r N`.
 
 
-```{r}
-d %>% 
-  group_by(subject, direction, magnitude) %>% 
-  summarize(ssd_ = mean(ssd)) %>% 
-  group_by(direction, magnitude) %>% 
-  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N)) %>% 
-  ggplot(aes(x = direction, y = ssd)) + 
-  geom_bar(stat = 'identity', aes(fill = magnitude), position = position_dodge(width= .9)) + 
-  geom_errorbar(aes(ymin = ssd - se, ymax = ssd + se, group = magnitude), width = .5, position = position_dodge(width= .9)) + 
-  ylim(0,1) + 
-  labs(
-    x = 'Framing',
-    y = 'Proportion Selection of Safe Deck',
-    caption = paste0('N = ', N, '. N needed is 50.')
-  ) + 
-  theme_bw() 
-```
-
-### Individual differences in direction effect
 
 ```{r}
-m <- d %>% 
-  group_by(subject, direction) %>% 
-  summarize(ssd_ = mean(ssd)) %>% 
-  group_by(direction) %>% 
-  summarize(ssd = mean(ssd_))
+threshold <- .15
 
-d %>% 
+demo <- d %>% 
   group_by(subject, direction) %>% 
   summarize(ssd = mean(ssd)) %>% 
-  ggplot(aes(x = direction, y = ssd)) + 
+  spread(direction, ssd) %>% 
+  mutate(in_line = `Harder than Reference` - `Easier than Reference`) %>% 
+  mutate(risk_group = factor(ifelse(in_line > threshold, 'in line', ifelse(in_line < -threshold, 'opposite', 'neither')))) %>% 
+  select(subject, risk_group) %>% 
+  inner_join(demo)
+
+
+
+for (group in levels(demo$risk_group)) {
+  print(paste0('#### RISK GROUP: ', group, ' ####'))
+  for (subject in unique(demo[demo$risk_group==group,]$subject)) {
+    print('')
+    print(demo[demo$subject == subject,]$comments)
+  }
+  print('')
+  print('')
+  print('')
+}
+
 ```
-
-
-
-```{r}
-ggsave('risky_visual_search.pdf', height = 5.5, width = 7.5)
-ggsave('risy_visual_search.png', height = 720/96, width = 1280/96, dpi = 96, units = 'in')
-```
-
-
-```{r}
-library(ez)
-
-ad <- d %>% 
-  mutate(ssd = 1 - selectedRiskyDeck) %>% 
-  group_by(subject, direction, magnitude) %>% 
-  summarize(ssd_ = mean(ssd)) 
-
-ezANOVA(wid = subject, within = .(direction, magnitude), dv = ssd_, detailed = TRUE, data = ad)
-  
-```
-
-
 
 
 
