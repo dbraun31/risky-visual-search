@@ -6,19 +6,21 @@
   min-width: 1000px;
   margin: 0 auto;
   padding: 0 3%;
+  border: 1px solid red;
 }
 
-#demo_heading{
+.heading{
   padding: 10px;
   border: 1px outset lightgrey;
 }
 
-#demo_container {
+.form_container {
   border-radius: 5px;
   padding: 20px;
   font-size: 14pt;
   margin: 5px;
-  border: 1px groove lightgrey;
+  border: 1px solid green;
+  /*border: 1px groove lightgrey;*/
 
   background: rgb(238,238,238); /* Old browsers */
   background: -moz-linear-gradient(top, rgba(238,238,238,1) 0%, rgba(226,226,226,1) 100%); /* FF3.6-15 */
@@ -58,6 +60,9 @@ label {
   font-size: 14px;
   margin-bottom: 10px;
   line-height: 32px;
+  float: left;
+  padding: 0 1em;
+  text-align: center;
 }
 
 legend {
@@ -67,17 +72,19 @@ legend {
   border-radius: 0;
   border: 0;
   font-size: 14px;
+  font-weight:  bold;
 }
 
 fieldset {
-  margin-bottom: 10px;
+  margin: 10px 0;
+  /*display: block;*/
 }
 
 input:checked {
   border: 6px solid black;
 }
 
-#submit_data {
+.demo_button {
   width: 75%;
   margin: 10px auto;
   display: block;
