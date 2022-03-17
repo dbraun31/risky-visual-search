@@ -6,7 +6,6 @@
   min-width: 1000px;
   margin: 0 auto;
   padding: 0 3%;
-  border: 1px solid red;
 }
 
 .heading{
@@ -19,8 +18,7 @@
   padding: 20px;
   font-size: 14pt;
   margin: 5px;
-  border: 1px solid green;
-  /*border: 1px groove lightgrey;*/
+  border: 1px groove lightgrey;
 
   background: rgb(238,238,238); /* Old browsers */
   background: -moz-linear-gradient(top, rgba(238,238,238,1) 0%, rgba(226,226,226,1) 100%); /* FF3.6-15 */
