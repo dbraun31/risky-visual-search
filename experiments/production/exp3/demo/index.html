@@ -19,12 +19,20 @@ $(document).ready(function(){
 
 	// Top Vars
 	var development = false;
-	var experimentName = 'gaita_exp1';
+	var experimentName = 'gaita_exp1b';
 	var sessionCode = 'demo';
 	var experimentStartTime = urlArgsToVar('experimentStartTime');
 
 	//set initial state of html
 	$('#submit_hit').hide();
+	$('#demo').hide();
+
+	$('#continue').click(function(){
+		$('#cog_effort').hide();
+		$('#demo').show();
+		document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+	})
 
 	$('#submit_data').click(function(){
 		saveData();
@@ -44,6 +52,14 @@ $(document).ready(function(){
 		var race = $("input[type='checkbox'][name = 'race']:checked");
 		var ethnicity = $("input[type='radio'][name = 'ethnicity']:checked");
 		var vision = $("input[type='radio'][name = 'vision']:checked");
+
+		// collect cog effort responses
+		cog_effort_responses = []
+
+		for (i = 1; i < 19; i++) {
+			cog_effort_responses.push($("input[type='radio'][name=q" + i + "]:checked"));
+		}
+
 
 		demo = parseDemos([gender, race, ethnicity, vision]);
     curDate = new Date();
@@ -66,6 +82,14 @@ $(document).ready(function(){
       'comments': $('#comments').val(),          	
     };
 
+    // add cog effort responses to currentData
+
+    for (i = 1; i < 19; i++) {
+    	currentData['cog_effort_q' + i] = cog_effort_responses[i-1];
+    }
+
+    console.log(currentData);
+
     sendToServer(curId, currentData);
 
 	}; // end saveData()
@@ -82,7 +106,7 @@ $(document).ready(function(){
 			url = '../../../../../cgi-bin/saveData_gaita.py',
 			data = dataToServer,
 			success = function(data){
-				$('#debrief').hide();
+				$('#demo').hide();
 				$('#submit_hit').show();
 				console.log('success');
 			}).fail(function(data){
@@ -100,14 +124,375 @@ $(document).ready(function(){
 
 <body>
 
-	<div id = 'debrief' class = 'formContainer'>
+	<div id = 'cog_effort' class = 'formContainer'>
 
-		<div id = 'demo_heading'>
+		<div class = 'heading'>
+			<h3>You are almost done.</h3>
+			<p>Please fill out two short surveys.</p>
+		</div>
+
+		<div class = 'form_container'>
+			<form id = 'demo_form'>
+
+				<h3>Please rate the extent to which you agree with the following statements:</h3>
+
+				<fieldset>
+					<legend>I would prefer complex to simple problems.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q1' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q1' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q1' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q1' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q1' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>I like to have the responsibility of handling a situation that requires a lot of thinking.</legend>
+						<label for='gender1'>Strongly disagree<br />
+						<input type='radio' id = 'q2_1' name = 'q2' value='strongly_disagree' required>
+						</label>
+						<label for='gender2'>Somewhat disagree<br/>
+						<input type='radio' id = 'q2_2' name = 'q2' value='somewhat_disagree'>
+						</label>
+						<label for='gender3'>Neutral<br/>
+						<input type='radio' id = 'q2_3' name = 'q2' value='neutral'>
+						</label>
+						<label for='gender4'>Somewhat agree<br/>
+						<input type='radio' id = 'q2_4' name = 'q2' value='somewhat_agree'>
+						</label>
+						<label for='gender5'>Strongly agree<br/>
+						<input type='radio' id = 'q2_5' name = 'q2' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>Thinking is not my idea of fun.</legend>
+						<label for='gender1'>Strongly disagree<br />
+						<input type='radio' id = 'q3_1' name = 'q3' value='strongly_disagree' required>
+						</label>
+						<label for='gender2'>Somewhat disagree<br/>
+						<input type='radio' id = 'q3_2' name = 'q3' value='somewhat_disagree'>
+						</label>
+						<label for='gender3'>Neutral<br/>
+						<input type='radio' id = 'q3_3' name = 'q3' value='neutral'>
+						</label>
+						<label for='gender4'>Somewhat agree<br/>
+						<input type='radio' id = 'q3_4' name = 'q3' value='somewhat_agree'>
+						</label>
+						<label for='gender5'>Strongly agree<br/>
+						<input type='radio' id = 'q3_5' name = 'q3' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>I would rather do something that requires little thought than something that is sure to challenge my thinking abilities.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q4' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q4' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q4' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q4' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q4' value='strongly_agree'>
+						</label>
+				</fieldset>				
+
+				<fieldset>
+					<legend>I try to anticipate and avoid situations where there is likely chance I will have to think in depth about something.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q5' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q5' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q5' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q5' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q5' value='strongly_agree'>
+						</label>
+				</fieldset>				
+
+				<fieldset>
+					<legend>I find satisfaction in deliberating hard and for long hours.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q6' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q6' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q6' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q6' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q6' value='strongly_agree'>
+						</label>
+				</fieldset>				
+
+				<fieldset>
+					<legend>I only think as hard as I have to.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q7' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q7' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q7' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q7' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q7' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>I prefer to think about small, daily projects to long-term ones.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q8' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q8' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q8' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q8' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q8' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>I like tasks that require little thought once I've learned them.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q9' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q9' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q9' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q9' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q9' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>The idea of relying on thought to make my way to the top appeals to me.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q10' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q10' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q10' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q10' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q10' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>I really enjoy a task that involves coming up with new solutions to problems.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q11' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q11' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q11' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q11' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q11' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>Learning new ways to think doesn't excite me very much.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q12' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q12' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q12' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q12' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q12' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>I prefer my life to be filled with puzzles that I must solve.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q13' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q13' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q13' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q13' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q13' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>The notion of thinking abstractly is appealing to me.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q14' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q14' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q14' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q14' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q14' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>I would prefer a task that is intellectual, difficult, and important to one that is somewhat important but does not require much thought.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q15' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q15' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q15' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q15' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q15' value='strongly_agree'>
+						</label>
+				</fieldset>				
+
+				<fieldset>
+					<legend>I feel relief rather than satisfaction after completing a task that required a lot of mental effort.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q16' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q16' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q16' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q16' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q16' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>It's enough for me that something gets the job done; I don't care how or why it works.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q17' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q17' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q17' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q17' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q17' value='strongly_agree'>
+						</label>
+				</fieldset>
+
+				<fieldset>
+					<legend>I usually end up deliberating about issues even when they do not affect me personally.</legend>
+						<label for=''>Strongly disagree<br />
+						<input type='radio' id = '' name = 'q18' value='strongly_disagree' required>
+						</label>
+						<label for=''>Somewhat disagree<br/>
+						<input type='radio' id = '' name = 'q18' value='somewhat_disagree'>
+						</label>
+						<label for=''>Neutral<br/>
+						<input type='radio' id = '' name = 'q18' value='neutral'>
+						</label>
+						<label for=''>Somewhat agree<br/>
+						<input type='radio' id = '' name = 'q18' value='somewhat_agree'>
+						</label>
+						<label for=''>Strongly agree<br/>
+						<input type='radio' id = '' name = 'q18' value='strongly_agree'>
+						</label>
+				</fieldset>
+				
+	  	</form>
+	  	<button id = 'continue' class = 'experimentButton demo_button'>Continue</button>
+	  </div>
+
+	</div> <!-- end cog_effort div -->
+
+
+	<div id = 'demo' class = 'formContainer'>
+
+		<div class = 'heading'>
 			<h3>You are almost done.</h3>
 			<p>Please fill out this short survey.</p>
 		</div>
 
-		<div id = 'demo_container'>
+		<div class = 'form_container'>
 			<form id = 'demo_form'>
 				<fieldset>
 					<legend>Please fill in your age:* <span style='font-style: italic'>Type "Prefer not to respond" if you'd rather not report your age.</span></legend>
@@ -116,56 +501,75 @@ $(document).ready(function(){
 
 				<fieldset>
 					<legend>How would you describe your gender identity:*</legend>
+						<label for='gender1'>Male<br/>
 						<input type='radio' id = 'gender1' name = 'gender' value='male' required>
-						<label for='gender1'>Male</label>
+						</label>
+						<label for='gender2'>Female<br/>
 						<input type='radio' id = 'gender2' name = 'gender' value='female'>
-						<label for='gender2'>Female</label>
+						</label>
+						<label for='gender3'>Non-Binary<br/>
 						<input type='radio' id = 'gender3' name = 'gender' value='non-binary'>
-						<label for='gender3'>Non-Binary</label>
+						</label>
+						<label for='gender4'>Other Gender<br/>
 						<input type='radio' id = 'gender4' name = 'gender' value='other'>
-						<label for='gender4'>Other Gender</label>
+						</label>
+						<label for='gender5'>Prefer not to Answer<br/>
 						<input type='radio' id = 'gender5' name = 'gender' value='no_answer'>
-						<label for='gender5'>Prefer not to Answer</label>
+						</label>
 					</fieldset>
 
 				<fieldset>
 					<legend>What race do you consider yourself? Please select one or more of the following.*</legend>
+					<label for='white'>White<br/>
 					<input type='checkbox' id = 'white' name = 'race' value='white'>
-					<label for='white'>White</label>
+					</label>
+					<label for='black'>Black or African American<br/>
 					<input type='checkbox' id = 'black' name = 'race' value='black'>
-					<label for='black'>Black or African American</label>
+					</label>
+					<label for='indian'>American Indian or Alaska Native<br/>
 					<input type='checkbox' id = 'indian' name = 'race' value='indian'>
-					<label for='indian'>American Indian or Alaska Native</label>
+					</label>
+					<label for='asian'>Asian<br/>
 					<input type='checkbox' id = 'asian' name = 'race' value='asian'>
-					<label for='asian'>Asian</label>
+					</label>
+					<label for='hawaiian'>Native Hawaiian or Pacific Islander<br/>
 					<input type='checkbox' id = 'hawaiian' name = 'race' value='hawaiian'>
-					<label for='hawaiian'>Native Hawaiian or Pacific Islander</label><br>
+					</label>
+					<label for='other'>Other<br/>
 					<input type='checkbox' id = 'other' name = 'race' value='other'>
-					<label for='other'>Other</label>
+					</label>
+					<label for='no_response'>Prefer not to Respond<br/>
 					<input type='checkbox' id = 'no_response' name = 'race' value='no_response'>
-					<label for='no_response'>Prefer not to Respond</label>					
+					</label>					
 				</fieldset>
 
 				<fieldset>
 					<legend>Please select which of the following you consider yourself to be (select one):*</legend>
+						<label for='hispanic'>Hispanic or Latino<br/>
 						<input type='radio' id = 'hispanic' name = 'ethnicity' value='hispanic' required>
-						<label for='hispanic'>Hispanic or Latino</label>
+						</label>
+						<label for='not_hispanic'>Not Hispanic or Latino<br/>
 						<input type='radio' id = 'not_hispanic' name = 'ethnicity' value='not_hispanic'>
-						<label for='not_hispanic'>Not Hispanic or Latino</label>
+						</label>
+						<label for='no_response'>Prefer not to Respond<br/>
 						<input type='radio' id = 'no_response' name = 'ethnicity' value='no_response'>
-						<label for='no_response'>Prefer not to Respond</label>
+						</label>
 				</fieldset>
 
 				<fieldset>
 					<legend>Please select the option that best describes your vision:*</legend>
+						<label for='normal'>Normal<br/>
 						<input type='radio' id = 'normal' name = 'vision' value='normal' required>
-						<label for='normal'>Normal</label>
+						</label>
+						<label for='corrected'>Corrected to Normal<br/>
 						<input type='radio' id = 'corrected' name = 'vision' value='corrected'>
-						<label for='corrected'>Corrected to Normal</label>
+						</label>
+						<label for='impaired'>Impaired<br/>
 						<input type='radio' id = 'impaired' name = 'vision' value='impaired'>
-						<label for='impaired'>Impaired</label>
+						</label>
+						<label for='no_response'>Prefer not to Respond<br/>
 						<input type='radio' id = 'no_response' name = 'vision' value='no_response'>
-						<label for='no_response'>Prefer not to Respond</label>
+						</label>
 				</fieldset>
 
 				<fieldset>
@@ -173,10 +577,12 @@ $(document).ready(function(){
 					<textarea id = 'comments' style = 'height: 200px; width: 80%; resize: none' placeholder='Comments...'></textarea><br><br>
 				</fieldset>
 	  	</form>
-	  	<button id = 'submit_data' class = 'experimentButton'>Continue</button>
+	  	<button id = 'submit_data' class = 'experimentButton demo_button'>Continue</button>
 	  </div>
 
-	</div> <!-- end debrief div -->
+	</div> 
+	<!-- end demo div -->
+
 
 	<div id = 'submit_hit' class = 'formContainer' style = 'font-size: 12pt;'>
 		<h3>Press the submit button below to get credit on SONA. </h3>

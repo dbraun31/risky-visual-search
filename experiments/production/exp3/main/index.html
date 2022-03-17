@@ -6,17 +6,49 @@
   <title>Risky Visual Search</title>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle.css?v=1'>
-  <link rel='stylesheet' type='text/css' href='../css/exp3Style.css?v=1'>
+  <link rel='stylesheet' type='text/css' href='../../global_css/deckStyle.css'>
+  <link rel='stylesheet' type='text/css' href='../css/exp1Style.css?v=1'>
+  <script src='../js/exp_specific_functions.js?v=5'></script>
   <script src='../../global_js/search_array.js?v=1'></script>
   <script src='../../global_js/TimTurkTools.js'></script>
   <script src='../../global_js/jquery-bbq.js'></script>
-  <script src ='../js/exp3Functions.js'></script>
-  <script src='../js/gambles.js'></script>
 
 <script>
 
+// keyword: check
+
+//  #### COUNTER BALANCE CONDITIONS ####
+
+var condition_order_num = 'na';
+var counterbalance_dict = {0: 'absolute_first', 1: 'relative_first'};
+
+// get counterbalance condition
+$.get('condition_code.txt?v=5', function(data, status){
+  condition_order_num = parseInt(data);
+  console.log('inside get call')
+
+  // save next condition
+  next_condition = condition_order_num == 0 ? 1 : 0;
+  console.log(next_condition);
+  $.post(
+    url = '../../../../../cgi-bin/update_condition_code.py?v=1',
+    data = {'data': next_condition},
+    success = function(data){
+      console.log('Condition code successfully updated.');
+    }).fail(function(data){
+      console.log('CONDITION UPDATE FAILED.');
+    });
+
+});
+
+
 
 $(document).ready(function(){
+// overall timeout to give condition code time to load
+$('.container').hide();
+
+setTimeout(function() {
+$('.container').show();
 // id params
 var sona_id = getParam('sona_id', '');
 var subject = getParam('subject', '');
@@ -25,9 +57,18 @@ var experiment_start_time = urlArgsToVar('experiment_start_time');
 // making things wayy simpler and just controlling everything with a trial count
 // GLOBAL VARS
 var trial_count = 0;
-var trial_threshold = 308;
-var block_interval = 44;
+//var trial_threshold = 308;
+//var block_interval = 44;
+var trial_threshold = 20;
+var block_interval = 5;
 
+// counterbalance condition
+var counterbalance_condition = counterbalance_dict[condition_order_num];  
+
+console.log(counterbalance_condition);
+
+
+// #### end counter balance conditions ####
 
 
 // timing
@@ -36,7 +77,7 @@ var post_choice_wait = 1000;
 var error_timeout = 2000;
 
 var trialStruct = new Array();
-var experimentName = 'gaita_exp1';
+var experimentName = 'gaita_exp3';
 var phase = 'main';
 var phase_start_time = new Date();
 var error = 0;
@@ -50,9 +91,10 @@ var cued_rt = new Date();
 var active_separator = '';
 var cued_response_key = '';
 var choice_response_key = '';
-var gambles = [];
 
 var vid = document.getElementById('tutorial');
+// method for varying video based on condition
+vid.src = "exp1_instructions.mp4";
 var instructions_received = 0;
 
 vid.onended = function() {
@@ -146,7 +188,10 @@ function run_trial() {
   $('#blockRest').hide();
   $('.searchArray').hide();
   $('.deckAttributeContainer').hide();
-
+  $('.deckAttributeSeparator').hide();
+  $('#leftDeckBottom').hide();
+  $('#rightDeckBottom').hide();
+  fill_deck_context(trial_count, trial_threshold, counterbalance_condition);
 
   // look for decks that might have been selected on prev trial and remove the black box around outcome
   if (chosen_deck_location) {
@@ -154,8 +199,9 @@ function run_trial() {
   }
 
 
-  // check against threshold
+  // update conditions and check against threshold
   if (!(trial_count % 4) | trial_count == 0) {
+    condition_order = createConditionOrder();
 
     if (trial_count >= trial_threshold) {
       endSegment();
@@ -167,12 +213,12 @@ function run_trial() {
   current_condition = condition_order[trial_count % 4];
 
   trial_count += 1;
-
+  direction = current_condition['name'] == 'HE' || current_condition['name'] == 'HM' ? 'Harder than Reference' : 'Easier than Reference';
+  magnitude = current_condition['name'] == 'HE' || current_condition['name'] == 'EE' ? 'Extreme' : 'Moderate';
   // Get deck code that maps condition to decks
-  deck_code = get_deck_code(gambles);
+  deck_code = get_deck_code(current_condition);
 
-  update_deck_attributes(deck_code);
-  update_attribute_colors(deck_code);
+  update_deck_attributes(deck_code, direction, counterbalance_condition, trial_count, trial_threshold);
   active_separator = get_active_separator(deck_code);
 
 
@@ -181,9 +227,13 @@ function run_trial() {
     
     // Control Display
     $('.deckAttributeContainer').show();
+    $('#' + active_separator + 'DeckBottom').show();
+    $('#' + active_separator + 'DeckAttributeSeparator').show();
 
     // start rt choice timer
     start_time = new Date();
+
+    console.log(deck_code);
 
     // listen for choice keys
     $(document).bind('keydown.listenForChoiceKeys', function(e){
@@ -201,6 +251,9 @@ function run_trial() {
 
         // stop listening for choice keys
         $(document).unbind('keydown.listenForChoiceKeys');
+
+        // reset cued vars
+        response_count = 0;
 
         // determine outcome
         selected_outcome = determine_outcome(chosen_deck_location, deck_code);
@@ -309,20 +362,23 @@ function save_trial_data() {
     'trial': trial_count,
     'exp_runtime_mins': experiment_start_time ? Math.round((Date.now() - experiment_start_time) / 1000 / 60) : 'null',
     'phase_runtime_mins': Math.round((Date.now() - phase_start_time) / 1000 / 60),
+    'condition': current_condition['name'],
+    'counterbalance_condition': counterbalance_condition,
+    'magnitude': magnitude,
+    'direction': direction,
     'choice_response_key': choice_response_key,
     'search_response_key': search_response_key,
-    'left_deck_outcome_top': deck_code['left']['outcome']['top'],
-    'left_deck_probability_top': deck_code['left']['probability']['top'],
-    'left_deck_outcome_bottom': deck_code['left']['outcome']['bottom'],
-    'left_deck_probability_bottom': deck_code['left']['probability']['bottom'],
-    'right_deck_outcome_top': deck_code['right']['outcome']['top'],
-    'right_deck_probability_top': deck_code['right']['probability']['top'],
-    'right_deck_outcome_bottom': deck_code['right']['outcome']['bottom'],
-    'right_deck_probability_bottom': deck_code['right']['probability']['bottom'],
+    'left_deck_id': deck_code['left']['name'],
+    'right_deck_id': deck_code['right']['name'],
+    'risky_deck_outcome_top': risky_deck_outcome[0],
+    'risky_deck_outcome_bottom': risky_deck_outcome[1],
+    'safe_deck_outcome': safe_deck_outcome,
     'selected_deck_location': chosen_deck_location,
+    'selectedRiskyDeck': selectedRiskyDeck,
     'error': error,
     'n_stimuli': 32 + selected_outcome['outcome'],
     'present_or_absent': present_or_absent,
+    'chosenDeckId': deck_code[chosen_deck_location]['name'],
     'choice_rt': choice_rt,
     'search_rt': search_rt
   });
@@ -381,6 +437,7 @@ function sendToServer(subject, currentData) {
 
 } // end sendToServer()
 
+}, 1000); // end global timeout
 
 }); // end document.ready()
 
@@ -407,7 +464,7 @@ function sendToServer(subject, currentData) {
 
         
           <video id='tutorial' width='510' height='290' controls>
-            <source src = "exp1_instructions.mp4" type = "video/mp4">
+            <source type = "video/mp4">
           </video>
         
 
@@ -484,7 +541,6 @@ function sendToServer(subject, currentData) {
       <div class='bottomHalf'>
         <div class='deckOutline' id='leftDeck'>
           <div class='deckAttributeContext'>
-            <p>Extra Objects (Probability)</p>
           </div>
           <div class='deckAttributeContainer'>
             <div class='deckAttribute' id='leftDeckTop'>
@@ -499,7 +555,6 @@ function sendToServer(subject, currentData) {
 
         <div class='deckOutline' id='rightDeck'>
           <div class='deckAttributeContext'>
-            <p>Extra Objects (Probability)</p>
           </div>
           <div class='deckAttributeContainer'>
             <div class='deckAttribute' id='rightDeckTop'>

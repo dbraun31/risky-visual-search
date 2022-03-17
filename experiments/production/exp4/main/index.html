@@ -6,14 +6,15 @@
   <title>Risky Visual Search</title>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle.css?v=1'>
-  <link rel='stylesheet' type='text/css' href='../../global_css/deckStyle.css'>
-  <link rel='stylesheet' type='text/css' href='../css/exp1Style.css?v=1'>
-  <script src='../js/exp1bFunctions.js?v=5'></script>
+  <link rel='stylesheet' type='text/css' href='../css/exp3Style.css?v=1'>
   <script src='../../global_js/search_array.js?v=1'></script>
   <script src='../../global_js/TimTurkTools.js'></script>
   <script src='../../global_js/jquery-bbq.js'></script>
+  <script src ='../js/exp3Functions.js'></script>
+  <script src='../js/gambles.js'></script>
 
 <script>
+
 
 $(document).ready(function(){
 // id params
@@ -49,6 +50,7 @@ var cued_rt = new Date();
 var active_separator = '';
 var cued_response_key = '';
 var choice_response_key = '';
+var gambles = [];
 
 var vid = document.getElementById('tutorial');
 var instructions_received = 0;
@@ -144,9 +146,7 @@ function run_trial() {
   $('#blockRest').hide();
   $('.searchArray').hide();
   $('.deckAttributeContainer').hide();
-  $('.deckAttributeSeparator').hide();
-  $('#leftDeckBottom').hide();
-  $('#rightDeckBottom').hide();
+
 
   // look for decks that might have been selected on prev trial and remove the black box around outcome
   if (chosen_deck_location) {
@@ -154,9 +154,8 @@ function run_trial() {
   }
 
 
-  // update conditions and check against threshold
+  // check against threshold
   if (!(trial_count % 4) | trial_count == 0) {
-    condition_order = createConditionOrder();
 
     if (trial_count >= trial_threshold) {
       endSegment();
@@ -168,13 +167,12 @@ function run_trial() {
   current_condition = condition_order[trial_count % 4];
 
   trial_count += 1;
-  direction = current_condition['name'] == 'HE' || current_condition['name'] == 'HM' ? 'Harder than Reference' : 'Easier than Reference';
-  magnitude = current_condition['name'] == 'HE' || current_condition['name'] == 'EE' ? 'Extreme' : 'Moderate';
-  // Get deck code that maps condition to decks
-  deck_code = get_deck_code(current_condition);
 
-  update_deck_attributes(deck_code, direction);
-  updateAttributeColors(deck_code);
+  // Get deck code that maps condition to decks
+  deck_code = get_deck_code(gambles);
+
+  update_deck_attributes(deck_code);
+  update_attribute_colors(deck_code);
   active_separator = get_active_separator(deck_code);
 
 
@@ -183,8 +181,6 @@ function run_trial() {
     
     // Control Display
     $('.deckAttributeContainer').show();
-    $('#' + active_separator + 'DeckBottom').show();
-    $('#' + active_separator + 'DeckAttributeSeparator').show();
 
     // start rt choice timer
     start_time = new Date();
@@ -205,9 +201,6 @@ function run_trial() {
 
         // stop listening for choice keys
         $(document).unbind('keydown.listenForChoiceKeys');
-
-        // reset cued vars
-        response_count = 0;
 
         // determine outcome
         selected_outcome = determine_outcome(chosen_deck_location, deck_code);
@@ -316,22 +309,20 @@ function save_trial_data() {
     'trial': trial_count,
     'exp_runtime_mins': experiment_start_time ? Math.round((Date.now() - experiment_start_time) / 1000 / 60) : 'null',
     'phase_runtime_mins': Math.round((Date.now() - phase_start_time) / 1000 / 60),
-    'condition': current_condition['name'],
-    'magnitude': magnitude,
-    'direction': direction,
     'choice_response_key': choice_response_key,
     'search_response_key': search_response_key,
-    'left_deck_id': deck_code['left']['name'],
-    'right_deck_id': deck_code['right']['name'],
-    'risky_deck_outcome_top': risky_deck_outcome[0],
-    'risky_deck_outcome_bottom': risky_deck_outcome[1],
-    'safe_deck_outcome': safe_deck_outcome,
+    'left_deck_outcome_top': deck_code['left']['outcome']['top'],
+    'left_deck_probability_top': deck_code['left']['probability']['top'],
+    'left_deck_outcome_bottom': deck_code['left']['outcome']['bottom'],
+    'left_deck_probability_bottom': deck_code['left']['probability']['bottom'],
+    'right_deck_outcome_top': deck_code['right']['outcome']['top'],
+    'right_deck_probability_top': deck_code['right']['probability']['top'],
+    'right_deck_outcome_bottom': deck_code['right']['outcome']['bottom'],
+    'right_deck_probability_bottom': deck_code['right']['probability']['bottom'],
     'selected_deck_location': chosen_deck_location,
-    'selectedRiskyDeck': selectedRiskyDeck,
     'error': error,
     'n_stimuli': 32 + selected_outcome['outcome'],
     'present_or_absent': present_or_absent,
-    'chosenDeckId': deck_code[chosen_deck_location]['name'],
     'choice_rt': choice_rt,
     'search_rt': search_rt
   });
@@ -493,7 +484,7 @@ function sendToServer(subject, currentData) {
       <div class='bottomHalf'>
         <div class='deckOutline' id='leftDeck'>
           <div class='deckAttributeContext'>
-            <p>Extra Objects:</p>
+            <p>Extra Objects (Probability)</p>
           </div>
           <div class='deckAttributeContainer'>
             <div class='deckAttribute' id='leftDeckTop'>
@@ -508,7 +499,7 @@ function sendToServer(subject, currentData) {
 
         <div class='deckOutline' id='rightDeck'>
           <div class='deckAttributeContext'>
-            <p>Extra Objects:</p>
+            <p>Extra Objects (Probability)</p>
           </div>
           <div class='deckAttributeContainer'>
             <div class='deckAttribute' id='rightDeckTop'>

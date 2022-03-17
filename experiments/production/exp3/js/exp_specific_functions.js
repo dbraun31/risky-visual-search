@@ -263,7 +263,7 @@ function determine_outcome(chosen_deck_location, deck_code) {
 
 }
 
-function update_deck_attributes(deckCode, direction) {
+function update_deck_attributes(deckCode, direction, counterbalance_condition, trial_count, trial_threshold) {
   // this function became a bit of a mess, but it should be working
 
   plus_or_nothing = direction == 'Harder than Reference' ? '+' : '';
@@ -291,10 +291,15 @@ function update_deck_attributes(deckCode, direction) {
     outcome_string = deckCode[left_right[horizontal]]['outcome'][top_bottom[vertical]];
 
     
-    if (outcome_string) {
-      // if it's not the reference outcome
-      outcome_string = plus_or_nothing + outcome_string;
-    } 
+    if ((counterbalance_condition == 'absolute_first' && trial_count <= trial_threshold/2) || (counterbalance_condition == 'relative_first' && trial_count > trial_threshold/2)) {
+      outcome_string += 32
+    } else {
+
+      if (outcome_string) {
+        // if it's not the reference outcome
+        outcome_string = plus_or_nothing + outcome_string;
+      } 
+    }
 
 
     $('#' + left_right[horizontal] + 'Deck' + jsUcfirst(top_bottom[vertical])).html('<p>' + outcome_string + '</p>');
@@ -312,59 +317,6 @@ function get_active_separator(deckCode) {
   return 'right'
 }
 
-
-
-// dealing with colors
-
-function updateAttributeColors(deckCode){
-  // clumsy approach, but it should work
-
-  red = '(150, 0, 0)'
-  green = '(0, 150, 0)'
-
-  // if left deck is safe deck
-  if (deckCode['left']['name'] == 'safeDeck') {
-
-    updateParam = deckCode['right']['outcome']['top'] == 0 ? 'bottom' : 'top';
-    blackParam = updateParam == 'bottom' ? 'top' : 'bottom';
-
-
-    // if all losses, make font red
-    if (deckCode['left']['outcome']['top'] > 0) {
-      $('#leftDeckTop').css({'color': 'rgb' + red});
-      $('#rightDeck' + jsUcfirst(updateParam)).css({'color': 'rgb' + red});
-
-    // if all gains, make font green
-    } else {
-      $('#leftDeckTop').css({'color': 'rgb' + green});
-      $('#rightDeck' + jsUcfirst(updateParam)).css({'color': 'rgb' + green});
-    }
-
-    $('#rightDeck' + jsUcfirst(blackParam)).css({'color': 'black'});
-
-  
-  // if right deck is safe deck
-  } else {
-
-    updateParam = deckCode['left']['outcome']['top'] == 0 ? 'bottom' : 'top';
-    blackParam = updateParam == 'bottom' ? 'top' : 'bottom';
-
-    // if all losses, make font red
-    if (deckCode['right']['outcome']['top'] > 0) {
-      $('#rightDeckTop').css({'color': 'rgb' + red});
-      $('#leftDeck' + jsUcfirst(updateParam)).css({'color': 'rgb' + red});
-
-    // if all gains, make font green
-    } else {
-      $('#rightDeckTop').css({'color': 'rgb' + green});
-      $('#leftDeck' + jsUcfirst(updateParam)).css({'color': 'rgb' + green});
-    }
-
-    $('#leftDeck' + jsUcfirst(blackParam)).css({'color': 'black'});
-
-  }
-
-}
 
 function translateSwitchToColor(outcome) {
   // making it so that the ends of the switching limits that subjects will see in the exp (i.e., 2 and 14) correspond to the ends of the color spectrum
@@ -390,4 +342,14 @@ function jsUcfirst(string) {
 function compute_remaining_blocks(trial_threshold, block_interval, trial_count) {
   total_blocks = trial_threshold / block_interval
   return total_blocks - (trial_count / trial_threshold) * total_blocks
+}
+
+
+
+function fill_deck_context(trial_count, trial_threshold, counterbalance_condition) {
+  fill_string = 'Extra Objects';
+  if ((counterbalance_condition == 'absolute_first' && trial_count <= trial_threshold/2) || (counterbalance_condition == 'relative_first' && trial_count > trial_threshold/2)) {
+    fill_string = 'Total Objects';
+  }
+    $('.deckAttributeContext').html('<p>' + fill_string + '</p>');
 }
