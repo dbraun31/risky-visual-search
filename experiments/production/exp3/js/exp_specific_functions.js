@@ -347,6 +347,8 @@ function compute_remaining_blocks(trial_threshold, block_interval, trial_count) 
 
 
 function fill_deck_context(trial_count, trial_threshold, counterbalance_condition) {
+  console.log(trial_count)
+  console.log(trial_threshold)
   fill_string = 'Extra Objects';
   if ((counterbalance_condition == 'absolute_first' && trial_count <= trial_threshold/2) || (counterbalance_condition == 'relative_first' && trial_count > trial_threshold/2)) {
     fill_string = 'Total Objects';

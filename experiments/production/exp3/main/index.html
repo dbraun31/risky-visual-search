@@ -15,40 +15,9 @@
 
 <script>
 
-// keyword: check
-
-//  #### COUNTER BALANCE CONDITIONS ####
-
-var condition_order_num = 'na';
-var counterbalance_dict = {0: 'absolute_first', 1: 'relative_first'};
-
-// get counterbalance condition
-$.get('condition_code.txt?v=5', function(data, status){
-  condition_order_num = parseInt(data);
-  console.log('inside get call')
-
-  // save next condition
-  next_condition = condition_order_num == 0 ? 1 : 0;
-  console.log(next_condition);
-  $.post(
-    url = '../../../../../cgi-bin/update_condition_code.py?v=1',
-    data = {'data': next_condition},
-    success = function(data){
-      console.log('Condition code successfully updated.');
-    }).fail(function(data){
-      console.log('CONDITION UPDATE FAILED.');
-    });
-
-});
-
-
 
 $(document).ready(function(){
-// overall timeout to give condition code time to load
-$('.container').hide();
 
-setTimeout(function() {
-$('.container').show();
 // id params
 var sona_id = getParam('sona_id', '');
 var subject = getParam('subject', '');
@@ -63,12 +32,9 @@ var trial_threshold = 20;
 var block_interval = 5;
 
 // counterbalance condition
-var counterbalance_condition = counterbalance_dict[condition_order_num];  
-
-console.log(counterbalance_condition);
+var counterbalance_condition = 'relative_first';  
 
 
-// #### end counter balance conditions ####
 
 
 // timing
@@ -92,13 +58,32 @@ var active_separator = '';
 var cued_response_key = '';
 var choice_response_key = '';
 
-var vid = document.getElementById('tutorial');
-// method for varying video based on condition
-vid.src = "exp1_instructions.mp4";
-var instructions_received = 0;
+var initial_vid = document.getElementById('tutorial');
+var interim_vid = document.getElementById('interim_tutorial'); 
 
-vid.onended = function() {
+
+// method for varying video based on condition
+if (counterbalance_condition == 'relative_first') {
+  initial_vid.src = "relative_first_a.mp4";
+  interim_vid.src = 'relative_first_b.mp4'
+  document.getElementById('initial_subtitles').src = 'relative_first_a_transcript.vtt';
+  document.getElementById('interim_subtitles').src = 'relative_first_b_transcript.vtt';
+} else{
+  initial_vid.src = 'absolute_first_a.mp4'
+  interim_vid.src = 'absolute_first_b.mp4'
+  document.getElementById('initial_subtitles').src = 'absolute_first_a_transcript.vtt';
+  document.getElementById('interim_subtitles').src = 'absolute_first_b_transcript.vtt';
+}
+
+var instructions_received = 0;
+var interim_instructions_received = 0;
+
+initial_vid.onended = function() {
   instructions_received = 1;
+}
+
+interim_vid.onended = function() {
+  interim_instructions_received = 1;
 }
 
 
@@ -123,7 +108,7 @@ $('#blockRest').hide();
 $('#detail').click(function(){
   $('#titleSlide').hide();
   $('#detailSlide').show();
-  vid.pause();
+  initial_vid.pause();
 });
 
 $('.resetTitle').click(function(){
@@ -136,13 +121,12 @@ $('#seeKeys').click(function(){
   if (instructions_received) {
     $('#keyRemindSlide').show();
     $('#titleSlide').hide();
-    vid.pause();
+    initial_vid.pause();
   } else {
-    vid.pause();
+    initial_vid.pause();
     alert('Please finish the video before continuing.');
   }
 });
-
 
 
 $('#seeKeysFromDetailSlide').click(function(){
@@ -169,16 +153,31 @@ function startSegment() {
 // i *think* what happens is if you put this code inside a function that gets called multiple times, you're binding a new event handler to the button press each time this code is run. Which is why on the third block (ie, the second time you push this button) you get two handlers. Keeping this code out here seems to work bc it's only defined once.
 // seems to work
 $('#nextBlock').click(function(){
-    $('.expSlide').show();
-    run_trial();
+    if (trial_count == trial_threshold/2) {
+      if (interim_instructions_received) {
+        interim_vid.pause();
+        $('.expSlide').show();
+        run_trial();
+      } else {
+        interim_vid.pause();
+        alert('Please finish the video before continuing.')
+      }
+    } else{
+      $('.expSlide').show();
+      run_trial();
+    }
 });
 
 function block_rest() {
   $('.searchArray').hide();
+  $('#vid_container').hide();
   $('#blockRest').show();
   remaining_blocks = compute_remaining_blocks(trial_threshold = trial_threshold, block_interval = block_interval, trial_count = trial_count);
   s = remaining_blocks == 1 ? '' : 's';
   $('#blockText').html('<p>That was the end of that block of trials. You have ' + remaining_blocks + ' block' + s +' left to go.\nPress the button below to continue.</p>')  
+  if (trial_count == trial_threshold/2) {
+    $('#vid_container').show();
+  }
 }
 
 
@@ -191,7 +190,7 @@ function run_trial() {
   $('.deckAttributeSeparator').hide();
   $('#leftDeckBottom').hide();
   $('#rightDeckBottom').hide();
-  fill_deck_context(trial_count, trial_threshold, counterbalance_condition);
+  
 
   // look for decks that might have been selected on prev trial and remove the black box around outcome
   if (chosen_deck_location) {
@@ -219,6 +218,7 @@ function run_trial() {
   deck_code = get_deck_code(current_condition);
 
   update_deck_attributes(deck_code, direction, counterbalance_condition, trial_count, trial_threshold);
+  fill_deck_context(trial_count, trial_threshold, counterbalance_condition);
   active_separator = get_active_separator(deck_code);
 
 
@@ -232,8 +232,6 @@ function run_trial() {
 
     // start rt choice timer
     start_time = new Date();
-
-    console.log(deck_code);
 
     // listen for choice keys
     $(document).bind('keydown.listenForChoiceKeys', function(e){
@@ -437,8 +435,6 @@ function sendToServer(subject, currentData) {
 
 } // end sendToServer()
 
-}, 1000); // end global timeout
-
 }); // end document.ready()
 
 </script>
@@ -465,6 +461,7 @@ function sendToServer(subject, currentData) {
         
           <video id='tutorial' width='510' height='290' controls>
             <source type = "video/mp4">
+            <track id='initial_subtitles' label='English' kind='subtitles' srclang ='en'>
           </video>
         
 
@@ -517,7 +514,12 @@ function sendToServer(subject, currentData) {
       <div class='titleBar' id='blockText'>
       </div>
 
-      <div class='leftTwoThirds' id='controlsFill'>
+      <div class='leftTwoThirds' id='vid_container'>
+        <p>There is one small change throughout the rest of the experiment. Watch the short instructional video before continuing.</p>
+        <video id='interim_tutorial' width='510' height='290' controls>
+            <source type = "video/mp4">
+            <track id='interim_subtitles' label='English' kind='subtitles' srclang ='en'>
+        </video>
       </div>
 
       <div class='rightOneThirdsDown'>
