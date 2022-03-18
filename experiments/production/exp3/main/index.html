@@ -33,6 +33,7 @@ var block_interval = 5;
 
 // counterbalance condition
 var counterbalance_condition = 'relative_first';  
+var current_counterbalance_condition = counterbalance_condition == 'relative_first' ? 'relative' : 'absolute';
 
 
 
@@ -177,6 +178,7 @@ function block_rest() {
   $('#blockText').html('<p>That was the end of that block of trials. You have ' + remaining_blocks + ' block' + s +' left to go.\nPress the button below to continue.</p>')  
   if (trial_count == trial_threshold/2) {
     $('#vid_container').show();
+    current_condtion = current_counterbalance_condition == 'relative' ? 'absolute' : 'relative';
   }
 }
 
@@ -362,6 +364,7 @@ function save_trial_data() {
     'phase_runtime_mins': Math.round((Date.now() - phase_start_time) / 1000 / 60),
     'condition': current_condition['name'],
     'counterbalance_condition': counterbalance_condition,
+    'current_counterbalance_condition': current_counterbalance_condition,
     'magnitude': magnitude,
     'direction': direction,
     'choice_response_key': choice_response_key,

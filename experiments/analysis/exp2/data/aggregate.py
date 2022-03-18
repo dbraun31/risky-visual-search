@@ -2,9 +2,7 @@ import pandas as pd
 import sys
 import re
 import os
-import glob
 
-full_path = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/practical_new_world/gaita/experiments/analysis/exp3/data/raw/'
 
 
 def aggregate_main(file):
@@ -27,19 +25,23 @@ def aggregate_main(file):
 
 
 if __name__ == '__main__':
+	args = sys.argv[1:]
 
-	files = glob.glob(full_path + '*.txt')
+	if not args:
+		print('Usage: all_data.txt')
+		sys.exit(1)
+
 
 	main = []
 	demo = []
 
-	for file in files:
+	for file in args:
 		if 'main' in file:
 			main += aggregate_main(file)
 		else:
 			demo.append(eval(open(file, 'r').read()))
 
-	exp_number = re.search(r'exp(\d)', full_path).group(1)
+	exp_number = re.search(r'exp(\d)', os.getcwd()).group(1)
 
-	pd.DataFrame(main).to_csv(full_path + '/../exp' + exp_number + '_main_raw.csv', index = False)
-	pd.DataFrame(demo).to_csv(full_path + '/../exp' + exp_number + '_demo.csv', index = False)
+	pd.DataFrame(main).to_csv('../exp' + exp_number + '_main_raw.csv', index = False)
+	pd.DataFrame(demo).to_csv('../exp' + exp_number + '_demo.csv', index = False)

@@ -6,6 +6,7 @@
 <link rel='stylesheet' type='text/css' href='../../global_css/deckStyle.css'>
 <link rel='stylesheet' type='text/css' href='../../global_css/demo.css?v=4'>
 <script src='../js/exp_functions.js?v=3'></script>
+<script src='../js/sona_data.js'></script>
 <script src='../../global_js/globalFunctions.js'></script>
 <script src='../../global_js/TimTurkTools.js'></script>
 <script src='../../global_js/jquery-bbq.js'></script>
@@ -19,7 +20,7 @@ $(document).ready(function(){
 
 	// Top Vars
 	var development = false;
-	var experimentName = 'gaita_exp1b';
+	var experimentName = 'gaita_exp3';
 	var sessionCode = 'demo';
 	var experimentStartTime = urlArgsToVar('experimentStartTime');
 
@@ -40,8 +41,8 @@ $(document).ready(function(){
 
 	$('#finish_study').click(function(){
 		var sona_id = getParam('sona_id', '');
-		var url_args = {'experiment_id': '295',
-										'credit_token': 'c3606fada0c4412ebd5e0783fdfc5189',
+		var url_args = {'experiment_id': experiment_id,
+										'credit_token': credit_token,
 										'survey_code': sona_id};
 		window.location.replace('https://lehigh.sona-systems.com/webstudy_credit.aspx?' + $.param(url_args));
 	});
