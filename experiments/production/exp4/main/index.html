@@ -6,11 +6,11 @@
   <title>Risky Visual Search</title>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle.css?v=1'>
-  <link rel='stylesheet' type='text/css' href='../css/exp3Style.css?v=1'>
+  <link rel='stylesheet' type='text/css' href='../css/exp_style.css?v=1'>
   <script src='../../global_js/search_array.js?v=1'></script>
   <script src='../../global_js/TimTurkTools.js'></script>
   <script src='../../global_js/jquery-bbq.js'></script>
-  <script src ='../js/exp3Functions.js'></script>
+  <script src ='../js/exp_functions.js?v=5'></script>
   <script src='../js/gambles.js'></script>
 
 <script>
@@ -20,7 +20,9 @@ $(document).ready(function(){
 // id params
 var sona_id = getParam('sona_id', '');
 var subject = getParam('subject', '');
+var pilot = getParam('pilot', '');
 var experiment_start_time = urlArgsToVar('experiment_start_time');
+
 
 // making things wayy simpler and just controlling everything with a trial count
 // GLOBAL VARS
@@ -28,15 +30,13 @@ var trial_count = 0;
 var trial_threshold = 308;
 var block_interval = 44;
 
-
-
 // timing
 var pre_choice_wait = 500;
 var post_choice_wait = 1000;
 var error_timeout = 2000;
 
 var trialStruct = new Array();
-var experimentName = 'gaita_exp1';
+var experimentName = 'gaita_exp4';
 var phase = 'main';
 var phase_start_time = new Date();
 var error = 0;
@@ -68,7 +68,6 @@ var present_or_absent = '';
 
 
 // set initial state
-$('#detailSlide').hide();
 $('#keyRemindSlide').hide();
 $('.expSlide').hide();
 $('#blockTransitionSlide').hide();
@@ -77,18 +76,6 @@ $('.searchArray').hide();
 $('#blockRest').hide();
 
 
-// button controls
-$('#detail').click(function(){
-  $('#titleSlide').hide();
-  $('#detailSlide').show();
-  vid.pause();
-});
-
-$('.resetTitle').click(function(){
-  $('#titleSlide').show();
-  $('#detailSlide').hide();
-  $('#keyRemindSlide').hide();
-});
 
 $('#seeKeys').click(function(){
   if (instructions_received) {
@@ -101,12 +88,6 @@ $('#seeKeys').click(function(){
   }
 });
 
-
-
-$('#seeKeysFromDetailSlide').click(function(){
-  $('#detailSlide').hide();
-  $('#keyRemindSlide').show();
-});
 
 $('#startSegment').click(function(){
   startSegment();
@@ -402,34 +383,22 @@ function sendToServer(subject, currentData) {
         </div>
 
         <div class='leftTwoThirds'>
-          <p>That is it for the practice. The next phase will run throughout most of the rest of the experiment (about 25 min). Watch the video below to get final instructions before beginning. <i class='small'>(Runtime: 2 min 05 sec)</i>.</p><br>
-          <p class='small'>If you don't have speakers, you can click "See Text Instructions" to read the instructions in text form.</p>
+          <p>That is it for the practice. The next phase will run throughout most of the rest of the experiment (about 25 min). Watch the video below to get final instructions before beginning. <i class='small'>(Runtime: ~2 min)</i>.</p><br>
+          <p class='small'>If you don't have speakers, you can turn on captions on the video.</p>
 
         
           <video id='tutorial' width='510' height='290' controls>
-            <source src = "exp1_instructions.mp4" type = "video/mp4">
+            <source src = "exp4_instructions.mp4" type = "video/mp4">
+            <track label='English' kind='subtitles' srclang='en' src='exp4_instructions_captions.vtt?v=1'>
           </video>
         
 
         </div>
 
         <div class='rightOneThirdsDown'>
-          <button id='detail' class='experimentButton center smallButton'>See Text Instructions</button>
           <button id='seeKeys' class='experimentButton center'>See Controls</button>
         </div>
       </div> <!-- end title slide -->
-
-    <!-- BEGIN DETAIL SLIDE -->
-    <div id='detailSlide'>
-      <div class='textInstructionsContainer'>
-      <p>In that last practice phase, you searched through 32 objects on each screen. We’ve had a lot of people take this study, and most people would say that’s about a medium level of difficulty. If we added objects to the array, the search would become more difficult; if we took objects away, the search would become easier. Throughout the rest of this experiment, you're going to be seeing two options appearing on the screen. The outcomes on these options tell you how many more or fewer objects than 32 will appear in the search array. For example, the outcome "0" means you'll be searching through 32 objects. The outcome "-14" means you'll be searching through 14 objects fewer than 32. You'll notice one of these options always has two outcomes, while the other option only has one. This option with two outcomes is like a "risky" option, because it's like flipping a coin to determine which outcome you'll get. The other option is a safe option, because if you choose this option you will always get the one outcome displayed on this option. If you make an error, like signal that the target is absent when it is indeed present, you'll see the word "ERROR" appear on the screen. These error screens will slow down your overall progress---so more errors means you're completing a longer experiment. Throughout the experiment, you will periodically encounter breaks after a period of trials. Feel free to take a rest during these breaks before continuing. When you're ready to begin this phase, you can press the "See Controls" button below to see you controls before beginning.</p>
-    </div>
-
-      <div class='rightOneThirdsDown'>
-        <button class='experimentButton resetTitle smallButton textInstructionsButtons'>Go Back</button>
-        <button class='experimentButton textInstructionsButtons' id='seeKeysFromDetailSlide'>See Controls</button>
-      </div>
-    </div> <!-- end detail slide -->
 
 
 
@@ -488,11 +457,15 @@ function sendToServer(subject, currentData) {
           </div>
           <div class='deckAttributeContainer'>
             <div class='deckAttribute' id='leftDeckTop'>
+              <div class='deckOutcome' id='leftDeckTopOutcome'></div>
+              <div class='deckProbability' id='leftDeckTopProbability'></div>
             </div>
             <div class='deckAttributeSeparator' id='leftDeckAttributeSeparator'>
               <p>OR</p>
             </div>                   
             <div class='deckAttribute' id='leftDeckBottom'>
+              <div class='deckOutcome' id='leftDeckBottomOutcome'></div>
+              <div class='deckProbability' id='leftDeckBottomProbability'></div>
             </div>
           </div>
         </div>
@@ -503,11 +476,15 @@ function sendToServer(subject, currentData) {
           </div>
           <div class='deckAttributeContainer'>
             <div class='deckAttribute' id='rightDeckTop'>
+              <div class='deckOutcome' id='rightDeckTopOutcome'></div>
+              <div class='deckProbability' id='rightDeckTopProbability'></div>
             </div>
             <div class='deckAttributeSeparator' id='rightDeckAttributeSeparator'>
               <p>OR</p>
             </div>                   
             <div class='deckAttribute' id='rightDeckBottom'>
+              <div class='deckOutcome' id='rightDeckBottomOutcome'></div>
+              <div class='deckProbability' id='rightDeckBottomProbability'></div>
             </div>
           </div>
         </div>
