@@ -5,7 +5,7 @@
 <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle.css'>
 <link rel='stylesheet' type='text/css' href='../../global_css/deckStyle.css'>
 <link rel='stylesheet' type='text/css' href='../../global_css/demo.css?v=4'>
-<script src='../js/exp3Functions.js?v=3'></script>
+<script src='../js/exp_functions.js?v=3'></script>
 <script src='../../global_js/globalFunctions.js'></script>
 <script src='../../global_js/TimTurkTools.js'></script>
 <script src='../../global_js/jquery-bbq.js'></script>
@@ -57,7 +57,7 @@ $(document).ready(function(){
 		cog_effort_responses = []
 
 		for (i = 1; i < 19; i++) {
-			cog_effort_responses.push($("input[type='radio'][name=q" + i + "]:checked"));
+			cog_effort_responses.push($("input[type='radio'][name=q" + i + "]:checked")[0]['value']);
 		}
 
 
