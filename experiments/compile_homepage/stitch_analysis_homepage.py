@@ -69,7 +69,7 @@ output:
 
 
   
-  with open('analysis_homepage.Rmd', 'w') as file:
+  with open('/home/dave/Dropbox (Lehigh University)/post_doc/professional/practical_new_world/gaita/experiments/compile_homepage/analysis_homepage.Rmd', 'w') as file:
     file.write(body)
 
   file.close()
