@@ -1,0 +1,2 @@
+python stitch_analysis_homepage.py
+Rscript knit_analysis_homepage.r

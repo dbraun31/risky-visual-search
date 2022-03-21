@@ -1,7 +1,7 @@
 ---
 title: 'Risky Visual Search - Experiment 1 Performance Analysis'
 author: 'Dave Braun'
-date: March 3, 2022
+date: '`r format(Sys.time(), "%b %d %Y, %H:%M:%S")`'
 output:
   html_document:
     theme: flatly

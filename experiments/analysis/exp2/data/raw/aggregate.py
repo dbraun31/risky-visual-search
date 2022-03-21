@@ -4,7 +4,7 @@ import re
 import os
 import glob
 
-full_path = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/practical_new_world/gaita/experiments/analysis/exp3/data/raw/'
+full_path = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/practical_new_world/gaita/experiments/analysis/exp2/data/raw/'
 
 
 def aggregate_main(file):

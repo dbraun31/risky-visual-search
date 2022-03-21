@@ -1,7 +1,7 @@
 ---
 title: 'Risky Visual Search - Experiment 1 Choice Analysis'
 author: 'Dave Braun'
-date: March 3, 2022
+date: '`r format(Sys.time(), "%b %d %Y, %H:%M:%S")`'
 output:
   html_document:
     theme: flatly
@@ -66,6 +66,17 @@ d %>%
   group_by(subject, direction) %>% 
   summarize(ssd = mean(ssd)) %>% 
   ggplot(aes(x = direction, y = ssd)) + 
+  geom_violin(fill = 'steelblue', alpha = .2) + 
+  geom_boxplot(fill = NA) + 
+  geom_jitter(width = .05, alpha = .7) + 
+  geom_line(aes(group = subject), linetype = 'dashed', alpha = .7) +
+  ylim(0,1) +
+  labs(
+    x = 'Direction',
+    y = 'Proportion Selection of Safe Option'
+  ) + 
+  theme_bw()
+
 ```
 
 

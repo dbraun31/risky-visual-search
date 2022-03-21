@@ -1,0 +1,14 @@
+---
+title: "NHI - Visual Search Experiments"
+author: "Dave Braun"
+date: `r format(Sys.time(), '%b %d %Y %X')`
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    include:
+      in_header: ../../../../html/favicon.html
+      after_body: ../../../../html/footer.html
+---
+
+

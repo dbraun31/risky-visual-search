@@ -1,0 +1,1 @@
+rmarkdown::render('analysis_homepage.Rmd', encoding = encoding, output_file = '../analysis/index.html')
