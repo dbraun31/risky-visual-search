@@ -4,7 +4,7 @@
 	<script type = 'text/javascript' src = 'https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'></script>
 	<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
 	<script src = '../globalJs/TimTurkTools.js'></script>
-	<script src = 'js/exp3Functions.js'></script>
+	<script src = 'js/exp_functions.js'></script>
 
 	<script>
 		$(document).ready(function(){
@@ -25,6 +25,7 @@
 			}
 
 			var sona_id = getParam('id', 'error');
+			var pilot = getParam('pilot', '');
 			
 			if (sona_id == 'error' | sona_id == '') {
 				$('#error').show();
@@ -57,7 +58,8 @@
 				//otherwise, send to instruction screen
 
 			urlArgs = {
-				'id': sona_id
+				'id': sona_id,
+				'pilot': pilot
 			}
 
 			window.location.replace('prac/?' + $.param(urlArgs));
