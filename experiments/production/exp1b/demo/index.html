@@ -22,6 +22,7 @@ $(document).ready(function(){
 	var development = false;
 	var sessionCode = 'demo';
 	var experimentStartTime = urlArgsToVar('experimentStartTime');
+	var experimentName = 'gaita_exp1b';
 
 	//set initial state of html
 	$('#submit_hit').hide();
@@ -57,7 +58,12 @@ $(document).ready(function(){
 		cog_effort_responses = []
 
 		for (i = 1; i < 19; i++) {
-			cog_effort_responses.push($("input[type='radio'][name='q" + i + "']:checked")[0]['value']);
+			try {
+				cog_effort_responses.push($("input[type='radio'][name='q" + i + "']:checked")[0]['value']);
+			} 
+			catch (error) {
+				cog_effort_responses.push('');
+			}
 		}
 
 
