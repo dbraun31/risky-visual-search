@@ -1,0 +1,85 @@
+---
+title: 'Risky Visual Search - Experiment 1 Demo Analysis'
+author: 'Dave Braun'
+date: '`r format(Sys.time(), "%b %d %Y, %H:%M:%S")`'
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+    toc: true
+    includes:
+      after_body: ../../../html/footer.html
+      in_header: ../../../html/favicon.html
+knit:
+  (function(inputFile, encoding) {
+    rmarkdown::render(inputFile,
+    encoding = encoding,
+    output_file = 'index.html')})
+---
+
+
+
+I'm just taking a quick look today (3/15/2022) to see the text responses of people who show the effect vs. those who don't.
+
+```{r include = FALSE}
+library(tidyverse)
+```
+
+
+```{r}
+exp <- str_extract(getwd(), 'exp\\d[a-z]?')
+d <- read.csv(paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main.csv'))
+N <- length(unique(d$subject))
+demo <- read.csv(paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_demo.csv'))
+head(d)
+```
+
+Initial sample size is `r N`.
+
+
+
+```{r}
+threshold <- .15
+
+demo <- d %>% 
+  group_by(subject, direction) %>% 
+  summarize(ssd = mean(ssd)) %>% 
+  spread(direction, ssd) %>% 
+  mutate(in_line = `Harder than Reference` - `Easier than Reference`) %>% 
+  mutate(risk_group = factor(ifelse(in_line > threshold, 'in line', ifelse(in_line < -threshold, 'opposite', 'neither')))) %>% 
+  select(subject, risk_group) %>% 
+  inner_join(demo)
+
+
+
+for (group in levels(demo$risk_group)) {
+  print(paste0('#### RISK GROUP: ', group, ' ####'))
+  for (subject in unique(demo[demo$risk_group==group,]$subject)) {
+    print('')
+    print(demo[demo$subject == subject,]$comments)
+  }
+  print('')
+  print('')
+  print('')
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,18 +1,29 @@
 import sys
 import glob
+import re
 
 
 site_root = 'https://davebraun.net/gaita/experiments/analysis/'
 
-def determine_num_exps(rmd_files_index):
+two_part_experiments = ['1']
+
+def determine_exp_names(rmd_files_index):
   ## rmd_files is list of rmd_files
   exps = []
   for file in rmd_files_index:
     exp = file[0]
     if exp not in exps:
-      exps.append(int(exp[-1]))
+      exps.append(exp)
 
-  return max(exps)
+  return list(set(exps))
+
+def sort_exp_names(exp_names, two_part_experiments):
+  t = [x + 'a' if re.search(r'(\d)', x).group(1) not in two_part_experiments else x for x in exp_names]
+  t = sorted(t, key = lambda x: (x[-2], x[-1]))
+  return [x.replace('a', '') if x[-2] not in two_part_experiments else x for x in t]
+
+
+
 
 def compute_file_index(rmd_files):
   out = []
@@ -46,24 +57,24 @@ output:
   rmd_files_index = compute_file_index(rmd_files)
 
   ## determine number of exps
-  num_exps = determine_num_exps(rmd_files_index)
+  exp_names = determine_exp_names(rmd_files_index)
+  exp_names = sort_exp_names(exp_names, two_part_experiments)
 
-  for exp in range(1, num_exps+1):
-    body += '\n## Experiment {}\n'.format(exp)
-    rel_scripts = [x for x in rmd_files_index if x[0] == 'exp' + str(exp)]
+  for exp in exp_names:
+    body += '\n## Experiment {}\n'.format(re.search(r'(\d.*)', exp).group(1))
+    rel_scripts = [x for x in rmd_files_index if x[0] == exp]
     secondary_headers = list(set([x[1] for x in rel_scripts]))
     for secondary_header in secondary_headers:
       body += '### {} Analyses\n'.format(' '.join(secondary_header.split('-')).title())
-      rel_scripts = [x for x in rmd_files_index if secondary_header in x and 'exp{}'.format(exp) in x]
+      rel_scripts = [x for x in rmd_files_index if secondary_header in x and exp in x]
       for script in rel_scripts:
         ## analyis name
         body += '* [{} Analysis]'.format(' '.join(script[-1].replace('.Rmd', '').split('_')).title())
         ## analysis link
         secondary_dir = ''
         if len(script) == 4:
-          print(script)
           secondary_dir = '/' + script[-2]
-        body += '({}exp{}/scripts/{}{}){{target=_blank}}\n\n'.format(site_root, exp, secondary_header, secondary_dir)
+        body += '({}{}/scripts/{}{}){{target=_blank}}\n\n'.format(site_root, exp, secondary_header, secondary_dir)
 
 
 

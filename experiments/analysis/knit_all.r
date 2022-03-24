@@ -24,9 +24,11 @@ for (file in files) {
 	print(file)
 	if (only_missing) {
 		if (!grepl('index.html', list.files(stem))) {
+
 			rmarkdown::render(file, encoding = encoding, output_file = 'index.html')	
 		}
 	} else rmarkdown::render(file, encoding = encoding, output_file = 'index.html')
+		
 }
 
 }

@@ -1,2 +1,0 @@
-rsync -avP -e 'ssh -p 18765' u231-f6hnzkbwb44b@davebraun.net:~/www/davebraun.net/public_html/turk/data/gaita/gaita_exp1/* ~/Dropbox\ \(Lehigh\ University\)/post_doc/professional/practical_new_world/gaita/experiments/analysis/exp1/data/raw/
-python ~/Dropbox\ \(Lehigh\ University\)/post_doc/professional/practical_new_world/gaita/experiments/analysis/exp1/data/raw/process/aggregate.py ~/Dropbox\ \(Lehigh\ University\)/post_doc/professional/practical_new_world/gaita/experiments/analysis/exp1/data/raw/*.txt

@@ -4,7 +4,7 @@ import re
 import os
 import glob
 
-full_path = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/practical_new_world/gaita/experiments/analysis/exp2/data/raw/'
+real_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def aggregate_main(file):
@@ -28,7 +28,7 @@ def aggregate_main(file):
 
 if __name__ == '__main__':
 
-	files = glob.glob(full_path + '*.txt')
+	files = glob.glob(real_path + '/../*.txt')
 
 	main = []
 	demo = []
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 		else:
 			demo.append(eval(open(file, 'r').read()))
 
-	exp_number = re.search(r'exp(\d)', full_path).group(1)
+	exp_number = re.search(r'exp(\d.?)\/', real_path).group(1)
 
-	pd.DataFrame(main).to_csv(full_path + '/../exp' + exp_number + '_main_raw.csv', index = False)
-	pd.DataFrame(demo).to_csv(full_path + '/../exp' + exp_number + '_demo.csv', index = False)
+	pd.DataFrame(main).to_csv(real_path + '/../../exp' + exp_number + '_main_raw.csv', index = False)
+	pd.DataFrame(demo).to_csv(real_path + '/../../exp' + exp_number + '_demo.csv', index = False)

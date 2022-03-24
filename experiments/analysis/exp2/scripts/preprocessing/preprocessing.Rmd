@@ -27,7 +27,8 @@ library(tidyverse)
 
 
 ```{r}
-d <- read.csv('../../data/exp2_main_raw.csv')
+exp <- str_extract(getwd(), 'exp\\d[a-z]?')
+d <- read.csv(paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main_raw.csv'))
 N <- length(unique(d$subject))
 head(d)
 ```
@@ -179,10 +180,15 @@ print(paste0('Proportion dropped: ', round(proportion_dropped(rows_before, nrow(
 ```
 
 
+```{r}
+## compute vars
+d$ssd <- 1 - d$selectedRiskyDeck
+```
+
 
 
 ```{r}
-write.csv(d, '../../data/exp1_main.csv', row.names = FALSE)
+write.csv(d, paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main.csv'), row.names = FALSE)
 ```
 
 

@@ -1,4 +1,5 @@
-./exp1/data/raw/process/download_aggregate.sh
+./exp1a/data/raw/process/download_aggregate.sh
+./exp1b/data/raw/process/download_aggregate.sh
 ./exp2/data/raw/process/download_aggregate.sh
 ./exp3/data/raw/process/download_aggregate.sh
 
