@@ -1,6 +1,3 @@
-## MISSING
-	## need to put something in here that will always run preprocessing first
-
 ## optional param 'only_missing' if true only hit the dirs where index.html is missing
 
 args <- commandArgs(trailingOnly = TRUE)
