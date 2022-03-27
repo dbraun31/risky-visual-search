@@ -17,13 +17,13 @@ output:
 ### Preprocessing Analyses
 * [Preprocessing Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/preprocessing){target=_blank}
 
-### Confirmatory Analyses
-* [Performance Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/confirmatory/performance){target=_blank}
-
-* [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/confirmatory/choice){target=_blank}
-
 ### Demo Analyses
 * [Demo Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/demo){target=_blank}
+
+### Confirmatory Analyses
+* [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/confirmatory/choice){target=_blank}
+
+* [Performance Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/confirmatory/performance){target=_blank}
 
 
 ## Experiment 1b

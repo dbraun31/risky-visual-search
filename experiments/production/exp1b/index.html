@@ -5,6 +5,7 @@
 	<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
 	<script src = '../globalJs/TimTurkTools.js'></script>
 	<script src = 'js/exp_functions.js'></script>
+	<script src = 'js/sona_data.js'></script>
 
 	<script>
 		$(document).ready(function(){
@@ -45,9 +46,8 @@
 			$('#reject_consent').click(function(){
 				urlArgs = {
 					'survey_code': sona_id,
-					//PILOT - UPDATE THIS
-					'credit_token': 'c3606fada0c4412ebd5e0783fdfc5189',
-					'experiment_id': '295'
+					'credit_token': credit_token,
+					'experiment_id': experiment_id
 				}
 
 				// PUT SONA LINK HERE
