@@ -20,6 +20,9 @@ $(document).ready(function(){
 var sona_id = getParam('sona_id', '');
 var subject = getParam('subject', '');
 var experiment_start_time = urlArgsToVar('experiment_start_time');
+var credit_token = getParam('credit_token', '');
+var experiment_id = getParam('experiment_id', '');
+
 
 // making things wayy simpler and just controlling everything with a trial count
 // GLOBAL VARS
@@ -399,7 +402,9 @@ function sendToServer(subject, currentData) {
   var urlArgs = {
     'subject': subject,
     'sona_id': sona_id,
-    'experiment_start_time': experiment_start_time
+    'experiment_start_time': experiment_start_time,
+    'credit_token': credit_token,
+    'experiment_id': experiment_id
   };
 
   $.post(
@@ -456,7 +461,7 @@ function sendToServer(subject, currentData) {
     <!-- BEGIN DETAIL SLIDE -->
     <div id='detailSlide'>
       <div class='textInstructionsContainer'>
-      <p>In that last practice phase, you searched through 32 objects on each screen. We’ve had a lot of people take this study, and most people would say that’s about a medium level of difficulty. If we added objects to the array, the search would become more difficult; if we took objects away, the search would become easier. Throughout the rest of this experiment, you're going to be seeing two options appearing on the screen. The outcomes on these options tell you how many more or fewer objects than 32 will appear in the search array. For example, the outcome "0" means you'll be searching through 32 objects. The outcome "-14" means you'll be searching through 14 objects fewer than 32. You'll notice one of these options always has two outcomes, while the other option only has one. This option with two outcomes is like a "risky" option, because it's like flipping a coin to determine which outcome you'll get. The other option is a safe option, because if you choose this option you will always get the one outcome displayed on this option. Each time you make a selection, you will perform 17 search trials. If you make an error, like signal that the target is absent when it is indeed present, you'll see the word "ERROR" appear on the screen. These error screens will slow down your overall progress---so more errors means you're completing a longer experiment. Throughout the experiment, you will periodically encounter breaks after a period of trials. Feel free to take a rest during these breaks before continuing. When you're ready to begin this phase, you can press the "See Controls" button below to see you controls before beginning.</p>
+      <p>In that last practice phase, you searched through 32 objects on each screen. We’ve had a lot of people take this study, and most people would say that’s about a medium level of difficulty. If we added objects to the array, the search would become more difficult; if we took objects away, the search would become easier. Throughout the rest of this experiment, you're going to be seeing two options appearing on the screen. The outcomes on these options tell you how many more or fewer objects than 32 will appear in the search array. For example, the outcome "0" means you'll be searching through 32 objects. The outcome "-14" means you'll be searching through 14 objects fewer than 32. You'll notice one of these options always has two outcomes, while the other option only has one. This option with two outcomes is like a "risky" option, because it's like flipping a coin to determine which outcome you'll get. The other option is a safe option, because if you choose this option you will always get the one outcome displayed on this option. Each time you make a selection, you will perform 9 search trials. If you make an error, like signal that the target is absent when it is indeed present, you'll see the word "ERROR" appear on the screen. These error screens will slow down your overall progress---so more errors means you're completing a longer experiment. Throughout the experiment, you will periodically encounter breaks after a period of trials. Feel free to take a rest during these breaks before continuing. When you're ready to begin this phase, you can press the "See Controls" button below to see you controls before beginning.</p>
     </div>
 
       <div class='rightOneThirdsDown'>

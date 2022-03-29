@@ -6,7 +6,6 @@
 <link rel='stylesheet' type='text/css' href='../../global_css/deckStyle.css'>
 <link rel='stylesheet' type='text/css' href='../../global_css/demo.css?v=4'>
 <script src='../js/exp_functions.js?v=3'></script>
-<script src='../js/sona_data.js?v=2'></script>
 <script src='../../global_js/globalFunctions.js'></script>
 <script src='../../global_js/TimTurkTools.js'></script>
 <script src='../../global_js/jquery-bbq.js'></script>
@@ -23,6 +22,8 @@ $(document).ready(function(){
 	var sessionCode = 'demo';
 	var experimentStartTime = urlArgsToVar('experimentStartTime');
 	var experimentName = 'gaita_exp1c';
+	var experiment_id = getParam('experiment_id', '');
+	var credit_token = getParam('credit_token', '');
 
 	//set initial state of html
 	$('#submit_hit').hide();
