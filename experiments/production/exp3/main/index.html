@@ -159,10 +159,12 @@ function block_rest() {
   remaining_blocks = compute_remaining_blocks(trial_threshold = trial_threshold, block_interval = block_interval, trial_count = trial_count);
   s = remaining_blocks == 1 ? '' : 's';
   $('#blockText').html('<p>That was the end of that block of trials. You have ' + remaining_blocks + ' block' + s +' left to go.\nPress the button below to continue.</p>')  
+  /*
   if (trial_count == trial_threshold/2) {
     $('#vid_container').show();
-    current_condtion = current_counterbalance_condition == 'relative' ? 'absolute' : 'relative';
+    current_counterbalance_condition = current_counterbalance_condition == 'relative' ? 'absolute' : 'relative';
   }
+  */
 }
 
 
