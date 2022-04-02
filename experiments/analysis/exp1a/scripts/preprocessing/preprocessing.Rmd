@@ -186,6 +186,16 @@ print(paste0('Proportion dropped: ', round(proportion_dropped(rows_before, nrow(
 d$ssd <- 1 - d$selectedRiskyDeck
 ```
 
+### Randomly select 50 Ps
+
+```{r}
+set.seed(3329478)
+final_subjects <- sample(unique(d$subject), size = 50)
+d <- d[d$subject %in% final_subjects,]
+```
+
+
+
 
 ```{r}
 write.csv(d, paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main.csv'), row.names = FALSE)

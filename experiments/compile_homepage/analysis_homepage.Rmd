@@ -14,9 +14,6 @@ output:
 # {.tabset}
   
 ## Experiment 1a
-### Demo Analyses
-* [Demo Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/demo){target=_blank}
-
 ### Preprocessing Analyses
 * [Preprocessing Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/preprocessing){target=_blank}
 
@@ -25,10 +22,18 @@ output:
 
 * [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/confirmatory/choice){target=_blank}
 
+### Demo Analyses
+* [Demo Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/demo){target=_blank}
+
 
 ## Experiment 1b
 ### Preprocessing Analyses
 * [Preprocessing Analysis](https://davebraun.net/gaita/experiments/analysis/exp1b/scripts/preprocessing){target=_blank}
+
+
+## Experiment 1c
+### Preprocessing Analyses
+* [Preprocessing Analysis](https://davebraun.net/gaita/experiments/analysis/exp1c/scripts/preprocessing){target=_blank}
 
 
 ## Experiment 2
