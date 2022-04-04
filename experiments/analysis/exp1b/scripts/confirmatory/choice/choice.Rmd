@@ -1,0 +1,141 @@
+---
+title: 'Risky Visual Search - Experiment 1b Choice Analysis'
+author: 'Dave Braun'
+date: '`r format(Sys.time(), "%b %d %Y, %H:%M:%S")`'
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+    toc: true
+    includes:
+      after_body: ../../../../html/footer.html
+      in_header: ../../../../html/favicon.html
+knit:
+  (function(inputFile, encoding) {
+    rmarkdown::render(inputFile,
+    encoding = encoding,
+    output_file = 'index.html')})
+---
+
+
+This document was last updated at `r Sys.time()`.
+
+```{r include = FALSE}
+library(tidyverse)
+```
+
+
+```{r}
+exp <- str_extract(getwd(), 'exp\\d[a-z]?')
+d <- read.csv(paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main.csv'))
+N <- length(unique(d$subject))
+head(d)
+```
+
+Initial sample size is `r N`.
+
+
+```{r}
+d %>% 
+  group_by(subject, direction, magnitude) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction, magnitude) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N)) %>% 
+  ggplot(aes(x = direction, y = ssd)) + 
+  geom_bar(stat = 'identity', aes(fill = magnitude), position = position_dodge(width= .9)) + 
+  geom_errorbar(aes(ymin = ssd - se, ymax = ssd + se, group = magnitude), width = .5, position = position_dodge(width= .9)) + 
+  ylim(0,1) + 
+  labs(
+    x = 'Framing',
+    y = 'Proportion Selection of Safe Deck',
+    caption = paste0('N = ', N, '. N needed is 50.')
+  ) + 
+  theme_bw() 
+```
+
+```{r}
+d %>% 
+  group_by(subject, direction) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N)) %>% 
+  ggplot(aes(x = direction, y = ssd)) + 
+  geom_bar(stat = 'identity') + 
+  geom_errorbar(aes(ymin = ssd - se, ymax = ssd + se), width = .5) + 
+  ylim(0,1) + 
+  labs(
+    x = 'Framing',
+    y = 'Proportion Selection of Safe Deck',
+    caption = paste0('N = ', N, '. N needed is 50.')
+  ) + 
+  theme_bw() 
+```
+
+
+
+### Individual differences in direction effect
+
+```{r}
+m <- d %>% 
+  group_by(subject, direction) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction) %>% 
+  summarize(ssd = mean(ssd_))
+
+d %>% 
+  group_by(subject, direction) %>% 
+  summarize(ssd = mean(ssd)) %>% 
+  ggplot(aes(x = direction, y = ssd)) + 
+  geom_violin(fill = 'steelblue', alpha = .2) + 
+  geom_boxplot(fill = NA) + 
+  geom_jitter(width = .05, alpha = .7) + 
+  geom_line(aes(group = subject), linetype = 'dashed', alpha = .7) +
+  ylim(0,1) +
+  labs(
+    x = 'Direction',
+    y = 'Proportion Selection of Safe Option'
+  ) + 
+  theme_bw()
+
+```
+
+
+
+```{r}
+ggsave('risky_visual_search.pdf', height = 5.5, width = 7.5)
+ggsave('risy_visual_search.png', height = 720/96, width = 1280/96, dpi = 96, units = 'in')
+```
+
+
+```{r}
+library(ez)
+
+ad <- d %>% 
+  mutate(ssd = 1 - selectedRiskyDeck) %>% 
+  group_by(subject, direction, magnitude) %>% 
+  summarize(ssd_ = mean(ssd)) 
+
+ezANOVA(wid = subject, within = .(direction, magnitude), dv = ssd_, detailed = TRUE, data = ad)
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

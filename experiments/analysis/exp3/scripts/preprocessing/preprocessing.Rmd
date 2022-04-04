@@ -154,7 +154,7 @@ n_bad_subjects <- nrow(bad_subjects)
 d <- d[!(d$subject %in% bad_subjects$subject),]
 ```
 
-There were `r n_bad_subjects` subjects dropped for having less than 75% accuracy.
+There were `r n_bad_subjects` subjects dropped for accuracy / rt / location bias reasons.
 
 ```{r}
 ## remove choice rts beyond 
@@ -204,6 +204,15 @@ print(paste0('Proportion dropped: ', round(proportion_dropped(rows_before, nrow(
 
 ```{r}
 d$ssd <- 1 - d$selectedRiskyDeck
+```
+
+
+```{r}
+## randomly select 50
+set.seed(168165)
+
+subjects <- sample(unique(d$subject), 50)
+d <- d[d$subject %in% subjects,]
 ```
 
 
