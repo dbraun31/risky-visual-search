@@ -30,6 +30,7 @@ library(tidyverse)
 exp <- str_extract(getwd(), 'exp\\d[a-z]?')
 d <- read.csv(paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main.csv'))
 N <- length(unique(d$subject))
+d <- d[d$search_trial==1,]
 head(d)
 ```
 
