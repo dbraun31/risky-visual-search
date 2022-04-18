@@ -22,6 +22,8 @@ var rsi = 500;
 var error_timeout = 2000;
 var experiment_start_time = Date.now();
 var sona_id = getParam('id', '');
+var credit_token = getParam('credit_token', '');
+var expreiment_id = getParam('experiment_id','');
 var subject = Math.random().toString(36).slice(2);
 
 
@@ -91,6 +93,8 @@ function end_cued() {
   url_args = {
     'subject': subject,
     'sona_id': sona_id,
+    'credit_token': credit_token,
+    'experiment_id': experiment_id,
     'experiment_start_time': experiment_start_time
   }
 

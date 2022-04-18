@@ -6,7 +6,6 @@
 <link rel='stylesheet' type='text/css' href='../../global_css/deckStyle.css'>
 <link rel='stylesheet' type='text/css' href='../../global_css/demo.css?v=4'>
 <script src='../js/exp_functions.js?v=3'></script>
-<script src='../js/sona_data.js'></script>
 <script src='../../global_js/globalFunctions.js'></script>
 <script src='../../global_js/TimTurkTools.js'></script>
 <script src='../../global_js/jquery-bbq.js'></script>
@@ -41,6 +40,8 @@ $(document).ready(function(){
 
 	$('#finish_study').click(function(){
 		var sona_id = getParam('sona_id', '');
+		var credit_token = getParam('credit_token', '');
+		var experiment_id = getParam('experiment_id','');
 		var url_args = {'experiment_id': experiment_id,
 										'credit_token': credit_token,
 										'survey_code': sona_id};

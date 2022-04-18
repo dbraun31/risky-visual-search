@@ -18,6 +18,8 @@
 $(document).ready(function(){
 // id params
 var sona_id = getParam('sona_id', '');
+var experiment_id = getParam('experiment_id', '');
+var credit_token = getParam('credit_token', '');
 var subject = getParam('subject', '');
 var experiment_start_time = urlArgsToVar('experiment_start_time');
 
@@ -413,6 +415,8 @@ function sendToServer(subject, currentData) {
   var urlArgs = {
     'subject': subject,
     'sona_id': sona_id,
+    'credit_token': credit_token,
+    'experiment_id': experiment_id,
     'experiment_start_time': experiment_start_time
   };
 

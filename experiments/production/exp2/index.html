@@ -5,7 +5,6 @@
 	<script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
 	<script src = '../globalJs/TimTurkTools.js'></script>
 	<script src = 'js/exp_functions.js'></script>
-	<script src = 'js/sona_data.js'></script>
 
 	<script>
 		$(document).ready(function(){
@@ -28,6 +27,8 @@
 			}
 
 			var sona_id = getParam('id', 'error');
+			var credit_token = getParam('credit_token', '');
+			var experiment_id = getParam('experiment_id', '');
 			
 			if (sona_id == 'error' | sona_id == '') {
 				$('#error').show();
@@ -60,7 +61,9 @@
 				//otherwise, send to instruction screen
 
 			urlArgs = {
-				'id': sona_id
+				'id': sona_id,
+				'credit_token': credit_token,
+				'experiment_id': experiment_id
 			}
 
 			window.location.replace('prac/?' + $.param(urlArgs));
