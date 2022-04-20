@@ -181,7 +181,7 @@ pre code {
 
 <h1 class="title toc-ignore">Risky Visual Search - Experiment 3 Preprocessing</h1>
 <h4 class="author">Dave Braun</h4>
-<h4 class="date">April 17 2022, 07:23:01</h4>
+<h4 class="date">April 19 2022, 15:19:20</h4>
 
 </div>
 
@@ -347,8 +347,9 @@ d &lt;- d %&gt;%
 set.seed(168165)
 
 subjects &lt;- sample(unique(d$subject), 50)
-d &lt;- d[d$subject %in% subjects,]</code></pre>
-<pre class="r"><code>write.csv(d, paste0(here::here(), &#39;/experiments/analysis/&#39;, exp, &#39;/data/&#39;, exp, &#39;_main.csv&#39;), row.names = FALSE)</code></pre>
+d_fifty &lt;- d[d$subject %in% subjects,]</code></pre>
+<pre class="r"><code>write.csv(d_fifty, paste0(here::here(), &#39;/experiments/analysis/&#39;, exp, &#39;/data/&#39;, exp, &#39;_main.csv&#39;), row.names = FALSE)
+write.csv(d, paste0(here::here(), &#39;/experiments/analysis/&#39;, exp, &#39;/data/&#39;, exp, &#39;_main_full.csv&#39;), row.names = FALSE)</code></pre>
 </div>
 </div>
 

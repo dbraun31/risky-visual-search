@@ -17,6 +17,9 @@ output:
 ### Preprocessing Analyses
 * [Preprocessing Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/preprocessing){target=_blank}
 
+### Exploratory Analyses
+* [Time Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/exploratory/time){target=_blank}
+
 ### Confirmatory Analyses
 * [Performance Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/confirmatory/performance){target=_blank}
 
@@ -56,6 +59,9 @@ output:
 ## Experiment 3
 ### Preprocessing Analyses
 * [Preprocessing Analysis](https://davebraun.net/gaita/experiments/analysis/exp3/scripts/preprocessing){target=_blank}
+
+### Exploratory Analyses
+* [Individuals Analysis](https://davebraun.net/gaita/experiments/analysis/exp3/scripts/exploratory/individuals){target=_blank}
 
 ### Confirmatory Analyses
 * [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp3/scripts/confirmatory/choice){target=_blank}

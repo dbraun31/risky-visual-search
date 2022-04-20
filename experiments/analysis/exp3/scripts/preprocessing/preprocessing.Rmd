@@ -212,13 +212,14 @@ d$ssd <- 1 - d$selectedRiskyDeck
 set.seed(168165)
 
 subjects <- sample(unique(d$subject), 50)
-d <- d[d$subject %in% subjects,]
+d_fifty <- d[d$subject %in% subjects,]
 ```
 
 
 
 ```{r}
-write.csv(d, paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main.csv'), row.names = FALSE)
+write.csv(d_fifty, paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main.csv'), row.names = FALSE)
+write.csv(d, paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main_full.csv'), row.names = FALSE)
 ```
 
 
