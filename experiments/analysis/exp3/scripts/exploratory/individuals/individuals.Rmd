@@ -117,44 +117,72 @@ ggMarginal(p, type = 'histogram')
 😭
 
 
+## Participation lag
+
+Does the number of days the participant waited to complete the study after being assigned (as like a proxy of conscientiousness) predict their choice?
+
+
+
 ```{r}
-p## gotta figure out how to bin choice rt
-p <-  %>% 
+lag <- read.csv('../../../../participation_lag.csv')
+avg_lag <- mean(lag$lag_days)/24
+lag %>% 
+  ggplot(aes(x = lag_days/24)) + 
+  geom_histogram(color = 'black', bins = 20) + 
+  geom_vline(xintercept = avg_lag, linetype = 'dashed')
+```
+
+
+
+
+
+
+```{r}
+## join
+## losing three Ps from my og data for some reason
+d <- d %>% 
+  inner_join(lag, by = c('sona_id' = 'survey_id')) 
+  
+
+cor_data <- d %>% 
   group_by(subject, direction) %>% 
-  summarize(ssd = mean(ssd)) %>% 
+  summarize(ssd = mean(ssd), sona_id = unique(sona_id)) %>% 
   spread(direction, ssd) %>% 
   mutate(effect = `Harder than Reference` - `Easier than Reference`) %>% 
-  select(subject, effect) %>% 
-  inner_join(d) %>% 
-  group_by(subject) %>% 
-  summarize(effect = unique(effect), cog_need_score = unique(cog_need_score), choice_rt = mean(choice_rt)) 
-%>%   ggplot(aes(x = cog_need_score, y = effect)) + 
-  geom_point(faes(rame = choice_rt) )+ 
-  geom_smooth(method = 'lm') + 
-  labs(
-    x = 'Need for Cognition',
-    y = 'Extent Aligned with Prediction'
-  ) + 
-  theme_bw()
+  select(subject, sona_id, effect) %>% 
+  inner_join(lag, by = c('sona_id' = 'survey_id')) 
+cor_data %>% 
+  ggplot(aes(x = lag_days, y = effect)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm')
   
-fig <- ggplotly(p)
-
-fig <- fig %>% 
-  animation_opts(
-    1000, easing = 'elastic', redraw = FALSE
-  )
-
-fig <- fig %>% 
-  animation_button(
-    x = 1, xanchor = 'right', y = 0, yanchor = 'bottom'
-  )
-
-fig <- fig %>% 
-  animation_slider(
-    currentvalue = list(prefix = 'Choice RT ', font = list(color = 'red'))
-  )
-fig
 ```
+
+
+
+
+
+```{r}
+cor.test(cor_data$effect, cor_data$lag_days)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
