@@ -102,9 +102,65 @@ ezANOVA(wid = subject, within = .(direction, magnitude), dv = ssd_, detailed = T
 
 
 
+## Mixed modeling
+
+```{r}
+library(lme4)
+mm1 <- glmer(ssd ~ direction + (1 + direction | subject), data = d, family = binomial(link = 'logit'), nAGQ = 1)
+## the simpler model fails to converge?
+mm1a <- glmer(ssd ~ direction  + (1 | subject) + (0 + direction | subject), data = d, family = binomial(link = 'logit'), nAGQ = 1)
+anova(mm1, mm1a)
+```
+
+### Hypothesis testing
+```{r}
+## hypothesis testing
+mm2 <- glmer(ssd ~ 1  + (1 + direction | subject) , data = d, family = binomial(link = 'logit'), nAGQ = 1)
+anova(mm1, mm2)
+summary(mm1)
+exp(fixef(mm1))
+exp(confint(mm1, method = 'Wald'))
+```
+
+### Prediction
+
+```{r}
+easyPredCI <- function(model,newdata=NULL,alpha=0.05) {
+    ## baseline prediction, on the linear predictor (logit) scale:
+    pred0 <- predict(model,re.form=NA,newdata=newdata)
+    ## fixed-effects model matrix for new data
+    X <- model.matrix(formula(model,fixed.only=TRUE)[-2],newdata)
+    beta <- fixef(model) ## fixed-effects coefficients
+    V <- vcov(model)     ## variance-covariance matrix of beta
+    pred.se <- sqrt(diag(X %*% V %*% t(X))) ## std errors of predictions
+    ## inverse-link function
+    linkinv <- family(model)$linkinv
+    ## construct 95% Normal CIs on the link scale and
+    ##  transform back to the response (probability) scale:
+    crit <- -qnorm(alpha/2)
+    linkinv(cbind(conf.low=pred0-crit*pred.se,
+                  conf.high=pred0+crit*pred.se))
+}
 
 
-
+## prediction
+## intervals from: https://stats.stackexchange.com/questions/147836/prediction-interval-for-lmer-mixed-effects-model-in-r
+## dunno how to only get population-level prediction intervals from ^
+#library(merTools)
+test_data <- expand.grid(direction = unique(d$direction))
+test_data$proba <- predict(mm1, re.form=NA, newdata = test_data, type='response')
+test_data <- cbind(test_data, easyPredCI(mm1, newdata = test_data))
+test_data %>% 
+  ggplot(aes(x = direction, y = proba)) + 
+  geom_bar(stat = 'identity') + 
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = .5) +
+  ylim(0, 1) + 
+  labs(
+    x = 'Direction', 
+    y = 'Probability of Selecting Safe Deck'
+  ) + 
+  theme_bw()
+```
 
 
 

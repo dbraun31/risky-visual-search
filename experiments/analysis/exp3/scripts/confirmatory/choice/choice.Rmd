@@ -103,8 +103,27 @@ ezANOVA(wid = subject, within = .(direction, magnitude), dv = ssd_, detailed = T
 
 
 
+## Contrasting E3 against E1
 
+```{r}
+e1 <- read.csv('../../../../exp1a/data/exp1a_main.csv')
+e1$experiment <- 'exp1'
+d$experiment <- 'exp3'
+d <- select(d, -contains('counter'))
+d <- rbind(d, e1)
 
+anova_data <- d %>% 
+  group_by(subject, direction, experiment, magnitude) %>% 
+  summarize(ssd = mean(ssd))
+
+m2 <- ezANOVA(wid = subject, between = .(experiment), within = .(direction, magnitude), dv = ssd, data = d, detailed = TRUE)
+m2$ANOVA$n2p <- m2$ANOVA$SSn / (m2$ANOVA$SSn + m2$ANOVA$SSd)
+m2
+```
+
+Figure out how to now have to deal with these irrelevant interaction effects.
+
+Gotta look into how to get a bayes factor to show evidence in favor of the null for the `experiment:direction` interaction.
 
 
 

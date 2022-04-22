@@ -101,6 +101,23 @@ ezANOVA(wid = subject, within = .(direction, magnitude), dv = ssd_, detailed = T
 ```
 
 
+## Contrast E2 against E1
+
+```{r}
+e1 <- read.csv('../../../../exp1a/data/exp1a_main.csv')
+d$experiment <- 'exp2'
+e1$experiment <- 'exp1'
+d <- rbind(d, e1)
+
+anova_data <- d %>% 
+  group_by(subject, experiment, direction, magnitude) %>% 
+  summarize(ssd = mean(ssd)) 
+
+m2 <- ezANOVA(wid = subject, between = .(experiment), within = .(magnitude, direction), dv = ssd, data = d, detailed = TRUE)
+m2$ANOVA$n2p <- m2$ANOVA$SSn / (m2$ANOVA$SSn + m2$ANOVA$SSd)
+m2
+  
+```
 
 
 

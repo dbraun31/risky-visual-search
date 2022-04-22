@@ -14,30 +14,30 @@ output:
 # {.tabset}
   
 ## Experiment 1a
-### Exploratory Analyses
-* [Time Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/exploratory/time){target=_blank}
-
 ### Preprocessing Analyses
 * [Preprocessing Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/preprocessing){target=_blank}
+
+### Confirmatory Analyses
+* [Performance Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/confirmatory/performance){target=_blank}
+
+* [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/confirmatory/choice){target=_blank}
 
 ### Demo Analyses
 * [Demo Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/demo){target=_blank}
 
-### Confirmatory Analyses
-* [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/confirmatory/choice){target=_blank}
-
-* [Performance Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/confirmatory/performance){target=_blank}
+### Exploratory Analyses
+* [Time Analysis](https://davebraun.net/gaita/experiments/analysis/exp1a/scripts/exploratory/time){target=_blank}
 
 
 ## Experiment 1b
-### Demo Analyses
-* [Demo Analysis](https://davebraun.net/gaita/experiments/analysis/exp1b/scripts/demo){target=_blank}
-
 ### Preprocessing Analyses
 * [Preprocessing Analysis](https://davebraun.net/gaita/experiments/analysis/exp1b/scripts/preprocessing){target=_blank}
 
 ### Confirmatory Analyses
 * [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp1b/scripts/confirmatory/choice){target=_blank}
+
+### Demo Analyses
+* [Demo Analysis](https://davebraun.net/gaita/experiments/analysis/exp1b/scripts/demo){target=_blank}
 
 
 ## Experiment 1c
@@ -57,12 +57,12 @@ output:
 
 
 ## Experiment 3
-### Exploratory Analyses
-* [Individuals Analysis](https://davebraun.net/gaita/experiments/analysis/exp3/scripts/exploratory/individuals){target=_blank}
-
 ### Preprocessing Analyses
 * [Preprocessing Analysis](https://davebraun.net/gaita/experiments/analysis/exp3/scripts/preprocessing){target=_blank}
 
 ### Confirmatory Analyses
 * [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp3/scripts/confirmatory/choice){target=_blank}
+
+### Exploratory Analyses
+* [Individuals Analysis](https://davebraun.net/gaita/experiments/analysis/exp3/scripts/exploratory/individuals){target=_blank}
 

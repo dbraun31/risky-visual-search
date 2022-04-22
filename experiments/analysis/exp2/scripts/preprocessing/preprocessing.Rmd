@@ -185,46 +185,23 @@ print(paste0('Proportion dropped: ', round(proportion_dropped(rows_before, nrow(
 d$ssd <- 1 - d$selectedRiskyDeck
 ```
 
+```{r}
+write.csv(d, paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main_full.csv'), row.names = FALSE)
+```
+
+
+```{r}
+## randomly select 50
+set.seed(163186)
+
+fifty <- sample(unique(d$subject), 50)
+d <- d[d$subject %in% fifty,]
+```
+
 
 
 ```{r}
 write.csv(d, paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main.csv'), row.names = FALSE)
 ```
-
-
-
-## Compute min trial time for E2
-
-```{r}
-library(ggrepel)
-## make a model that coverts a summary of choice rt to overall mins
-d <- d[d$choice_rt < 7500,]
-
-percentile <- quantile(d$choice_rt, c(.75,.85,.95))
-percentile <- data.frame(percent = names(percentile), values = percentile)
-
-d %>% 
-  ggplot(aes(x = choice_rt)) + 
-  geom_histogram() +
-  geom_vline(data = percentile, aes(xintercept = values), linetype = 'dashed') + 
-  geom_text_repel(data = percentile, aes(x = values - 1, label = percent), y = 3000) +
-  labs(
-    x = 'Choice RT (ms)',
-    y = 'Frequency'
-  ) + 
-  theme_bw()
-  
-
-d <- d %>% 
-  mutate(choice_rt_c = (choice_rt - choice_rt_m) / choice_rt_sd)
-
-m1 <- lm(phase_runtime_mins ~ choice_rt_c, data = d)
-summary(m1)
-```
-
-
-
-
-
 
 
