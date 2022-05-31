@@ -66,3 +66,28 @@ output:
 ### Exploratory Analyses
 * [Individuals Analysis](https://davebraun.net/gaita/experiments/analysis/exp3/scripts/exploratory/individuals){target=_blank}
 
+
+## Cross Experiment Comparisons
+
+### Experiment 1 & Experiment 2  
+* [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp_contrasts/exp2_exp1/scripts/confirmatory/choice){target=_blank}
+
+### Experiment 1 & Experiment 3  
+* [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp_contrasts/exp3_exp1/scripts/confirmatory/choice){target=_blank}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,172 @@
+---
+title: 'Risky Visual Search - Experiment 1 and Experiment 3 Choice Analysis'
+author: 'Dave Braun'
+date: '`r format(Sys.time(), "%b %d %Y, %H:%M:%S")`'
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+    toc: true
+knit:
+  (function(inputFile, encoding) {
+    rmarkdown::render(inputFile,
+    encoding = encoding,
+    output_file = 'index.html')})
+---
+
+
+This document was last updated at `r Sys.time()`.
+
+```{r include = FALSE}
+library(tidyverse)
+library(ez)
+library(BayesFactor)
+```
+
+
+```{r}
+e1 <- read.csv('../../../../../exp1a/data/exp1a_main.csv')
+e3 <- read.csv('../../../../../exp3/data/exp3_main.csv')
+N_e1 <- length(unique(e1$subject))
+N_e3 <- length(unique(e3$subject))
+N = N_e1 + N_e3
+e1$experiment <- 'Experiment 1'
+e3$experiment <- 'Experiment 3'
+keep <- c('subject', 'magnitude', 'direction', 'ssd', 'experiment')
+d <- rbind(e1[,keep], e3[,keep])
+head(d)
+```
+
+Sample size for Experiment 1 is `r N_e1`.  
+Sample size for Experiment 2 is `r N_e3`.  
+
+
+
+```{r}
+d %>% 
+  group_by(subject, direction, magnitude, experiment) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction, experiment) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N)) %>% 
+  print() %>% 
+  ggplot(aes(x = direction, y = ssd)) + 
+  geom_bar(stat = 'identity') + 
+  geom_errorbar(aes(ymin = ssd - se, ymax = ssd + se), width = .5) + 
+  facet_wrap(~experiment) + 
+  ylim(0,1) + 
+  labs(
+    x = 'Framing',
+    y = 'Proportion Selection of Safe Deck',
+    caption = paste0('N = ', N)
+  ) + 
+  theme_bw() + 
+  theme(strip.background = element_rect(color = 'black', fill = 'white'))
+```
+```{r}
+ggsave('figures/pdf/e1_e3_means.pdf', height = 5.5, width = 7.5)
+ggsave('figures/png/e1_e3_means.png', height = 5.5, width = 7.5, dpi = 300, units = 'in')
+```
+
+### Individual differences in direction effect
+
+```{r}
+m <- d %>% 
+  group_by(subject, direction, experiment) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction, experiment) %>% 
+  summarize(ssd = mean(ssd_))
+
+d %>% 
+  group_by(subject, direction, experiment) %>% 
+  summarize(ssd = mean(ssd)) %>% 
+  ggplot(aes(x = direction, y = ssd)) + 
+  geom_violin(fill = 'steelblue', alpha = .2) + 
+  geom_boxplot(fill = NA) + 
+  geom_jitter(width = .05, alpha = .7) + 
+  geom_line(aes(group = subject), linetype = 'dashed', alpha = .7) +
+  facet_wrap(~experiment) + 
+  ylim(0,1) +
+  labs(
+    x = 'Direction',
+    y = 'Proportion Selection of Safe Option',
+    caption = 'N = 100'
+  ) + 
+  theme_bw() + 
+  theme(strip.background = element_rect(color = 'black', fill = 'white'))
+
+```
+
+
+
+```{r}
+ggsave('figures/pdf/e1_e3_individuals.pdf', height = 5.5, width = 7.5)
+ggsave('figures/png/e1_e3_individuals.png', height = 5.5, width = 7.5, dpi = 300, units = 'in')
+```
+
+
+## Regular ANOVA
+
+```{r}
+library(ez)
+
+ad <- d %>% 
+  group_by(subject, experiment, direction, magnitude) %>% 
+  summarize(ssd_ = mean(ssd)) 
+
+m1 <- ezANOVA(wid = subject, within = .(direction, magnitude), between = .(experiment),
+        dv = ssd_, detailed = TRUE, data = ad)
+
+m1 <- cbind(m1$ANOVA, data.frame(n2p = m1$ANOVA$SSn / (m1$ANOVA$SSn + m1$ANOVA$SSd)))
+m1
+```
+
+```{r}
+d %>% 
+  group_by(subject, direction) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N))
+```
+
+## Bayesian ANOVA
+
+```{r}
+## a useful resource: https://richarddmorey.github.io/BayesFactor/#mixed
+d$direction <- factor(d$direction)
+d$experiment <- factor(d$experiment)
+b <- anovaBF(ssd ~ direction * experiment, data = d)
+b
+```
+
+```{r}
+b[4] / b[3]
+```
+
+Now that looks a lot different than the E2 / E1 comparison.
+
+
+```{r}
+ezANOVA(wid = subject, within = .(direction), between = .(experiment), dv = ssd, data = d, detailed = TRUE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
