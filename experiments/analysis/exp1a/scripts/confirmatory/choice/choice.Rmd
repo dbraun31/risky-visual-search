@@ -96,8 +96,25 @@ ad <- d %>%
   group_by(subject, direction, magnitude) %>% 
   summarize(ssd_ = mean(ssd)) 
 
-ezANOVA(wid = subject, within = .(direction, magnitude), dv = ssd_, detailed = TRUE, data = ad)
+m1 <- ezANOVA(wid = subject, within = .(direction, magnitude), dv = ssd_, detailed = TRUE, data = ad)
+cbind(m1$ANOVA, data.frame(n2p = m1$ANOVA$SSn / (m1$ANOVA$SSn + m1$ANOVA$SSd)))
   
+```
+
+## Marginal means
+
+```{r}
+d %>% 
+  group_by(subject, direction, magnitude) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N))
+
+d %>% 
+  group_by(subject, direction, magnitude) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(magnitude) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N))
 ```
 
 

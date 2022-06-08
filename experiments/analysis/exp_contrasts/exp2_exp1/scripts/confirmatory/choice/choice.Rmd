@@ -18,6 +18,8 @@ knit:
 
 This document was last updated at `r Sys.time()`.
 
+Current plan (2022-06-08): Run the whole thing `direction X magnitude X experiment` both straight up and Bayesian style. See what kinda evidence the Bayes factor gives in the full model. Go from there.
+
 ```{r include = FALSE}
 library(tidyverse)
 library(ez)
@@ -104,6 +106,7 @@ ggsave('figures/pdf/e1_e2_individuals.pdf', height = 5.5, width = 7.5)
 ggsave('figures/png/e1_e2_individuals.png', height = 5.5, width = 7.5, dpi = 300, units = 'in')
 ```
 
+# Assessing Whether Things Differ Across Experiments
 
 ## Regular ANOVA
 
@@ -136,23 +139,91 @@ d %>%
 ## a useful resource: https://richarddmorey.github.io/BayesFactor/#mixed
 d$direction <- factor(d$direction)
 d$experiment <- factor(d$experiment)
-b <- anovaBF(ssd ~ direction * experiment, data = d)
+d$magnitude <- factor(d$magnitude)
+d$subject <- factor(d$subject)
+b <- anovaBF(ssd ~ direction * magnitude * experiment + subject, whichRandom = 'subject', data = d)
 b
 ```
 
-```{r}
-b[4] / b[3]
-```
-
-So I think this is telling me that the model with `direction + experiment + direction:experiment` is preferred to the model with just `direction + experiment` by a factor of 1754. Quickly looking up conventional interpreations of BFs shows that a ratio >100 is considered 'extreme' evidence in favor of the alternative...
-
+Do I do this:
 
 ```{r}
-ezANOVA(wid = subject, within = .(direction), between = .(experiment), dv = ssd, data = d, detailed = TRUE)
+b[15] / b[9]
+```
+or this
+
+```{r}
+b[17] / b[12]
 ```
 
 
-One would think that if the `experiment:direction` interaction is preferred by a factor of almost 2000 that the frequentist test would agree with it.
+I'm just curious to see what the Bayesian analysis has to say about the impact of direction only in E2.
+
+```{r}
+e2$direction <- factor(e2$direction)
+e2$magnitude <- factor(e2$magnitude)
+e2$subject <- factor(e2$subject)
+
+e2_model <- anovaBF(ssd ~ direction * magnitude + subject, data = e2, whichRandom = 'subject')
+e2_model
+
+```
+To flip a ratio, divide 1 over the ratio.
+
+$$
+a = \frac{b}{c}\\
+d = \frac{c}{d}\\
+d = \frac{c}{b} = \frac{1}{\frac{b}{c}} = \frac{1}{a}
+$$
+
+So main effect of direction evidence in favor of null:
+
+```{r}
+1 / exp(e2_model@bayesFactor$bf[2])
+```
+
+
+And the regular anova
+
+```{r}
+e2_reg <- ezANOVA(wid = subject, within = .(direction, magnitude), dv = ssd, data = e2, detailed = TRUE)
+e2_reg$ANOVA
+cbind(e2_reg$ANOVA, data.frame(n2p = e2_reg$ANOVA$SSn / (e2_reg$ANOVA$SSn + e2_reg$ANOVA$SSd)))
+```
+
+
+
+
+
+## Marginal means of difference for Experiment 2
+
+```{r}
+e2 %>% 
+  group_by(subject, direction, magnitude) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(100))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

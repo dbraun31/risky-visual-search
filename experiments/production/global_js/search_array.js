@@ -1,9 +1,9 @@
 // ========= FOR GENERATING ARRAY ========= 
 
 function generate_stimuli() {
-	// takes in how many stimuli are in the array and returns an array with all three divs with length n_stimuli
-	// [[top, left], ...]
-	// total array is 1000 X 800
+    // generate 64 stimuli with random blue / red coloring to left / right
+	// returns array [[div1, div2, div3], ...] where each element is the components for a different stimulus
+	// total array is 1000 X 600 px
 	var normal_bounds = 60;
 	var total_bounds = 52.5;
 	var stimuli_container = [];
@@ -13,6 +13,8 @@ function generate_stimuli() {
 
 	for (let i = 1; i < 9; i++) {
 		for (let j = 1; j < 9; j++) {
+            // these loops create a full set of stimuli, randomly choosing the colors
+            // div1 is the border, divs 2&3 are the color panels
 			counter += 1;
 
 		  var div1 = document.createElement('div');
