@@ -28,7 +28,7 @@ library(ggsci)
 
 
 ```{r}
-d <- read.csv('../../../data/main.csv')
+d <- read.csv('../../../data/main_timing.csv')
 N <- length(unique(d$subject))
 head(d)
 ```
@@ -40,16 +40,16 @@ Initial sample size is `r N`.
 d %>% 
   mutate(direction = recode(direction, `Easier than Reference` = 'Easier',
                           `Harder than Reference` = 'Harder')) %>% 
-  group_by(subject, direction, magnitude, colors) %>% 
+  group_by(subject, direction, magnitude, timing) %>% 
   summarize(ssd_ = mean(ssd)) %>% 
-  group_by(direction, magnitude, colors) %>% 
+  group_by(direction, magnitude, timing) %>% 
   summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N)) %>% 
   ggplot(aes(x = direction, y = ssd)) + 
   geom_hline(yintercept = .5, linetype = 'dotted') +
   geom_bar(stat = 'identity', aes(fill = magnitude), position = position_dodge(width= .9), color = 'black') + 
   geom_errorbar(aes(ymin = ssd - se, ymax = ssd + se, group = magnitude), width = .5, position = position_dodge(width= .9)) + 
   ylim(0,1) + 
-  facet_wrap(~colors) + 
+  facet_wrap(~timing) + 
   labs(
     x = 'Framing',
     y = 'Proportion Selection of Safe Deck',
@@ -95,11 +95,11 @@ d %>%
 library(ez)
 
 ad <- d %>% 
-  group_by(subject, direction, magnitude, colors) %>% 
+  group_by(subject, direction, magnitude, timing) %>% 
   summarize(ssd_ = mean(ssd)) 
 
 m1 <- ezANOVA(wid = subject, within = .(direction, magnitude),
-              between = .(colors), dv = ssd_, detailed = TRUE, data = ad)
+              between = .(timing), dv = ssd_, detailed = TRUE, data = ad)
 cbind(m1$ANOVA, data.frame(n2p = m1$ANOVA$SSn / (m1$ANOVA$SSn + m1$ANOVA$SSd)))
   
 ```
@@ -134,16 +134,30 @@ d %>%
 library(lme4)
 
 d$direction_e <- ifelse(d$direction == 'Easier than Reference', -0.5, 0.5)
+d$timing_e <- ifelse(d$timing == 'Controlled', 0.5, -0.5)
 
-mm1 <- glmer(ssd ~ direction_e * colors + (1 + direction_e * colors | subject), data = d, family = binomial(link = 'logit'), nAGQ = 1)
+# mm1 <- glmer(ssd ~ direction_e * timing_e + (1 + direction_e * timing_e | subject), data = d, family = binomial(link = 'logit'), nAGQ = 1)
+# 
+# mm1a <- glmer(ssd ~ direction_e * timing_e + 
+#                 (1 | subject) +
+#                 (0 + direction_e + timing_e + direction_e:timing_e| subject),
+#                 , data = d, family = binomial(link = 'logit'), nAGQ = 1)
+# 
+# mm1b <- glmer(ssd ~ direction_e * timing_e + 
+#                 (1 | subject) +
+#                 (0 + direction_e + timing_e | subject) + 
+#                 (0 + direction_e:timing_e | subject),
+#                 , data = d, family = binomial(link = 'logit'), nAGQ = 1)
+# 
+# 
+# mm2 <- glmer(ssd ~ direction_e * timing_e + (1 + direction_e + timing_e | subject), data = d, family = binomial(link = 'logit'), nAGQ = 1)
 
-mm2 <- glmer(ssd ~ direction_e * colors + (1 + direction_e + colors | subject), data = d, family = binomial(link = 'logit'), nAGQ = 1)
+## winning model
+mm3 <- glmer(ssd ~ direction_e * timing_e + (1 | subject) + (0 + direction_e | subject), data = d, family = binomial(link = 'logit'), nAGQ = 1)
 
-mm3 <- glmer(ssd ~ direction_e * colors + (1 | subject) + (0 + direction_e | subject), data = d, family = binomial(link = 'logit'), nAGQ = 1)
+# mm4 <- glmer(ssd ~ direction_e * timing_e + (1 | subject), data = d, family = binomial(link = 'logit'), nAGQ = 1)
 
-mm4 <- glmer(ssd ~ direction_e * colors + (1 | subject), data = d, family = binomial(link = 'logit'), nAGQ = 1)
-
-anova(mm4, mm3)
+#anova(mm3, mm4)
 
 mm <- mm3
 
@@ -152,13 +166,16 @@ mm <- mm3
 ### Hypothesis testing
 ```{r}
 ## hypothesis testing
-mm2 <- glmer(ssd ~ colors + colors:direction_e  + (1 + direction_e | subject) , data = d, family = binomial(link = 'logit'), nAGQ = 1)
+mm2 <- glmer(ssd ~ timing_e + timing_e:direction_e  + 
+               (1 | subject) +
+               (0 + direction_e | subject), 
+             data = d, family = binomial(link = 'logit'), nAGQ = 1)
 anova(mm, mm2)
 summary(mm)
 exp(fixef(mm))
 exp(confint(mm, method = 'Wald'))
 ```
-This data sucks smdh
+
 
 ### Prediction
 
@@ -185,7 +202,7 @@ easyPredCI <- function(model,newdata=NULL,alpha=0.05) {
 ## intervals from: https://stats.stackexchange.com/questions/147836/prediction-interval-for-lmer-mixed-effects-model-in-r
 ## dunno how to only get population-level prediction intervals from ^
 #library(merTools)
-test_data <- expand.grid(direction = unique(d$direction))
+test_data <- expand.grid(direction_e = unique(d$direction_e))
 test_data$proba <- predict(mm1, re.form=NA, newdata = test_data, type='response')
 test_data <- cbind(test_data, easyPredCI(mm1, newdata = test_data))
 test_data %>% 
