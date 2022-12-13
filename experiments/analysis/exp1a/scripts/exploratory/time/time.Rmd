@@ -86,8 +86,28 @@ d %>%
 # Choice Over Time
 
 ```{r}
+## unbinned
+d %>% 
+  rename(ssd_ = ssd) %>% 
+  group_by(trial, direction) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N)) %>% 
+  ggplot(aes(x = trial, y = ssd)) + 
+  geom_ribbon(aes(ymin = ssd - se, ymax = ssd + se, fill = direction), alpha = .3) + 
+  geom_line(aes(color = direction)) +
+  labs(
+    x = 'Trial',
+    y = 'Proportion Selection of Safe Deck',
+    fill = 'Direction',
+    color = 'Direction',
+  ) + 
+  ylim(0,1) + 
+  theme_bw() + 
+  theme(legend.position = 'bottom')
+```
+
+```{r}
 ## bin trials
-trial_bins <- data.frame(trial = 1:308, bin = rep(1:28, each = 11))
+trial_bins <- data.frame(trial = 1:308, bin = rep(1:77, each = 4))
 
 d %>% 
   inner_join(trial_bins) %>% 
@@ -96,6 +116,7 @@ d %>%
   group_by(bin, direction) %>% 
   summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N)) %>% 
   ggplot(aes(x = bin, y = ssd)) + 
+  geom_vline(xintercept = 10, linetype = 'dotted') + 
   geom_ribbon(aes(ymin = ssd - se, ymax = ssd + se, fill = direction), alpha = .3) + 
   geom_line(aes(color = direction)) +
   labs(
@@ -103,12 +124,13 @@ d %>%
     y = 'Proportion Selection of Safe Deck',
     fill = 'Direction',
     color = 'Direction',
-    caption = 'Each bin averages over 11 trials'
+    caption = 'Each bin averages over 4 trials'
   ) + 
   ylim(0,1) + 
   theme_bw() + 
   theme(legend.position = 'bottom')
 ```
+
 
 
 
@@ -121,6 +143,18 @@ summary(m1)
 
 
 
+```{r}
+full <- d %>% 
+  group_by(subject, direction) %>% 
+  summarize(ssd = mean(ssd))
+ff <- d %>% 
+  filter(trial <= 40) %>% 
+   group_by(subject, direction) %>% 
+  summarize(ssd = mean(ssd))
+
+t.test(full[full$direction == 'Easier than Reference',]$ssd, full[full$direction == 'Harder than Reference',]$ssd, paired = TRUE)
+t.test(ff[ff$direction == 'Easier than Reference',]$ssd, ff[ff$direction == 'Harder than Reference',]$ssd, paired = TRUE)
+```
 
 
 
