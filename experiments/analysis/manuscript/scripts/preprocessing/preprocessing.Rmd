@@ -1,0 +1,234 @@
+---
+title: 'Risky Visual Search - Preprocessing'
+author: 'Dave Braun'
+date: December 13, 2022
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+    toc: true
+    includes:
+      after_body: ../../../html/footer.html
+      in_header:  ../../../html/favicon.html
+knit:
+  (function(inputFile, encoding) {
+    rmarkdown::render(inputFile,
+    encoding = encoding,
+    output_file = 'index.html')})
+---
+
+
+This document was last updated at `r Sys.time()`.
+
+```{r include = FALSE}
+#Sys.setenv(RSTUDIO_PANDOC="/usr/lib/rstudio/pandoc/")
+library(tidyverse)
+```
+
+
+```{r}
+e1 <- read.csv('../../data/exp1a_main_raw.csv')
+e2 <- read.csv('../../data/exp3_main_raw.csv')
+e1$colors <- 'With Colors'
+e2$colors <- 'Without Colors'
+e2 <- select(e2, -counterbalance_condition, -current_counterbalance_condition)
+d <- rbind(e1, e2)
+
+N <- length(unique(d$subject))
+head(d)
+```
+
+
+Initial sample size is `r N`.
+
+
+## Check runtimes
+
+(mostly for adjusting after pilot)
+
+```{r}
+d %>% 
+  group_by(subject) %>% 
+  summarize(runtime = max(phase_runtime_mins)) %>% 
+  ggplot(aes(x = reorder(subject, runtime), y = runtime)) + 
+  geom_bar(stat = 'identity') +
+  geom_hline(yintercept = 30, linetype = 'dashed') +
+  labs(
+    x = 'Subject',
+    y = 'Main Phase Runtime (mins)'
+  ) + 
+  theme(axis.text.x = element_blank())
+```
+
+Going to take everyone under an hour and average as the completion time.
+
+```{r}
+runtimes <- d %>% 
+  group_by(subject) %>% 
+  summarize(runtime = max(phase_runtime_mins)) 
+avg_runtime <- mean(runtimes[runtimes$runtime < 60,]$runtime)
+
+
+desired_trials <- function(avg_runtime, n_trials = 308) {
+  mins_per_trial <- avg_runtime / n_trials
+  return(30 / mins_per_trial)
+}
+
+print(paste0('Target trials to be 30 min: ', round(desired_trials(avg_runtime))))
+```
+
+
+
+
+## Accuracy & Response Time
+
+For visual search
+
+```{r}
+## rt distribution
+d %>% 
+  filter(subject %in% sample(unique(d$subject), 10)) %>% 
+  ggplot(aes(x = search_rt)) + 
+  geom_histogram() + 
+  facet_wrap(~subject, scales = 'free') + 
+  labs(
+    caption = 'A randomly-sampled ten participants'
+  )
+
+
+## calc proportion dropped
+proportion_dropped <- function(rows_before, rows_now) {
+  return((rows_before - rows_now) / rows_before)
+}
+
+d %>% 
+  group_by(subject) %>% 
+  summarize(accuracy = 1 - mean(error), rt = mean(search_rt)) %>% 
+  ggplot(aes(x = rt/1000, y = accuracy, group = subject)) + 
+  geom_hline(yintercept = .75, linetype = 'dotted') + 
+  geom_vline(xintercept = .03, linetype = 'dotted') + 
+  geom_point() + 
+  labs(
+    x = ' Average Response Time (s)',
+    y = 'Average Accuracy'
+  ) + 
+  theme_bw()
+```
+
+## Location bias
+
+```{r}
+d$selected_deck_location_num <- ifelse(d$selected_deck_location == 'right', 1, -1)
+d %>% 
+  group_by(subject) %>% 
+  summarize(sdln = mean(selected_deck_location_num)) %>% 
+  ggplot(aes(x = subject, y = abs(sdln))) + 
+  geom_hline(yintercept = .9, linetype = 'dotted') + 
+  geom_point() + 
+  coord_flip() + 
+  ylim(0,1) +
+  labs(
+    x = 'Subject',
+    y = 'Location Bias'
+  ) + 
+  theme_bw() + 
+  theme(axis.text.y = element_blank(),
+        axis.ticks = element_blank())
+```
+
+
+## Data Trimming
+
+```{r}
+## cut subjects under 75% accuracy
+bad_subjects_accuracy <- d %>% 
+  group_by(subject) %>% 
+  summarize(error = mean(error), rt = mean(search_rt), location_bias = abs(mean(d$selected_deck_location_num))) %>% 
+  filter(error > .25 | rt < .03) %>% 
+  select(subject)
+n_bad_subjects_accuracy <- nrow(bad_subjects_accuracy)
+
+bad_subjects_location <- d %>% 
+  group_by(subject) %>% 
+  summarize(error = mean(error), rt = mean(search_rt), location_bias = abs(mean(d$selected_deck_location_num))) %>% 
+  filter(location_bias > .9) %>% 
+  select(subject)
+n_bad_subjects_location <- nrow(bad_subjects_location)
+
+d <- d[!(d$subject %in% bad_subjects_accuracy$subject),]
+d <- d[!(d$subject %in% bad_subjects_location$subject),]
+```
+
+There were `r n_bad_subjects_location` subjects dropped for having less than 75% accuracy and `r n_bad_subjects_location` subjects dropped for having greater than 0.9 location bias.
+
+### Gross level trial trimming
+
+```{r}
+## gross rt threshold
+rows_before <- nrow(d)
+d <- d[d$search_rt < 20000,]
+trim_summary <- data.frame(reason = 'Search RTs above 20s', proportion_trimmed = proportion_dropped(rows_before, nrow(d)))
+rows_before <- nrow(d)
+d <- d[d$choice_rt < 20000,]
+trim_summary <- rbind(trim_summary, data.frame(reason = 'Choice RTs above 20s', proportion_trimmed = proportion_dropped(rows_before, nrow(d))))
+
+```
+
+
+```{r}
+## remove choice rts beyond 
+hist(d$choice_rt)
+```
+
+### Fixed trimming on choice rt
+
+```{r}
+## Bounds on choice rt
+rows_before <- nrow(d)
+d <- d[d$choice_rt > 300 & d$choice_rt < 10000,]
+print(paste0('Proportion dropped: ', round(proportion_dropped(rows_before, nrow(d)), 3), ', ', rows_before - nrow(d), '/', nrow(d)))
+trim_summary <- rbind(trim_summary, data.frame(reason = 'Trimming choice rts less than 300 ms and greater than 10 s', proportion_trimmed = proportion_dropped(rows_before, nrow(d))))
+```
+
+### Trimming choice trials by participant-wise rt sds
+
+```{r}
+rows_before <- nrow(d)
+d <- d %>% 
+  group_by(subject) %>% 
+  summarize(choice_rt_m = mean(choice_rt), choice_rt_sd = sd(choice_rt)) %>% 
+  inner_join(d) %>% 
+  filter(choice_rt >= choice_rt_m - (2*choice_rt_sd) & choice_rt <= choice_rt_m + (2*choice_rt_sd))
+print(paste0('Proportion dropped: ', round(proportion_dropped(rows_before, nrow(d)), 3), ', ', rows_before - nrow(d), '/', nrow(d)))
+trim_summary <- rbind(trim_summary, data.frame(reason = 'Trimming choice rts on +/- 2 participant wise SDs', proportion_trimmed = proportion_dropped(rows_before, nrow(d))))
+```
+
+```{r}
+## code variables
+d$ssd <- 1 - d$selectedRiskyDeck
+```
+
+### Randomly select 100 Ps
+
+```{r}
+set.seed(3329478)
+final_subjects <- sample(unique(d$subject), size = 100)
+d_final <- d[d$subject %in% final_subjects,]
+```
+
+```{r}
+trim_summary
+```
+
+
+
+```{r}
+## drop unnecessary columns
+keep <- c('subject', 'trial', 'magnitude', 'direction', 'n_stimuli', 'present_or_absent', 'colors',
+          'choice_rt', 'search_rt', 'error', 'ssd')
+d_final <- d_final[, keep]
+
+write.csv(d_final, '../../data/main.csv', row.names = FALSE)
+```
+
