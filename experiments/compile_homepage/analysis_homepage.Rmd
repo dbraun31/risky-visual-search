@@ -76,9 +76,15 @@ output:
 * [Choice Analysis](https://davebraun.net/gaita/experiments/analysis/exp_contrasts/exp3_exp1/scripts/confirmatory/choice){target=_blank}
 
 
+## Manuscript
 
+### Preprocessing
+* [Preprocessing](https://davebraun.net/gaita/experiments/analysis/manuscript/scripts/preprocessing/)
 
+### Confirmatory
+* [Choice](https://davebraun.net/gaita/experiments/analysis/manuscript/scripts/confirmatory/choice/)
 
+* [Performance](https://davebraun.net/gaita/experiments/analysis/manuscript/scripts/confirmatory/performance/)
 
 
 
