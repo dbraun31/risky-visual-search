@@ -29,10 +29,9 @@ library(tidyverse)
 
 ```{r}
 e1 <- read.csv('../../data/exp1a_main_raw.csv')
-e2 <- read.csv('../../data/exp3_main_raw.csv')
-e1$colors <- 'With Colors'
-e2$colors <- 'Without Colors'
-e2 <- select(e2, -counterbalance_condition, -current_counterbalance_condition)
+e2 <- read.csv('../../data/exp2_main_raw.csv')
+e1$timing <- 'Controlled'
+e2$timing <- 'Uncontrolled'
 d <- rbind(e1, e2)
 
 N <- length(unique(d$subject))
@@ -151,7 +150,7 @@ n_bad_subjects_accuracy <- nrow(bad_subjects_accuracy)
 
 bad_subjects_location <- d %>% 
   group_by(subject) %>% 
-  summarize(location_bias = abs(mean(selected_deck_location_num))) %>% 
+  summarize(error = mean(error), rt = mean(search_rt), location_bias = abs(mean(d$selected_deck_location_num))) %>% 
   filter(location_bias > .9) %>% 
   select(subject)
 n_bad_subjects_location <- nrow(bad_subjects_location)
@@ -160,7 +159,7 @@ d <- d[!(d$subject %in% bad_subjects_accuracy$subject),]
 d <- d[!(d$subject %in% bad_subjects_location$subject),]
 ```
 
-There were `r n_bad_subjects_accuracy` subjects dropped for having less than 75% accuracy and `r n_bad_subjects_location` subjects dropped for having greater than 0.9 location bias.
+There were `r n_bad_subjects_location` subjects dropped for having less than 75% accuracy and `r n_bad_subjects_location` subjects dropped for having greater than 0.9 location bias.
 
 ### Gross level trial trimming
 
@@ -225,10 +224,10 @@ trim_summary
 
 ```{r}
 ## drop unnecessary columns
-keep <- c('subject', 'trial', 'magnitude', 'direction', 'n_stimuli', 'present_or_absent', 'colors',
+keep <- c('subject', 'trial', 'magnitude', 'direction', 'n_stimuli', 'present_or_absent', 'timing',
           'choice_rt', 'search_rt', 'error', 'ssd')
 d_final <- d_final[, keep]
 
-write.csv(d_final, '../../data/main.csv', row.names = FALSE)
+write.csv(d_final, '../../data/main_timing.csv', row.names = FALSE)
 ```
 
