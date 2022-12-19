@@ -29,10 +29,9 @@ library(tidyverse)
 
 ```{r}
 e1 <- read.csv('../../data/exp1a_main_raw.csv')
-e2 <- read.csv('../../data/exp3_main_raw.csv')
-e1$colors <- 'With Colors'
-e2$colors <- 'Without Colors'
-e2 <- select(e2, -counterbalance_condition, -current_counterbalance_condition)
+e2 <- read.csv('../../data/exp2_main_raw.csv')
+e1$delay <- 'Not Enforced'
+e2$delay <- 'Enforced'
 d <- rbind(e1, e2)
 
 N <- length(unique(d$subject))
@@ -137,6 +136,16 @@ d %>%
         axis.ticks = element_blank())
 ```
 
+## Compute variables
+
+```{r}
+## compute lagged difficulty
+d <- d %>% 
+    group_by(subject) %>% 
+    mutate(n_stimuli_lag = lag(n_stimuli)) 
+
+```
+
 
 ## Data Trimming
 
@@ -225,10 +234,10 @@ trim_summary
 
 ```{r}
 ## drop unnecessary columns
-keep <- c('subject', 'trial', 'magnitude', 'direction', 'n_stimuli', 'present_or_absent', 'colors',
-          'choice_rt', 'search_rt', 'error', 'ssd')
+keep <- c('subject', 'trial', 'magnitude', 'direction', 'n_stimuli', 'n_stimuli_lag',
+          'present_or_absent', 'delay', 'choice_rt', 'search_rt', 'error', 'ssd')
 d_final <- d_final[, keep]
 
-write.csv(d_final, '../../data/main.csv', row.names = FALSE)
+write.csv(d_final, '../../data/main_timing.csv', row.names = FALSE)
 ```
 
