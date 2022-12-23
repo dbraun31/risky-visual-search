@@ -1,0 +1,36 @@
+---
+title: "Risky Visual Search Experiments"
+author: "Dave Braun"
+date: '`r format(Sys.time(), "%b %d %Y, %H:%M:%S")`'
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    include:
+      in_header: ../analysis/html/favicon.html
+      after_body: ../analysis/html/footer.html
+---
+
+# {.tabset}
+
+## Experiment 1
+
+### Preprocessing
+* [Preprocessing](https://davebraun.net/gaita/experiments/analysis/manuscript/scripts/preprocessing/)
+
+### Confirmatory
+* [Choice](https://davebraun.net/gaita/experiments/analysis/manuscript/scripts/confirmatory/choice/)
+
+* [Performance](https://davebraun.net/gaita/experiments/analysis/manuscript/scripts/confirmatory/performance/)
+
+
+
+
+
+
+
+
+
+
+
+
