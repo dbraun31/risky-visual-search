@@ -1,0 +1,460 @@
+---
+title: 'Risky Visual Search - Choice Analysis'
+author: 'Dave Braun'
+date: 'December 13, 2022'
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+    toc: true
+    includes:
+      after_body: ../../../../html/footer.html
+      in_header: ../../../../html/favicon.html
+knit:
+  (function(inputFile, encoding) {
+    rmarkdown::render(inputFile,
+    encoding = encoding,
+    output_file = 'index.html')})
+---
+
+
+This document was last updated at `r Sys.time()`.
+
+```{r include = FALSE}
+library(tidyverse)
+library(ggsci)
+library(gridExtra)
+```
+
+
+```{r}
+d <- read.csv('../../../data/main_timing.csv')
+N <- length(unique(d$subject))
+head(d)
+```
+
+Initial sample size is `r N`.
+```{r}
+d <- d %>% 
+  mutate(direction = recode(direction, `Easier than Reference` = 'Easier',
+                          `Harder than Reference` = 'Harder'))
+```
+
+
+```{r}
+p1 <- d %>% 
+  group_by(subject, direction, delay) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction, delay) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N)) %>% 
+    print() %>% 
+  ggplot(aes(x = delay, y = ssd)) + 
+  geom_hline(yintercept = .5, linetype = 'dotted') +
+  geom_bar(stat = 'identity', aes(fill = direction), position = position_dodge(width= .9), color = 'black') + 
+  geom_errorbar(aes(ymin = ssd - se, ymax = ssd + se, group = direction), width = .5, position = position_dodge(width= .9)) + 
+  ylim(0,1) + 
+  labs(
+    x = 'Delay',
+    y = 'Proportion Selection of Safe Deck',
+    fill = 'Framing',
+    caption = paste0('N = ', N, '.')
+  ) + 
+  scale_fill_manual(values = c(`Easier` = 'grey', `Harder` = 'white')) + 
+  theme_bw() +
+  theme(axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        strip.background = element_blank(),
+        legend.position = c(.2, .85))
+p1
+```
+
+### Individual differences in direction effect
+
+```{r}
+m <- d %>% 
+  group_by(subject, direction, delay) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction, delay) %>% 
+  summarize(ssd = mean(ssd_))
+
+p2 <- d %>% 
+    group_by(subject, direction, delay) %>% 
+    summarize(ssd = mean(ssd)) %>% 
+    mutate(delay = recode(delay, `Enforced` = 'Delay Enforced',
+                           `Not Enforced` = 'Delay not Enforced')) %>% 
+    ggplot(aes(x = direction, y = ssd)) + 
+    geom_violin(fill = 'steelblue', alpha = .2) + 
+    geom_boxplot(fill = NA) + 
+    geom_jitter(width = .05, alpha = .7) + 
+    geom_line(aes(group = subject), linetype = 'dashed', alpha = .7) +
+    facet_wrap(~delay) +
+    ylim(0,1) +
+    labs(
+    x = 'Framing',
+    y = 'Proportion Selection of Safe Option'
+    ) + 
+    theme_bw() + 
+    theme(strip.background = element_rect(color = 'black', fill = 'white'),
+          axis.ticks = element_blank(),
+          panel.grid = element_blank())
+
+p2
+
+```
+
+```{r}
+grid.arrange(p1, p2, nrow = 1)
+```
+
+
+```{r}
+library(ez)
+
+ad <- d %>% 
+  group_by(subject, direction, magnitude, delay) %>% 
+  summarize(ssd_ = mean(ssd)) 
+
+m1 <- ezANOVA(wid = subject, within = .(direction, magnitude),
+              between = .(delay), dv = ssd_, detailed = TRUE, data = ad)
+cbind(m1$ANOVA, data.frame(n2p = m1$ANOVA$SSn / (m1$ANOVA$SSn + m1$ANOVA$SSd)))
+  
+```
+
+## Marginal means
+
+```{r eval = FALSE}
+d %>% 
+  group_by(subject, direction, magnitude, delay) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(direction) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N))
+
+d %>% 
+  group_by(subject, direction, magnitude, delay) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(magnitude) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N))
+
+d %>% 
+  group_by(subject, direction, magnitude, delay) %>% 
+  summarize(ssd_ = mean(ssd)) %>% 
+  group_by(delay) %>% 
+  summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(N))
+```
+
+
+
+## Mixed modeling
+
+### Compute predictors
+
+```{r}
+library(lme4)
+
+d$direction_e <- ifelse(d$direction == 'Easier', -0.5, 0.5)
+d$delay_e <- ifelse(d$delay == 'Enforced', 0.5, -0.5)
+d$n_stimuli_lag_c <- scale(d$n_stimuli_lag)[,1]
+d$magnitude_e <- ifelse(d$magnitude == 'Moderate', -0.5, 0.5)
+d$trial_c <- ifelse(d$delay == 'Enforced', 
+                    scale(d[d$delay=='Enforced',]$trial)[,1],
+                    scale(d[d$delay == 'Not Enforced',]$trial)[,1])
+
+## compute performance
+sp <- d %>% 
+    group_by(subject) %>% 
+    summarize(ssd = mean(ssd), search_rt = mean(search_rt), error = mean(error))
+
+sp$search_rt_c <- scale(sp$search_rt)[,1]
+sp$error_c <- scale(sp$error)[,1]
+
+sp <- sp %>% 
+    mutate(performance = sqrt((-2 - error_c)^2 + (-2 - search_rt_c)^2))
+sp$performance_c <- -scale(sp$performance)[,1]
+
+d <- sp %>% 
+    select(subject, performance_c) %>% 
+    inner_join(d)
+
+
+## drop na lagged trials (ie, first trial for each subject)
+d <- d[!is.na(d$n_stimuli_lag),]
+
+```
+
+### Model fit
+
+```{r}
+## random slope of n_stimuli lag not significant
+mm <- glmer(ssd ~ direction_e * delay_e +
+                trial_c + 
+                 magnitude_e +
+                n_stimuli_lag_c + 
+                performance_c + 
+                (1 | subject) + 
+                (0 + direction_e | subject) + 
+                (0 + trial_c | subject) + 
+                (0 + magnitude_e | subject), 
+            data = d, family = binomial(link = 'logit'),
+            control = glmerControl(optimizer = 'bobyqa'),
+            nAGQ = 1)
+
+
+
+```
+
+### Hypothesis testing
+
+**Overall summary**
+```{r}
+## hypothesis testing
+summary(mm)
+levels <- c('Intercept', 'Framing', 'Delay', 'Trial Count', 'Outcome Magnitude', 
+             'Search Stimuli (t-1)', 'Performance', 'Direction X Delay')
+data.frame(parameter = levels, estimate = exp(fixef(mm)), exp(confint(mm, method = 'Wald', parm = 'beta_')))
+```
+
+**Likelihood ratio tests for direction, delay, and interaction**
+```{r}
+print('Main effect of direction')
+## direction var
+m_direction <- glmer(ssd ~ delay_e +
+                direction_e:delay_e + 
+                trial_c + 
+                 magnitude_e +
+                n_stimuli_lag_c + 
+                performance_c + 
+                (1 | subject) + 
+                (0 + direction_e | subject) + 
+                (0 + trial_c | subject) + 
+                (0 + magnitude_e | subject), 
+            data = d, family = binomial(link = 'logit'),
+            control = glmerControl(optimizer = 'bobyqa'),
+            nAGQ = 1)
+anova(mm, m_direction)
+
+print('Main effect of delay')
+## delay var
+m_delay <- glmer(ssd ~ direction_e +
+                direction_e:delay_e + 
+                trial_c + 
+                 magnitude_e +
+                n_stimuli_lag_c + 
+                performance_c + 
+                (1 | subject) + 
+                (0 + direction_e | subject) + 
+                (0 + trial_c | subject) + 
+                (0 + magnitude_e | subject), 
+            data = d, family = binomial(link = 'logit'),
+            control = glmerControl(optimizer = 'bobyqa'),
+            nAGQ = 1)
+anova(mm, m_delay)
+
+print('Interaction')
+## interaction
+m_interaction <- glmer(ssd ~ direction_e +
+                delay_e + 
+                trial_c + 
+                 magnitude_e +
+                n_stimuli_lag_c + 
+                performance_c + 
+                (1 | subject) + 
+                (0 + direction_e | subject) + 
+                (0 + trial_c | subject) + 
+                (0 + magnitude_e | subject), 
+            data = d, family = binomial(link = 'logit'),
+            control = glmerControl(optimizer = 'bobyqa'),
+            nAGQ = 1)
+anova(mm, m_interaction)
+```
+**Follow ups on magnitude and stimuli lag**
+
+```{r}
+print('Main effect of magnitude')
+## interaction
+m_magnitude <- glmer(ssd ~ direction_e * delay_e + 
+                trial_c + 
+                n_stimuli_lag_c + 
+                performance_c + 
+                (1 | subject) + 
+                (0 + direction_e | subject) + 
+                (0 + trial_c | subject) + 
+                (0 + magnitude_e | subject), 
+            data = d, family = binomial(link = 'logit'),
+            control = glmerControl(optimizer = 'bobyqa'),
+            nAGQ = 1)
+anova(mm, m_magnitude)
+
+d %>% 
+    group_by(subject, magnitude) %>% 
+    summarize(ssd_ = mean(ssd)) %>% 
+    group_by(magnitude) %>% 
+    summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(100))
+
+
+print('Main effect of stimuli lag')
+print(paste0('One unit on the scaled var in the model is about ', round(sd(d$n_stimuli_lag), 3)))
+## stimuli lag
+m_stimuli_lag <- glmer(ssd ~ direction_e * delay_e + 
+                magnitude_e + 
+                trial_c + 
+                performance_c + 
+                (1 | subject) + 
+                (0 + direction_e | subject) + 
+                (0 + trial_c | subject) + 
+                (0 + magnitude_e | subject), 
+            data = d, family = binomial(link = 'logit'),
+            control = glmerControl(optimizer = 'bobyqa'),
+            nAGQ = 1)
+anova(mm, m_stimuli_lag)
+
+d %>% 
+    group_by(subject, n_stimuli_lag) %>% 
+    summarize(ssd_ = mean(ssd), count = n()) %>% 
+    group_by(n_stimuli_lag) %>% 
+    summarize(ssd = mean(ssd_), se = sd(ssd_) / sqrt(100), count = sum(count)) %>% 
+    gather(metric, outcome, ssd, count) %>% 
+    mutate(metric = recode(metric, `count` = 'Number of Observations',
+                           `ssd` = 'Proportion Selection of Safe Deck')) %>% 
+    print() %>% 
+    ggplot(aes(x = n_stimuli_lag, y = outcome)) + 
+    geom_errorbar(aes(ymin = outcome - se, ymax = outcome + se), width = .5) + 
+    geom_point() + 
+    geom_line() + 
+    labs(
+        x = 'Number of Search Stimuli on Trial (t-1)',
+        y = ''
+    ) + 
+    facet_wrap(~metric, scales = 'free') + 
+    theme_bw() + 
+    theme(
+        axis.ticks = element_blank(),
+        strip.background = element_rect(color = 'black', fill = 'white'),
+        panel.grid = element_blank()
+    )
+
+
+
+```
+Hmmm, I'm not quite sure what this is all about. Ah okay, I think this is just if you chose a risky deck on t-1 (every stimuli level but 20 & 40) then you're more likely to choose risky again & vice versa. 
+
+
+### Plot estimates
+
+```{r}
+library(ggExtra)
+ci <- confint(mm, method = 'Wald', parm = 'beta_')
+levels <- c('Intercept', 'Framing', 'Delay', 'Trial Count', 'Outcome Magnitude', 
+             'Search Stimuli (t-1)', 'Performance', 'Direction X Delay')
+ctab <- cbind(fixef(mm), ci)
+rtab <- data.frame(exp(ctab))
+parameter <- factor(levels, levels = rev(levels))
+rtab$parameter <- parameter
+colnames(rtab) <- c('estimate', 'lower', 'upper', 'parameter')
+
+
+pd <- data.frame(parameter = parameter, estimate = exp(fixef(mm)),
+                 lower = ci[5:(nrow(ci)),1], upper = ci[5:(nrow(ci)),2])
+
+rtab %>% 
+    ggplot(aes(x = parameter, y = estimate)) + 
+    geom_hline(yintercept = 1, linetype = 'dotted') + 
+    geom_point(size = 2) + 
+    geom_errorbar(aes(ymin = lower, ymax = upper), width = .5) + 
+    ylim(0, 2.5) +
+    coord_flip() + 
+    labs(
+        x = 'Parameter',
+        y = 'Odds of Selecting Safe Deck'
+    ) + 
+    theme_bw() + 
+    theme(axis.ticks = element_blank(),
+          panel.grid = element_blank())
+```
+
+```{r}
+r <- data.frame(mode = ranef(mm, condVar = TRUE))
+r <- r[r$mode.term == 'direction_e',]
+r$fixed <- fixef(mm)[2]
+r$fixed_odds_ratio <- exp(r$fixed)
+r$random_beta <- r$mode.condval + r$fixed
+r$odds_ratio <- exp(r$random_beta)
+r$sd_or <- exp(r$mode.condsd)
+
+r <- data.frame(id = rownames(coef(mm)$subject), odds_ratio = exp(coef(mm)$subject[,'direction_e']))
+
+p1 <- r %>% 
+    mutate(id = 1:(nrow(.))) %>% 
+    ggplot(aes(x = reorder(id, odds_ratio), y = odds_ratio)) + 
+    geom_hline(yintercept = 1, linetype = 'dotted') + 
+    geom_hline(yintercept = unique(r$fixed_odds_ratio), linetype = 'dashed', color = 'blue') + 
+    geom_point() + 
+    ylim(0, 10) +
+    labs(
+        x = 'Participant',
+        y = 'Increase in Odds of Selecting Safe Deck when Outcomes are Harder than Reference'
+    ) + 
+    coord_flip() +
+    theme_bw() + 
+    theme(
+        panel.grid = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.y = element_blank())
+
+ggMarginal(p1, margins = 'x', fill = 'steelblue', alpha = .7)
+```
+
+
+### Prediction
+
+```{r eval = FALSE}
+easyPredCI <- function(model,newdata=NULL,alpha=0.05) {
+    ## baseline prediction, on the linear predictor (logit) scale:
+    pred0 <- predict(model,re.form=NA,newdata=newdata)
+    ## fixed-effects model matrix for new data
+    X <- model.matrix(formula(model,fixed.only=TRUE)[-2],newdata)
+    beta <- fixef(model) ## fixed-effects coefficients
+    V <- vcov(model)     ## variance-covariance matrix of beta
+    pred.se <- sqrt(diag(X %*% V %*% t(X))) ## std errors of predictions
+    ## inverse-link function
+    linkinv <- family(model)$linkinv
+    ## construct 95% Normal CIs on the link scale and
+    ##  transform back to the response (probability) scale:
+    crit <- -qnorm(alpha/2)
+    linkinv(cbind(conf.low=pred0-crit*pred.se,
+                  conf.high=pred0+crit*pred.se))
+}
+
+
+## prediction
+## intervals from: https://stats.stackexchange.com/questions/147836/prediction-interval-for-lmer-mixed-effects-model-in-r
+## dunno how to only get population-level prediction intervals from ^
+#library(merTools)
+test_data <- expand.grid(direction_e = unique(d$direction_e))
+test_data$proba <- predict(mm1, re.form=NA, newdata = test_data, type='response')
+test_data <- cbind(test_data, easyPredCI(mm1, newdata = test_data))
+test_data %>% 
+  ggplot(aes(x = direction, y = proba)) + 
+  geom_bar(stat = 'identity') + 
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = .5) +
+  ylim(0, 1) + 
+  labs(
+    x = 'Direction', 
+    y = 'Probability of Selecting Safe Deck'
+  ) + 
+  theme_bw()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

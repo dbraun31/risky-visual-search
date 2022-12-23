@@ -1,0 +1,177 @@
+---
+title: 'Risky Visual Search - Performance Analysis'
+author: 'Dave Braun'
+date: 'December 13, 2022'
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+    toc: true
+    includes:
+      after_body: ../../../../html/footer.html
+      in_header: ../../../../html/favicon.html
+knit:
+  (function(inputFile, encoding) {
+    rmarkdown::render(inputFile,
+    encoding = encoding,
+    output_file = 'index.html')})
+---
+
+
+This document was last updated at `r Sys.time()`.
+
+```{r include = FALSE}
+library(tidyverse)
+library(ggsci)
+```
+
+
+```{r}
+d <- read.csv('../../../data/main.csv')
+N <- length(unique(d$subject))
+head(d)
+
+```
+
+Sample size is `r N`.
+
+## Observed RTs and error rates
+
+```{r}
+d %>% 
+  group_by(subject, n_stimuli, present_or_absent) %>% 
+  summarize(error_ = mean(error), search_rt_ = mean(search_rt)) %>% 
+  group_by(n_stimuli, present_or_absent) %>% 
+  summarize(error_m = mean(error_), error_se = sd(error_) / sqrt(N), rt_m = mean(search_rt_), rt_se = sd(search_rt_) / sqrt(N)) %>% 
+  gather(var, value, error_m:rt_se) %>% 
+  separate(var, into = c('metric', 'summary'), sep = '_') %>% 
+  ungroup() %>% 
+  spread(summary, value) %>% 
+  mutate(metric = recode(metric, 'error' = 'Error', 'rt' = 'Response Time (ms)'),
+         present_or_absent = recode(present_or_absent,
+                                    `absent` = 'Absent',
+                                    `present` = 'Present')) %>% 
+  ggplot(aes(x = n_stimuli, y = m)) + 
+  geom_point(aes(color = present_or_absent)) + 
+  geom_ribbon(aes(ymin = m - se, ymax = m + se, fill = present_or_absent), alpha = .4) +
+  geom_line(aes(color = present_or_absent)) + 
+  labs(
+    x = 'Number of Stimuli',
+    y = '',
+    fill = 'Target Present or Absent',
+    color = 'Target Present or Absent'
+  ) + 
+  facet_wrap(~metric, scales = 'free') + 
+  scale_fill_npg() + 
+  scale_color_npg() + 
+  theme_bw() + 
+  theme(strip.background = element_rect(fill = 'white', color = 'black'),
+        legend.position = c(.15,.8),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank())
+  
+```
+
+## Modeling RTs and error rates
+
+### Error rates
+
+```{r}
+d$n_stimuli_c <- d$n_stimuli - 32
+d$present_or_absent_e <- ifelse(d$present_or_absent == 'present', 0.5, -0.5)
+m_error <- glm(error ~ present_or_absent_e * n_stimuli_c, data = d, family = binomial(link = 'logit'))
+summary(m_error)
+exp(m_error$coefficients)
+exp(confint(m_error))
+
+## high stimuli
+d$is_present <- ifelse(d$present_or_absent == 'present', 0, 1)
+m_error_present <- glm(error ~ is_present * n_stimuli_c, data = d, family = binomial(link = 'logit'))
+summary(m_error_present)
+exp(m_error_present$coefficients)
+exp(confint(m_error_present))
+
+## low stimuli
+d$is_absent <- ifelse(d$present_or_absent == 'absent', 0, 1)
+m_error_absent <- glm(error ~ is_absent * n_stimuli_c, data = d, family = binomial(link = 'logit'))
+summary(m_error_absent)
+exp(m_error_absent$coefficients)
+exp(confint(m_error_absent))
+```
+### Response times
+
+```{r}
+d$n_stimuli_c <- d$n_stimuli - 32
+d$present_or_absent_e <- ifelse(d$present_or_absent == 'present', 0.5, -0.5)
+m_rt <- lm(search_rt ~ present_or_absent_e * n_stimuli_c, data = d)
+summary(m_rt)
+confint(m_rt)
+
+## high stimuli
+d$is_present <- ifelse(d$present_or_absent == 'present', 0, 1)
+m_rt_present <- lm(search_rt ~ is_present * n_stimuli_c, data = d)
+summary(m_rt_present)
+confint(m_rt_present)
+
+## low stimuli
+d$is_absent <- ifelse(d$present_or_absent == 'absent', 0, 1)
+m_rt_absent <- lm(search_rt ~ is_absent * n_stimuli_c, data = d)
+summary(m_rt_absent)
+confint(m_rt_absent)
+```
+
+
+### Choice RT Distributions
+
+**Overall**
+
+```{r}
+d %>% 
+  ggplot(aes(x = choice_rt)) + 
+  geom_histogram(color = 'black', fill = 'steelblue', alpha = .8) + 
+  theme_bw()
+```
+
+
+
+**Subject means**
+
+
+
+```{r}
+d %>% 
+  group_by(subject) %>% 
+  summarize(choice_rt = mean(choice_rt)) %>% 
+  ggplot(aes(x = choice_rt)) + 
+  geom_density(fill = 'steelblue', alpha = .6) + 
+  theme_bw()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

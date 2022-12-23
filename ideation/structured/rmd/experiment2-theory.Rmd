@@ -1,0 +1,91 @@
+---
+title: 'Experiment 2 Theory'
+author: 'Dave Braun'
+date: December 23, 2022
+output:
+    md_document:
+        variant: markdown_github
+        toc: TRUE
+        df_print: 'paged'
+        standalone: TRUE
+knit: (function(input, encoding, output) {knitr::knit(input=input, encoding = encoding, output='../md/experiment-2-theory.md')})
+---
+
+# Experiment 2 Theory
+
+In this document I will be putting together an absolutely beautiful summary of the theory behind Experiment 2. This theory relies both on [[measurement.md]] and [[stimuli.md]].
+
+```{r include = FALSE, setup}
+## super useful docs on knitr
+## https://yihui.org/knitr/options/#chunk_options
+
+library(tidyverse)
+library(latex2exp)
+knitr::opts_knit$set(base.dir = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/')
+#knitr::opts_knit(base.dir = paste0(getwd(), '/../md/'))
+knitr::opts_chunk$set(fig.path = 'figures/', fig.align = 'center')
+```
+
+## Prospect theory
+
+The form of prospect theory is:
+
+$$
+V = \pi(p) \cdot v(x)
+$$
+
+
+Let's look more closely at the probability weighting function:
+
+$$
+\pi(p) = \frac{p^{\gamma}}{(p^{\gamma} + (1 - p)^{\gamma})^{1/\gamma}}
+$$
+
+Let's look at this function over various parameter level specifications:
+
+
+```{r echo = FALSE}
+w <- function(p, gam) {
+    numerator <- p^gam
+    denominator <- (p^gam + (1 - p)^gam)^(1/gam)
+    return(numerator / denominator)
+}
+
+d <- expand.grid(p = seq(0, 1, by = .001), gam = seq(.4, .7, by = .1))
+d$sp <- w(d$p, d$gam)
+
+d %>% 
+    ggplot(aes(x = p, y = sp)) + 
+    geom_abline(intercept = 0, slope = 1, linetype = 'dotted') + 
+    geom_line(aes(linetype = factor(gam))) + 
+    labs(
+        x = 'Objective Probability',
+        y = 'Subjective Probability',
+        linetype = TeX(r"($\gamma$)")
+    ) + 
+    theme_bw() + 
+    theme(axis.ticks = element_blank(),
+          panel.grid = element_blank())
+
+```
+
+
+This is truly profound.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

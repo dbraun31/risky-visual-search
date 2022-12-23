@@ -1,0 +1,1 @@
+scp -P 18765 u231-f6hnzkbwb44b@davebraun.net:~/www/davebraun.net/public_html/turk/data/gaita/gaita_exp3/* .

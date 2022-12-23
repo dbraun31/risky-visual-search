@@ -1,0 +1,194 @@
+---
+title: 'Risky Visual Search - Experiment 3 Individual Differences Analysis'
+author: 'Dave Braun'
+date: '`r format(Sys.time(), "%b %d %Y, %H:%M:%S")`'
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+    toc: true
+    includes:
+      after_body: ../../../../html/footer.html
+      in_header: ../../../../html/favicon.html
+knit:
+  (function(inputFile, encoding) {
+    rmarkdown::render(inputFile,
+    encoding = encoding,
+    output_file = 'index.html')})
+---
+
+
+This document was last updated at `r Sys.time()`.
+
+```{r include = FALSE}
+library(tidyverse)
+library(ggExtra)
+library(plotly)
+```
+
+
+```{r}
+exp <- str_extract(getwd(), 'exp\\d[a-z]?')
+d <- read.csv(paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main_full.csv'))
+demo <- read.csv(paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_demo.csv'))
+N <- length(unique(d$subject))
+head(d)
+```
+
+Initial sample size is `r N`.
+
+**Preprocess NFC scale**
+
+```{r}
+reverse_items <- c(3,4,5,7,8,9,12,16,17)
+response_code <- data.frame(response = c('neutral', 'somewhat_agree', 'somewhat_disagree', 'strongly_agree', 'strongly_disagree', ''), numeric = c(3, 4, 2, 5, 1, NA))
+survey <- demo %>% 
+  gather(question, response, cog_effort_q1:cog_effort_q18) %>% 
+  select(subject, question, response) %>% 
+  inner_join(response_code) 
+
+parse_question <- function(q) {
+  return(as.numeric(sub('.', '', unlist(strsplit(q, split='_'))[3])))
+}
+
+survey <- survey %>% 
+  mutate(question = Vectorize(parse_question)(question)) %>% 
+  mutate(numeric_final = ifelse(question %in% reverse_items, 6-numeric, numeric)) %>% 
+  arrange(subject) %>% 
+  select(-response, -numeric) %>% 
+  rename(response = numeric_final) 
+
+survey %>% 
+  filter(!is.na(response)) %>% 
+  group_by(subject) %>% 
+  summarize(cog_need = mean(response)) %>% 
+  ggplot(aes(x = cog_need)) + 
+  geom_histogram(color = 'black')
+  
+survey %>% 
+  group_by(subject) %>% 
+  summarize(missing = sum(is.na(response)) / nrow(.)) %>% 
+  ggplot(aes(x = missing)) + 
+  geom_histogram(color = 'black') + 
+  labs(
+    x = 'Proportion Survey Unanswered',
+    y = 'Frequency'
+  )
+
+cog_need <- survey %>% 
+  filter(!is.na(response)) %>% 
+  group_by(subject) %>% 
+  summarize(cog_need_score = mean(response))
+  
+```
+
+```{r}
+## merge cog need with overall data
+d <- d %>% 
+  inner_join(cog_need)  
+```
+```{r}
+## look at it
+
+p <- d %>% 
+  group_by(subject, direction) %>% 
+  summarize(ssd = mean(ssd)) %>% 
+  spread(direction, ssd) %>% 
+  mutate(effect = `Harder than Reference` - `Easier than Reference`) %>% 
+  inner_join(d) %>% 
+  group_by(subject) %>% 
+  summarize(effect = unique(effect), cog_need_score = unique(cog_need_score)) %>% 
+  ggplot(aes(x = cog_need_score, y = effect)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm') + 
+  labs(
+    x = 'Need for Cognition',
+    y = 'Extent Aligned with Prediction'
+  ) + 
+  theme_bw()
+  
+ggMarginal(p, type = 'histogram') 
+  
+```
+
+
+
+😭
+
+
+## Participation lag
+
+Does the number of days the participant waited to complete the study after being assigned (as like a proxy of conscientiousness) predict their choice?
+
+
+
+```{r}
+lag <- read.csv('../../../../participation_lag.csv')
+avg_lag <- mean(lag$lag_days)/24
+lag %>% 
+  ggplot(aes(x = lag_days/24)) + 
+  geom_histogram(color = 'black', bins = 20) + 
+  geom_vline(xintercept = avg_lag, linetype = 'dashed')
+```
+
+
+
+
+
+
+```{r}
+## join
+## losing three Ps from my og data for some reason
+d <- d %>% 
+  inner_join(lag, by = c('sona_id' = 'survey_id')) 
+  
+
+cor_data <- d %>% 
+  group_by(subject, direction) %>% 
+  summarize(ssd = mean(ssd), sona_id = unique(sona_id)) %>% 
+  spread(direction, ssd) %>% 
+  mutate(effect = `Harder than Reference` - `Easier than Reference`) %>% 
+  select(subject, sona_id, effect) %>% 
+  inner_join(lag, by = c('sona_id' = 'survey_id')) 
+cor_data %>% 
+  ggplot(aes(x = lag_days, y = effect)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm')
+  
+```
+
+
+
+
+
+```{r}
+cor.test(cor_data$effect, cor_data$lag_days)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,122 @@
+---
+title: 'Risky Visual Search - Experiment 1 Performance Analysis'
+author: 'Dave Braun'
+date: '`r format(Sys.time(), "%b %d %Y, %H:%M:%S")`'
+output:
+  html_document:
+    theme: flatly
+    code_folding: hide
+    df_print: paged
+    toc: true
+    includes:
+      after_body: ../../../../html/footer.html
+      in_header: ../../../../html/favicon.html
+knit:
+  (function(inputFile, encoding) {
+    rmarkdown::render(inputFile,
+    encoding = encoding,
+    output_file = 'index.html')})
+---
+
+
+This document was last updated at `r Sys.time()`.
+
+```{r include = FALSE}
+library(tidyverse)
+```
+
+
+```{r}
+exp <- str_extract(getwd(), 'exp\\d[a-z]?')
+d <- read.csv(paste0(here::here(), '/experiments/analysis/', exp, '/data/', exp, '_main.csv'))
+N <- length(unique(d$subject))
+head(d)
+
+```
+
+Initial sample size is `r N`.
+
+
+```{r}
+d %>% 
+  group_by(subject, n_stimuli, present_or_absent) %>% 
+  summarize(error_ = mean(error), search_rt_ = mean(search_rt)) %>% 
+  group_by(n_stimuli, present_or_absent) %>% 
+  summarize(error_m = mean(error_), error_se = sd(error_) / sqrt(N), rt_m = mean(search_rt_), rt_se = sd(search_rt_) / sqrt(N)) %>% 
+  gather(var, value, error_m:rt_se) %>% 
+  separate(var, into = c('metric', 'summary'), sep = '_') %>% 
+  ungroup() %>% 
+  spread(summary, value) %>% 
+  mutate(metric = recode(metric, 'error' = 'Error', 'rt' = 'Response Time (ms)')) %>% 
+  ggplot(aes(x = n_stimuli, y = m)) + 
+  geom_point(aes(color = present_or_absent)) + 
+  geom_ribbon(aes(ymin = m - se, ymax = m + se, fill = present_or_absent), alpha = .4) +
+  geom_line(aes(color = present_or_absent)) + 
+  labs(
+    x = 'Number of Stimuli',
+    y = '',
+    fill = 'Target Present or Absent',
+    color = 'Target Present or Absent'
+  ) + 
+  facet_wrap(~metric, scales = 'free') + 
+  theme_bw() + 
+  theme(strip.background = element_rect(fill = 'white', color = 'black'),
+        legend.position = c(.15,.8))
+  
+```
+
+
+
+### Choice RT Distributions
+
+**Overall**
+
+```{r}
+d %>% 
+  ggplot(aes(x = choice_rt)) + 
+  geom_histogram() + 
+  theme_bw()
+```
+
+
+
+**Subject means**
+
+
+
+```{r}
+d %>% 
+  group_by(subject) %>% 
+  summarize(choice_rt = mean(choice_rt)) %>% 
+  ggplot(aes(x = choice_rt)) + 
+  geom_density(fill = 'steelblue', alpha = .6) + 
+  theme_bw()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
