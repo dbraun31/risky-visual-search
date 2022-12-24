@@ -1,6 +1,9 @@
-# Experiment Development
+# Risky Visual Search Homepage
 
-A map of content for experiment development.
+> [!example] Quantitative Resources
+> OSF repository (data and preregistrations): https://osf.io/erxsz/
+> Code: https://github.com/dab414/risky-visual-search
+> Analyses: https://davebraun.net/gaita/experiments/analysis
 
 * **Measurement**: [[measurement.md]]
 * **Stimuli**: [[stimuli.md]]

@@ -16,12 +16,12 @@ output:
 ## Experiment 1
 
 ### Preprocessing
-* [Preprocessing](https://davebraun.net/gaita/experiments/analysis/manuscript/scripts/preprocessing/)
+* [Preprocessing](https://davebraun.net/gaita/experiments/analysis/exp1/scripts/preprocessing/)
 
 ### Confirmatory
-* [Choice](https://davebraun.net/gaita/experiments/analysis/manuscript/scripts/confirmatory/choice/)
+* [Choice](https://davebraun.net/gaita/experiments/analysis/exp1/scripts/confirmatory/choice/)
 
-* [Performance](https://davebraun.net/gaita/experiments/analysis/manuscript/scripts/confirmatory/performance/)
+* [Performance](https://davebraun.net/gaita/experiments/analysis/exp1/scripts/confirmatory/performance/)
 
 
 

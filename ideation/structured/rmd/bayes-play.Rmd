@@ -1,0 +1,119 @@
+---
+title: 'Playing with Bayes'
+author: 'Dave Braun'
+date: December 23, 2022
+output:
+    md_document:
+        variant: markdown_github
+        toc: TRUE
+        df_print: 'paged'
+        standalone: TRUE
+knit: (function(input, encoding, output) {knitr::knit(input=input, encoding = encoding, output='../md/experiment-2-theory.md')})
+---
+
+```{r include = FALSE, setup}
+## super useful docs on knitr
+## https://yihui.org/knitr/options/#chunk_options
+
+library(tidyverse)
+library(latex2exp)
+knitr::opts_knit$set(base.dir = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/')
+#knitr::opts_knit(base.dir = paste0(getwd(), '/../md/'))
+knitr::opts_chunk$set(fig.path = 'figures/', fig.align = 'center')
+```
+
+# Playing with Bayes
+
+From [this](https://link.springer.com/article/10.3758/s13428-016-0746-9) paper.
+
+```{stan output.var='exponential'}
+data {
+    int LENGTH;
+    vector[LENGTH] Y;
+}
+parameters {
+    real<lower=0> lambda;
+}
+model {
+    real alpha;
+    real beta;
+    alpha <- 1.0;
+    beta <- 1.0;
+    lambda ~ gamma(alpha, beta);
+    Y ~ exponential(lambda);
+}
+generated quantities {
+    real pred;
+    pred <- exponential_rng(lambda);
+}
+```
+
+
+
+```{r}
+library(rstan)
+
+lambda <- 1
+d <- rexp(500, lambda)
+len <- length(d)
+
+fit <- stan(file = 'stan-file.stan',
+            data = list(Y=d, LENGTH = len),
+            warmup = 750,
+            iter = 1500,
+            chains = 3)
+
+print(fit)
+mcmc_chain <- as.data.frame(fit)
+mcmc_chain$iteration <- 1:(nrow(mcmc_chain))
+
+mcmc_chain %>% 
+    ggplot(aes(x = iteration, y = lambda)) + 
+    geom_line() + 
+    ylim(0,1.5)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
