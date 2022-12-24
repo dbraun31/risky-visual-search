@@ -22,7 +22,6 @@ In this document I will be putting together an absolutely beautiful summary of t
 library(tidyverse)
 library(latex2exp)
 knitr::opts_knit$set(base.dir = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/')
-#knitr::opts_knit(base.dir = paste0(getwd(), '/../md/'))
 knitr::opts_chunk$set(fig.path = 'figures/', fig.align = 'center')
 ```
 

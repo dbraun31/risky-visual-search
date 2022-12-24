@@ -8,3 +8,4 @@
 * **Measurement**: [[measurement.md]]
 * **Stimuli**: [[stimuli.md]]
 * **Experiment 2 Theory**: [[experiment-2-theory.md]]
+* **Bayes Play**: [[bayes-play.md]]

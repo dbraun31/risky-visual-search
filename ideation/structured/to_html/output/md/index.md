@@ -11,4 +11,5 @@
    
 * **Measurement**: [measurement.md](./measurement.md)   
 * **Stimuli**: [stimuli.md](./stimuli.md)   
-* **Experiment 2 Theory**: [experiment-2-theory.md](./experiment-2-theory.md)
+* **Experiment 2 Theory**: [experiment-2-theory.md](./experiment-2-theory.md)   
+* **Bayes Play**: [bayes-play.md](./bayes-play.md)
