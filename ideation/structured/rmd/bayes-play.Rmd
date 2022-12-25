@@ -24,7 +24,7 @@ knitr::opts_chunk$set(fig.path = 'figures/',
 
 ```
 
-```{r}
+```{r include = FALSE}
 library(tidyverse)
 library(latex2exp)
 library(BH)
@@ -36,7 +36,7 @@ library(gridExtra)
 
 From [this](https://link.springer.com/article/10.3758/s13428-016-0746-9) paper.
 
-These are some simulations that might be relevant to [[experiment2-theory.md]].
+These are some simulations that might be relevant to [[experiment-2-theory.md]].
 
 ```{stan output.var='exponential'}
 data {

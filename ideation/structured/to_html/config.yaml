@@ -7,7 +7,7 @@ obsidian_folder_path_str: '/home/dave/Dropbox (Lehigh University)/post_doc/profe
 # Use full path or relative path, but don't use ~/
 obsidian_entrypoint_path_str: '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/homepage.md'
 
-html_url_prefix: '/gaita/ideation/structured/html/'
+html_url_prefix: '/gaita/ideation/structured/html'
 
 toggles:
   process_all: True

@@ -39,14 +39,14 @@ body {
 
 @font-face {
     font-family: 'SourceCodePro-Regular';
-    src: url('/gaita/ideation/structured/html//obs.html/static/SourceCodePro-Regular.ttf') format('truetype');
+    src: url('/gaita/ideation/structured/html/obs.html/static/SourceCodePro-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: monospace;
 }
 
 @font-face {
     font-family: 'Roboto-Regular';
-    src: url('/gaita/ideation/structured/html//obs.html/static/Roboto-Regular.ttf') format('truetype');
+    src: url('/gaita/ideation/structured/html/obs.html/static/Roboto-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -1805,7 +1805,7 @@ body {
 
 
 .external-link::after {
-    background: transparent url(/gaita/ideation/structured/html//obs.html/static/external.svg) 0 0 no-repeat;
+    background: transparent url(/gaita/ideation/structured/html/obs.html/static/external.svg) 0 0 no-repeat;
     background-size: auto;
     background-size: 16px;
     content: "";

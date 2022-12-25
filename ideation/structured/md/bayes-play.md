@@ -14,19 +14,12 @@ knit: (function(input, encoding, output) {knitr::knit(input=input, encoding = en
 
 
 
-```r
-library(tidyverse)
-library(latex2exp)
-library(BH)
-library(rstan)
-library(gridExtra)
-```
 
 # Playing with Bayes
 
 From [this](https://link.springer.com/article/10.3758/s13428-016-0746-9) paper.
 
-These are some simulations that might be relevant to [[experiment2-theory.md]].
+These are some simulations that might be relevant to [[experiment-2-theory.md]].
 
 
 ```stan
@@ -67,26 +60,6 @@ fit <- stan(file = 'stan-file.stan',
 ```
 
 ```
-## Running /usr/lib/R/bin/R CMD SHLIB foo.c
-## gcc -I"/usr/share/R/include" -DNDEBUG   -I"/home/dave/R/x86_64-pc-linux-gnu-library/4.1/Rcpp/include/"  -I"/usr/lib/R/site-library/RcppEigen/include/"  -I"/usr/lib/R/site-library/RcppEigen/include/unsupported"  -I"/home/dave/R/x86_64-pc-linux-gnu-library/4.1/BH/include" -I"/home/dave/R/x86_64-pc-linux-gnu-library/4.1/StanHeaders/include/src/"  -I"/home/dave/R/x86_64-pc-linux-gnu-library/4.1/StanHeaders/include/"  -I"/home/dave/R/x86_64-pc-linux-gnu-library/4.1/RcppParallel/include/"  -I"/home/dave/R/x86_64-pc-linux-gnu-library/4.1/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include '/home/dave/R/x86_64-pc-linux-gnu-library/4.1/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1      -fpic  -g -O2 -ffile-prefix-map=/build/r-base-4A2Reg/r-base-4.1.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c foo.c -o foo.o
-## In file included from /usr/lib/R/site-library/RcppEigen/include/Eigen/Core:88,
-##                  from /usr/lib/R/site-library/RcppEigen/include/Eigen/Dense:1,
-##                  from /home/dave/R/x86_64-pc-linux-gnu-library/4.1/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13,
-##                  from <command-line>:
-## /usr/lib/R/site-library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name ‘namespace’
-##   628 | namespace Eigen {
-##       | ^~~~~~~~~
-## /usr/lib/R/site-library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:17: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘{’ token
-##   628 | namespace Eigen {
-##       |                 ^
-## In file included from /usr/lib/R/site-library/RcppEigen/include/Eigen/Dense:1,
-##                  from /home/dave/R/x86_64-pc-linux-gnu-library/4.1/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13,
-##                  from <command-line>:
-## /usr/lib/R/site-library/RcppEigen/include/Eigen/Core:96:10: fatal error: complex: No such file or directory
-##    96 | #include <complex>
-##       |          ^~~~~~~~~
-## compilation terminated.
-## make: *** [/usr/lib/R/etc/Makeconf:168: foo.o] Error 1
 ## 
 ## SAMPLING FOR MODEL 'stan-file' NOW (CHAIN 1).
 ## Chain 1: 
@@ -108,9 +81,9 @@ fit <- stan(file = 'stan-file.stan',
 ## Chain 1: Iteration: 1350 / 1500 [ 90%]  (Sampling)
 ## Chain 1: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.010526 seconds (Warm-up)
-## Chain 1:                0.009873 seconds (Sampling)
-## Chain 1:                0.020399 seconds (Total)
+## Chain 1:  Elapsed Time: 0.010471 seconds (Warm-up)
+## Chain 1:                0.008533 seconds (Sampling)
+## Chain 1:                0.019004 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL 'stan-file' NOW (CHAIN 2).
@@ -133,9 +106,9 @@ fit <- stan(file = 'stan-file.stan',
 ## Chain 2: Iteration: 1350 / 1500 [ 90%]  (Sampling)
 ## Chain 2: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.010308 seconds (Warm-up)
-## Chain 2:                0.009874 seconds (Sampling)
-## Chain 2:                0.020182 seconds (Total)
+## Chain 2:  Elapsed Time: 0.010485 seconds (Warm-up)
+## Chain 2:                0.010832 seconds (Sampling)
+## Chain 2:                0.021317 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL 'stan-file' NOW (CHAIN 3).
@@ -158,9 +131,9 @@ fit <- stan(file = 'stan-file.stan',
 ## Chain 3: Iteration: 1350 / 1500 [ 90%]  (Sampling)
 ## Chain 3: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.01047 seconds (Warm-up)
+## Chain 3:  Elapsed Time: 0.010339 seconds (Warm-up)
 ## Chain 3:                0.009256 seconds (Sampling)
-## Chain 3:                0.019726 seconds (Total)
+## Chain 3:                0.019595 seconds (Total)
 ## Chain 3:
 ```
 
@@ -174,11 +147,11 @@ print(fit)
 ## post-warmup draws per chain=750, total post-warmup draws=2250.
 ## 
 ##           mean se_mean   sd    2.5%     25%     50%     75%   97.5% n_eff Rhat
-## lambda    1.01    0.00 0.05    0.92    0.97    1.00    1.04    1.10   890    1
-## pred      0.98    0.02 0.99    0.02    0.28    0.67    1.35    3.86  2071    1
-## lp__   -498.28    0.02 0.76 -500.39 -498.44 -497.99 -497.81 -497.75  1114    1
+## lambda    1.09    0.00 0.05    1.00    1.06    1.09    1.13    1.19   924 1.01
+## pred      0.88    0.02 0.89    0.02    0.25    0.62    1.23    3.28  2034 1.00
+## lp__   -457.30    0.02 0.68 -459.31 -457.46 -457.04 -456.87 -456.81  1106 1.00
 ## 
-## Samples were drawn using NUTS(diag_e) at Sat Dec 24 16:32:16 2022.
+## Samples were drawn using NUTS(diag_e) at Sat Dec 24 21:40:02 2022.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).
