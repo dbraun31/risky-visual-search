@@ -36,7 +36,7 @@ $$
 Let's look at this function over various parameter level specifications:   
    
    
-<img src="figures/unnamed-chunk-1-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" style="display: block; margin: auto;" />   
+![](figures/unnamed-chunk-1-1.png)   
    
    
 This is truly profound.
