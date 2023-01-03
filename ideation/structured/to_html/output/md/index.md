@@ -9,6 +9,7 @@
 > Code: [https://github.com/dab414/risky-visual-search](https://github.com/dab414/risky-visual-search)   
 > Analyses: [https://davebraun.net/gaita/experiments/analysis](https://davebraun.net/gaita/experiments/analysis)   
    
+* **[Brainstorming experiment ideas](./experiment-brainstorming.md)**    
 * **Measurement**: [measurement.md](./measurement.md)   
 * **Stimuli**: [stimuli.md](./stimuli.md)   
 * **Experiment 2 Theory**: [experiment-2-theory.md](./experiment-2-theory.md)   
