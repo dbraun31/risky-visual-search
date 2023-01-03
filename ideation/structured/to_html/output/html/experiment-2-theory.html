@@ -197,13 +197,7 @@
                         <div id="left_pane" class="left_pane active">
                                 <div id="left_pane_fold_header" class="left_pane_fold_header fold_header">x</div>
                                 <div id="left_pane_content" class="left_pane_content">
-                                        <button id="folder-1" class="dir-button" onclick="toggle_dir(this.id)">figures</button>
-<div id="folder-container-1" class="dir-container requires_js " path="/gaita/ideation/structured/html/figures">
-	<ul class="dir-list">
-		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-1-1.png"  class="external-link">unnamed-chunk-1-1</a></li>
-	</ul>
-</div>
-<ul class="dir-list">
+                                        <ul class="dir-list">
 	<li><a class="" href="/gaita/ideation/structured/html/bayes-play.html"  >bayes-play</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/experiment-2-theory.html"  >experiment-2-theory</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/index.html"  >index</a></li>
@@ -218,7 +212,11 @@
 <div class="toc">
 <ul>
 <li><a href="#experiment-2-theory" class="anchor-link">Experiment 2 Theory</a><ul>
-<li><a href="#prospect-theory" class="anchor-link">Prospect theory</a></li>
+<li><a href="#prospect-theory" class="anchor-link">Prospect theory</a><ul>
+<li><a href="#probability-weighting-function" class="anchor-link">Probability weighting function</a></li>
+<li><a href="#value-function" class="anchor-link">Value function</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -229,13 +227,53 @@
 <div class="arithmatex">\[   
 V = \pi(p) \cdot v(x)   
 \]</div>
+<h3 id="probability-weighting-function">Probability weighting function</h3>
 <p>Let's look more closely at the probability weighting function:   </p>
 <div class="arithmatex">\[   
 \pi(p) = \frac{p^{\gamma}}{(p^{\gamma} + (1 - p)^{\gamma})^{1/\gamma}}   
 \]</div>
 <p>Let's look at this function over various parameter level specifications:   </p>
-<p><img alt="" src="/gaita/ideation/structured/html/figures/unnamed-chunk-1-1.png" />   </p>
-<p>This is truly profound.</p>
+<p><img src="figures/unnamed-chunk-1-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" width="50%" height="30%" style="display: block; margin: auto;" />   </p>
+<p>This is truly profound.   </p>
+<h3 id="value-function">Value function</h3>
+<p>The functional form of the value function is:   </p>
+<p>$$ <br />
+v(x) = \begin{cases} <br />
+    x^{\alpha} &amp; \text{if } x \geq 0 \   </p>
+<div class="codehilite"><pre><span></span><code><span class="o">-</span>\<span class="nv">lambda</span> \<span class="nv">cdot</span> <span class="ss">(</span><span class="o">-</span><span class="nv">x</span><span class="ss">)</span><span class="o">^</span>{\<span class="nv">alpha</span>} <span class="o">&amp;</span> \<span class="nv">text</span>{<span class="k">if</span> } <span class="nv">x</span> <span class="o">&lt;</span> <span class="mi">0</span>   
+\<span class="k">end</span>{<span class="nv">cases</span>}
+</code></pre></div>
+
+<p>$$   </p>
+<p>Plot with <span class="arithmatex">\(\lambda = 2\)</span> and <span class="arithmatex">\(\alpha = .65\)</span>:   </p>
+<p><img src="figures/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" width="50%" height="30%" style="display: block; margin: auto;" />   </p>
+<p>This is truly remarkable.   </p>
+<p><strong>Testing more piecewise functions</strong>   </p>
+<p>Absolute value:   </p>
+<p>$$ <br />
+\lvert x \rvert = \begin{cases} <br />
+    x &amp; \text{if } x \geq 0 \    </p>
+<div class="codehilite"><pre><span></span><code><span class="o">-</span><span class="nv">x</span> <span class="o">&amp;</span> \<span class="nv">text</span>{<span class="k">if</span> } <span class="nv">x</span> <span class="o">&lt;</span> <span class="mi">0</span>   
+\<span class="k">end</span>{<span class="nv">cases</span>}
+</code></pre></div>
+
+<p>$$   </p>
+<p>Sign function:   </p>
+<p>$$ <br />
+\text{sgn }x = \begin{cases} <br />
+1 &amp; \text{if } x &gt; 0 \ <br />
+0 &amp; \text{if } x = 0 \   </p>
+<p>-1 &amp; \text{if } x &lt; 0 <br />
+\end{cases} <br />
+$$   </p>
+<p>Testing aligned functions   </p>
+<div class="arithmatex">\[   
+\begin{align}   
+f(x) = x^2 \\   
+g(x) = ln(x) \\   
+k(x) = e^x   
+\end{align}   
+\]</div>
 <div class="note-footer">
 <div class="backlinks">
 <h2>Backlinks</h2>
@@ -251,13 +289,13 @@ V = \pi(p) \cdot v(x)
 
 </div>
 <div class="graph requires_js ">
-    <div id="A286847210618220980370984135972401986631{level}" class="graph_div"></div>
+    <div id="A205544215760710124266952107585978778207{level}" class="graph_div"></div>
     
     <div class="graph-button-row" style="display:flex;">
-        <button class="graph_button graph_show_button" id="B286847210618220980370984135972401986631{level}" level="{level}" note_temp_id="286847210618220980370984135972401986631" onclick="window.ObsHtmlGraph.run(this, '286847210618220980370984135972401986631', 'experiment-2-theory');">
+        <button class="graph_button graph_show_button" id="B205544215760710124266952107585978778207{level}" level="{level}" note_temp_id="205544215760710124266952107585978778207" onclick="window.ObsHtmlGraph.run(this, '205544215760710124266952107585978778207', 'experiment-2-theory');">
             Show Graph
         </button>
-        <button class="graph_button graph_type_button" id="C286847210618220980370984135972401986631{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
+        <button class="graph_button graph_type_button" id="C205544215760710124266952107585978778207{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
             2D
         </button>
     </div>

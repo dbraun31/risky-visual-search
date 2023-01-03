@@ -24,7 +24,7 @@ The form of prospect theory is:
 $$
 V = \pi(p) \cdot v(x)
 $$
-
+### Probability weighting function
 
 Let's look more closely at the probability weighting function:
 
@@ -35,13 +35,63 @@ $$
 Let's look at this function over various parameter level specifications:
 
 
-![](figures/unnamed-chunk-1-1.png)
+<img src="figures/unnamed-chunk-1-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" width="50%" height="30%" style="display: block; margin: auto;" />
 
 
 This is truly profound.
 
 
+### Value function
 
+The functional form of the value function is:
+
+
+$$
+v(x) = \begin{cases}
+    x^{\alpha} & \text{if } x \geq 0 \\
+    -\lambda \cdot (-x)^{\alpha} & \text{if } x < 0
+    \end{cases}
+$$
+
+
+
+Plot with $\lambda = 2$ and $\alpha = .65$:
+
+<img src="figures/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" width="50%" height="30%" style="display: block; margin: auto;" />
+
+This is truly remarkable.
+
+**Testing more piecewise functions**
+
+Absolute value:
+
+$$
+\lvert x \rvert = \begin{cases}
+    x & \text{if } x \geq 0 \\ 
+    -x & \text{if } x < 0
+    \end{cases}
+$$
+
+Sign function:
+
+$$
+\text{sgn }x = \begin{cases}
+1 & \text{if } x > 0 \\
+0 & \text{if } x = 0 \\
+-1 & \text{if } x < 0
+\end{cases}
+$$
+
+
+Testing aligned functions
+
+$$
+\begin{align}
+f(x) = x^2 \\
+g(x) = ln(x) \\
+k(x) = e^x
+\end{align}
+$$
 
 
 

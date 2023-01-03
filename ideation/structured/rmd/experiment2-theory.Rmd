@@ -22,7 +22,10 @@ In this document I will be putting together an absolutely beautiful summary of t
 library(tidyverse)
 library(latex2exp)
 knitr::opts_knit$set(base.dir = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/')
-knitr::opts_chunk$set(fig.path = 'figures/', fig.align = 'center')
+knitr::opts_chunk$set(fig.path = 'figures/', fig.align = 'center',
+                      fig.width = 12, fig.height = 10,
+                      out.width = '50%', out.height = '30%',
+                      echo = FALSE)
 ```
 
 ## Prospect theory
@@ -32,7 +35,7 @@ The form of prospect theory is:
 $$
 V = \pi(p) \cdot v(x)
 $$
-
+### Probability weighting function
 
 Let's look more closely at the probability weighting function:
 
@@ -72,7 +75,85 @@ d %>%
 This is truly profound.
 
 
+### Value function
 
+The functional form of the value function is:
+
+
+$$
+v(x) = \begin{cases}
+    x^{\alpha} & \text{if } x \geq 0 \\
+    -\lambda \cdot (-x)^{\alpha} & \text{if } x < 0
+    \end{cases}
+$$
+
+
+
+Plot with $\lambda = 2$ and $\alpha = .65$:
+
+```{r}
+d <- data.frame(x = seq(-1, 1, by = .001))
+v <- function(x, alpha = .65, lambda = 2) {
+   if (x >= 0) {
+       return(x^alpha)
+   } 
+    return(-lambda * (-x)^alpha)
+}
+
+d$sv <- sapply(d$x, v)
+
+d %>% 
+    ggplot(aes(x = x, y = sv)) +
+    geom_hline(yintercept = 0) + 
+    geom_vline(xintercept = 0) + 
+    annotate('text', label = 'Losses', x = -.8, y = .2) + 
+    annotate('text', label = 'Gains', x = .8, y = .2) + 
+    ylim(-2,2) +
+    geom_line(size = 2) + 
+    labs(
+        x = 'Outcome',
+        y = TeX(r'($v(x)$)')
+    ) + 
+    theme_bw() +
+    theme(axis.ticks = element_blank(),
+          axis.text = element_blank())
+    
+
+```
+
+This is truly remarkable.
+
+**Testing more piecewise functions**
+
+Absolute value:
+
+$$
+\lvert x \rvert = \begin{cases}
+    x & \text{if } x \geq 0 \\ 
+    -x & \text{if } x < 0
+    \end{cases}
+$$
+
+Sign function:
+
+$$
+\text{sgn }x = \begin{cases}
+1 & \text{if } x > 0 \\
+0 & \text{if } x = 0 \\
+-1 & \text{if } x < 0
+\end{cases}
+$$
+
+
+Testing aligned functions
+
+$$
+\begin{align}
+f(x) = x^2 \\
+g(x) = ln(x) \\
+k(x) = e^x
+\end{align}
+$$
 
 
 
