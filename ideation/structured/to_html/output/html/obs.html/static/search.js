@@ -17,15 +17,15 @@ var index;
 setTimeout(LoadSearchData, 500);
 
 function LoadSearchData(){
-    let search_data = window.localStorage.getItem('search_data');
-    let search_hash = window.localStorage.getItem('search_hash');
+    let search_data = ls_get('search_data');
+    let search_hash = ls_get('search_hash');
 
     if (gzip_hash != search_hash || !search_data){
         // refresh data
         GzipUnzipLocalFile(CONFIGURED_HTML_URL_PREFIX + '/obs.html/data/search.json.gzip').then(data => {
             SEARCH_DATA_SOURCE = JSON.parse(data);
-            window.localStorage.setItem('search_data', data);
-            window.localStorage.setItem('search_hash', gzip_hash);
+            ls_set('search_data', data);
+            ls_set('search_hash', gzip_hash);
 
             InitFlexSearch();
         });
@@ -156,7 +156,7 @@ function GetHtmlFlex(fs_results, search_string, hard_search) {
         let element = template;
         html += element.replace('{{url}}', res.url)
                     .replace('{{title}}', res.title)
-                    .replace('{{content}}', highlight(SEARCH_DATA[res.id].md, search_string, false, 20).join(" "))
+                    .replace('{{content}}', highlight(SEARCH_DATA[res.id].content, search_string, false, 20).join(" "))
     });
     html += '</ul>'
     return html

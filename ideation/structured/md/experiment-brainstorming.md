@@ -9,9 +9,6 @@ integrate into experiments.
     * Include Cog-ED
     * Eye tracking / pupil dilation
         * Would be logistically challenging
-    * Things to control for:
-        * Probability
-        * Competing motivation
     * Get estimation of prospect theory parameters in traditional, monetary context
         * Or just some independent measure of risk preference
 
@@ -31,13 +28,20 @@ integrate into experiments.
     * Anchoring the reference point high / low
     * Optional break periods
         * Duration of break serves as a dv
+    * Things to control for:
+        * Probability
+        * Competing motivation
+        * Time on task
+    * From Mason et al
+        * include trials that are matched on risk but vary in demand to weed out demand
+            seekers
+        * single option 'choices' to ensure Ps experience all difficulty levels
 
 * **Modeling**
-
+    * Brainstorm some competing candidate models
+    * What are ways that parameter estimation could tease apart competing hypotheses?
 
 * **Misc**
-    * Go back to the Mason et al preprint to see what controls they included in their
-        paradigm
     * Getting creative about possible converging measures
     * Keeping in mind the distinction between instantaneous vs prospective costs
     * Read empirical Inzlicht papers to get inspiration on how to rigorously document a

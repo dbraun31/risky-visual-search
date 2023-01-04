@@ -9,6 +9,7 @@ output:
     standalone: true
     toc: true
     variant: markdown_github
+tags: []
 title: Experiment 2 Theory
 ---
    
@@ -22,15 +23,15 @@ In this document I will be putting together an absolutely beautiful summary of t
    
 The form of prospect theory is:   
    
-$$   
-V = \pi(p) \cdot v(x)   
+$$
+V = \pi(p) \cdot v(x)
 $$   
 ### Probability weighting function   
    
 Let's look more closely at the probability weighting function:   
    
-$$   
-\pi(p) = \frac{p^{\gamma}}{(p^{\gamma} + (1 - p)^{\gamma})^{1/\gamma}}   
+$$
+\pi(p) = \frac{p^{\gamma}}{(p^{\gamma} + (1 - p)^{\gamma})^{1/\gamma}}
 $$   
    
 Let's look at this function over various parameter level specifications:   
@@ -47,12 +48,11 @@ This is truly profound.
 The functional form of the value function is:   
    
    
-$$   
-v(x) = \begin{cases}   
-    x^{\alpha} & \text{if } x \geq 0 \\   
-   
-    -\lambda \cdot (-x)^{\alpha} & \text{if } x < 0   
-    \end{cases}   
+$$
+v(x) = \begin{cases}
+    x^{\alpha} & \text{if } x \geq 0 \\
+    -\lambda \cdot (-x)^{\alpha} & \text{if } x < 0
+    \end{cases}
 $$   
    
    
@@ -67,32 +67,30 @@ This is truly remarkable.
    
 Absolute value:   
    
-$$   
-\lvert x \rvert = \begin{cases}   
-    x & \text{if } x \geq 0 \\    
-   
-    -x & \text{if } x < 0   
-    \end{cases}   
+$$
+\lvert x \rvert = \begin{cases}
+    x & \text{if } x \geq 0 \\ 
+    -x & \text{if } x < 0
+    \end{cases}
 $$   
    
 Sign function:   
    
-$$   
-\text{sgn }x = \begin{cases}   
-1 & \text{if } x > 0 \\   
-0 & \text{if } x = 0 \\   
-   
--1 & \text{if } x < 0   
-\end{cases}   
+$$
+\text{sgn }x = \begin{cases}
+1 & \text{if } x > 0 \\
+0 & \text{if } x = 0 \\
+-1 & \text{if } x < 0
+\end{cases}
 $$   
    
    
 Testing aligned functions   
    
-$$   
-\begin{align}   
-f(x) = x^2 \\   
-g(x) = ln(x) \\   
-k(x) = e^x   
-\end{align}   
+$$
+\begin{align}
+f(x) = x^2 \\
+g(x) = ln(x) \\
+k(x) = e^x
+\end{align}
 $$

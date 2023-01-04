@@ -1,6 +1,7 @@
 # The first folder that contains all obsidian files
 # Use full path or relative path, but don't use ~/
-obsidian_folder_path_str: '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/' 
+# obsidian_folder_path_str: '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/' 
+obsidian_folder_path_str: '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/'
 
 # The note that will be used as the index.html 
 # should be in obsidian_folder_path_str

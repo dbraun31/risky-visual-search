@@ -81,9 +81,9 @@ fit <- stan(file = 'stan-file.stan',
 ## Chain 1: Iteration: 1350 / 1500 [ 90%]  (Sampling)
 ## Chain 1: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 1: 
-## Chain 1:  Elapsed Time: 0.010471 seconds (Warm-up)
-## Chain 1:                0.008533 seconds (Sampling)
-## Chain 1:                0.019004 seconds (Total)
+## Chain 1:  Elapsed Time: 0.010627 seconds (Warm-up)
+## Chain 1:                0.009563 seconds (Sampling)
+## Chain 1:                0.02019 seconds (Total)
 ## Chain 1: 
 ## 
 ## SAMPLING FOR MODEL 'stan-file' NOW (CHAIN 2).
@@ -106,9 +106,9 @@ fit <- stan(file = 'stan-file.stan',
 ## Chain 2: Iteration: 1350 / 1500 [ 90%]  (Sampling)
 ## Chain 2: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 2: 
-## Chain 2:  Elapsed Time: 0.010485 seconds (Warm-up)
-## Chain 2:                0.010832 seconds (Sampling)
-## Chain 2:                0.021317 seconds (Total)
+## Chain 2:  Elapsed Time: 0.00986 seconds (Warm-up)
+## Chain 2:                0.009777 seconds (Sampling)
+## Chain 2:                0.019637 seconds (Total)
 ## Chain 2: 
 ## 
 ## SAMPLING FOR MODEL 'stan-file' NOW (CHAIN 3).
@@ -131,9 +131,9 @@ fit <- stan(file = 'stan-file.stan',
 ## Chain 3: Iteration: 1350 / 1500 [ 90%]  (Sampling)
 ## Chain 3: Iteration: 1500 / 1500 [100%]  (Sampling)
 ## Chain 3: 
-## Chain 3:  Elapsed Time: 0.010339 seconds (Warm-up)
-## Chain 3:                0.009256 seconds (Sampling)
-## Chain 3:                0.019595 seconds (Total)
+## Chain 3:  Elapsed Time: 0.010361 seconds (Warm-up)
+## Chain 3:                0.0093 seconds (Sampling)
+## Chain 3:                0.019661 seconds (Total)
 ## Chain 3:
 ```
 
@@ -147,11 +147,11 @@ print(fit)
 ## post-warmup draws per chain=750, total post-warmup draws=2250.
 ## 
 ##           mean se_mean   sd    2.5%     25%     50%     75%   97.5% n_eff Rhat
-## lambda    1.09    0.00 0.05    1.00    1.06    1.09    1.13    1.19   924 1.01
-## pred      0.88    0.02 0.89    0.02    0.25    0.62    1.23    3.28  2034 1.00
-## lp__   -457.30    0.02 0.68 -459.31 -457.46 -457.04 -456.87 -456.81  1106 1.00
+## lambda    1.00    0.00 0.04    0.91    0.97    1.00    1.03    1.08   878    1
+## pred      0.99    0.02 0.94    0.03    0.29    0.72    1.40    3.50  2093    1
+## lp__   -502.81    0.02 0.69 -504.76 -502.96 -502.53 -502.37 -502.32  1244    1
 ## 
-## Samples were drawn using NUTS(diag_e) at Sat Dec 24 21:40:02 2022.
+## Samples were drawn using NUTS(diag_e) at Tue Jan  3 15:05:22 2023.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).

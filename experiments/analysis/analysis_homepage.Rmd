@@ -24,6 +24,10 @@ output:
 * [Performance](https://davebraun.net/gaita/experiments/analysis/exp1/scripts/confirmatory/performance/)
 
 
+### Exploratory
+
+* [Choice](https://davebraun.net/gaita/experiments/analysis/exp1/scripts/exploratory)
+
 
 
 

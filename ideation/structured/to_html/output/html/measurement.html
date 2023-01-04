@@ -7,7 +7,7 @@
                 <meta charset="UTF-8" />
                 <meta name="node_id" content="measurement">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <link rel="shortcut icon" href="/favicon.ico" />
+                <link rel="shortcut icon" href="/gaita/ideation/structured/html/favicon.ico" />
 
                 <!-- Set title -->
                 <title>Obsidian-Html/Notes</title>
@@ -106,15 +106,15 @@
 
         <div id="page_holder" class="flex_col">
                 <div id="header" class="header">
-                        <div id="header_flex" class="flex_row">
-                                <a href="/gaita/ideation/structured/html/index.html" id="homelink" title="Clear screen and go to homepage">Obsidian-Html/Notes</a>
-                                <div id="menu_toggle_button" class="navbar-button requires_js" onclick="toggle_menu()">
-                                        ≡
-                                </div>
-                                <div id="navbar" class="navbar requires_js">
-                                        
-                                        <div class="icon-tray">
-                                                <div id="theme-button" class="theme-button requires_js" title="Change theme" onclick="toggle_theme_popup(this)">
+    <div id="header_flex" class="flex_row">
+            <a href="/gaita/ideation/structured/html/index.html" id="homelink" title="Clear screen and go to homepage">Obsidian-Html/Notes</a>
+            <div id="menu_toggle_button" class="navbar-button requires_js" onclick="toggle_menu()">
+                    ≡
+            </div>
+            <div id="navbar" class="navbar requires_js">
+                    
+                    <div class="icon-tray">
+                            <div id="theme-button" class="theme-button requires_js" title="Change theme" onclick="toggle_theme_popup(this)">
     T
 </div>
 <script>
@@ -145,7 +145,7 @@
         }
     }
 </script>
-                                                        <div onclick="openSearch()" class="theme-button requires_js">
+                                    <div onclick="openSearch()" class="theme-button requires_js">
                 <img src = "/gaita/ideation/structured/html/obs.html/static/search.svg" alt="Search notes" title="Search notes" style="margin: 4px;"/>
         </div>
         <script>
@@ -160,30 +160,30 @@
                         }
                 }
         </script>
-                                                        <div class="graph_header_div requires_js">
+                                    <div class="graph_header_div requires_js">
             <a id="graph_link" class="system-link" href="/gaita/ideation/structured/html/obs.html/graph/index.html?node=measurement" title="Open fullpage Graph">
                     <img class="graph_header_div_svg" src = "/gaita/ideation/structured/html/obs.html/static/graph.svg" alt="Open fullpage Graph" style="margin: 2px; width: 17px;"/>
             </a>
         </div>
-                                                        <div >
+                                    <div >
             <a id="dirtree_link" class="system-link" href="/gaita/ideation/structured/html/obs.html/dir_index.html" title="View directory tree">
                     <img src = "/gaita/ideation/structured/html/obs.html/static/dirtree.svg" style="width: 12px; padding: 4px;" alt="Directory tree link"/>
             </a>
         </div>
-                                                <div>
+                            <div>
     <a href="/gaita/ideation/structured/html/obs.html/tags/index.html" title="Open tag view">
             <img src = "/gaita/ideation/structured/html/obs.html/static/hashtag.svg" alt="RSS Feed link" style="width: 24px; margin-left: -2px; margin-top: -2px;"/>
     </a>
 </div>
-                                                
-                                        </div>
-                                        <div style="display: flex; flex-direction:column">
-                                                <div id="left_pane_toggle_nav" class="left_pane_toggle_nav">Toggle Directory Tree Pane</div>
-                                                <div id="right_pane_toggle_nav" class="right_pane_toggle_nav">Toggle Table of Contents Pane</div>
-                                        </div>
-                                </div>
-                        </div>
-                        <div class="popup" id="theme-popup">
+                            
+                    </div>
+                    <div style="display: flex; flex-direction:column">
+                        <div id="left_pane_toggle_nav" class="left_pane_toggle_nav">Toggle Directory Tree Pane</div>
+                        <div id="right_pane_toggle_nav" class="right_pane_toggle_nav">Toggle Table of Contents Pane</div>
+                    </div>
+            </div>
+    </div>
+    <div class="popup" id="theme-popup">
     <label for="cars">Theme </label>
 
     <select name="theme" id="theme" onchange="set_theme(this.value)">
@@ -192,12 +192,20 @@
       <option value="obs-dark">obsidian-dark</option>
     </select> 
 </div>
-                </div>
+</div>
                 <div class="flex_row">
                         <div id="left_pane" class="left_pane active">
-                                <div id="left_pane_fold_header" class="left_pane_fold_header fold_header">x</div>
-                                <div id="left_pane_content" class="left_pane_content">
-                                        <ul class="dir-list">
+    <div id="left_pane_fold_header" class="left_pane_fold_header fold_header">x</div>
+    <div id="left_pane_content" class="left_pane_content">
+            <div class="dirtree"><button id="folder-1" class="dir-button" onclick="toggle_dir(this.id)">figures</button>
+<div id="folder-container-1" class="dir-container requires_js " path="/gaita/ideation/structured/html/figures">
+	<ul class="dir-list">
+		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-1-1.png"  class="external-link">unnamed-chunk-1-1</a></li>
+		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-2-1.png"  class="external-link">unnamed-chunk-2-1</a></li>
+		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-3-1.png"  class="external-link">unnamed-chunk-3-1</a></li>
+	</ul>
+</div>
+<ul class="dir-list">
 	<li><a class="" href="/gaita/ideation/structured/html/bayes-play.html"  >bayes-play</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/experiment-2-theory.html"  >experiment-2-theory</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/experiment-brainstorming.html"  >experiment-brainstorming</a></li>
@@ -205,18 +213,13 @@
 	<li><a class="" href="/gaita/ideation/structured/html/measurement.html"  >measurement</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/stimuli.html"  >stimuli</a></li>
 </ul>
-
-                                </div>
-                        </div>
-                        <div class="container">
-                                <h1 id="measurement">Measurement</h1>
-<div class="toc">
-<ul>
-<li><a href="#measurement" class="anchor-link">Measurement</a></li>
-</ul>
 </div>
+    </div>
+</div>
+                        <div class="container">
+                                <div class="content"><h1 id="measurement">Measurement</h1>
 <p>We need to make sure we measure things carefully. What do we want to measure? <br />
-We need to measure all kinds of things.</p>
+We need to measure all kinds of things.</p></div>
 <div class="note-footer">
 <div class="backlinks">
 <h2>Backlinks</h2>
@@ -233,13 +236,13 @@ We need to measure all kinds of things.</p>
 
 </div>
 <div class="graph requires_js ">
-    <div id="A126701461142961913315432787509519456818{level}" class="graph_div"></div>
+    <div id="A73139420604613626046152086355687594582{level}" class="graph_div"></div>
     
     <div class="graph-button-row" style="display:flex;">
-        <button class="graph_button graph_show_button" id="B126701461142961913315432787509519456818{level}" level="{level}" note_temp_id="126701461142961913315432787509519456818" onclick="window.ObsHtmlGraph.run(this, '126701461142961913315432787509519456818', 'measurement');">
+        <button class="graph_button graph_show_button" id="B73139420604613626046152086355687594582{level}" level="{level}" note_temp_id="73139420604613626046152086355687594582" onclick="window.ObsHtmlGraph.run(this, '73139420604613626046152086355687594582', 'measurement');">
             Show Graph
         </button>
-        <button class="graph_button graph_type_button" id="C126701461142961913315432787509519456818{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
+        <button class="graph_button graph_type_button" id="C73139420604613626046152086355687594582{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
             2D
         </button>
     </div>
@@ -262,11 +265,11 @@ We need to measure all kinds of things.</p>
                         <div class="container_filler">
                         </div>
                         <div id="right_pane" class="right_pane active">
-                                <div id="right_pane_fold_header" class="right_pane_fold_header fold_header">x</div>
-                                <div id="right_pane_content" class="right_pane_content">
-                                        
-                                </div>
-                        </div>
+    <div id="right_pane_fold_header" class="right_pane_fold_header fold_header">x</div>
+    <div id="right_pane_content" class="right_pane_content">
+            
+    </div>
+</div>
                 </div>
         </div>
 
@@ -336,10 +339,10 @@ We need to measure all kinds of things.</p>
                         return ['left', 'right'][Number(header.classList.contains('right_pane_fold_header'))]
                 }
                 function save_panel_folding_state(header, active){
-                        localStorage.setItem('pane_folding_state_'+panel_folding_get_panel_name(header), Number(active));
+                        ls_set('pane_folding_state_'+panel_folding_get_panel_name(header), Number(active));
                 }
                 function load_panel_folding_state(panel_name){
-                        val = localStorage.getItem('pane_folding_state_'+panel_name)
+                        val = ls_get('pane_folding_state_'+panel_name)
                         if (!val){ return {'exists': false, 'value': null}}
                         return {'exists': true, 'value': Boolean(Number(val))}
                 }
