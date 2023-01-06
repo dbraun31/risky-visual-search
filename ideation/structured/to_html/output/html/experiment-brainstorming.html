@@ -220,19 +220,162 @@
                                 <div class="content"><h1 id="experiment-brainstorming">Experiment Brainstorming</h1>
 <p>A mostly unstructured space where I'm just listing out the soup of things I want to <br />
 integrate into experiments.   </p>
+<h2 id="higher-level-ideas">Higher level ideas</h2>
+<ul>
+<li>
+<p><strong>Guiding questions</strong>   </p>
+<ol>
+<li>Are effort costs evaluated relative to a reference point of effort intensity?   <ul>
+<li>Does sensitivity to changes in intensity increase or decrease from reference?   </li>
+</ul>
+</li>
+<li>
+<p>Experience vs. description and the cost function    </p>
+<ol>
+<li>How is this evaluation different depending on whether costs are experienced during <br />
+    evaluation or imagined?   <ul>
+<li>What are the causal connections between the cost function and attention?   <ul>
+<li>Experiencing effort intensity &rarr; updating cost function &rarr; guiding <br />
+    top-down attenting &rarr; choice   </li>
+</ul>
+</li>
+<li>Is the change in cost function mediated through changes in how extreme outcomes <br />
+    are attended?   <ul>
+<li>This gets slippery, a change in cost function by definition implies a change <br />
+    in weighting   </li>
+</ul>
+</li>
+<li></li>
+</ul>
+</li>
+<li>Why would the cost function be different depending on whether outcomes are <br />
+experienced or not? And how might the underlying mechanisms be similar / different <br />
+for those involved in reasoning about (eg) money?   </li>
+</ol>
+</li>
+<li>
+<p>How can this relative evaluation inform the debate between intrinsic vs. opportunity <br />
+    costs?   </p>
+<ul>
+<li>Seems to be evidence in support of costs arising from computations that are <br />
+    susceptible to biases like framing.   </li>
+</ul>
+</li>
+<li>What might be normative reasons for relative representation of effort costs?   </li>
+</ol>
+</li>
+</ul>
+<h3 id="attention-effort-cost-and-choice">Attention, effort cost and choice</h3>
+<p><strong>Hypothesis 1</strong>   </p>
+<p>```mermaid <br />
+flowchart LR <br />
+    Effort Experience --&gt; Updating Cost Function --&gt; Modulating Top-Down Attention --&gt; Choice <br />
+```   </p>
+<ul>
+<li><strong>Empirical avenues</strong>   <ul>
+<li>Question 1   <ul>
+<li>Build on existing methods   </li>
+<li>Task switching with a response window   </li>
+<li>Manipulate reference point   </li>
+</ul>
+</li>
+<li>Question 2   <ul>
+<li>Manipulate whether performance is interleaved with choice or blocked at the end   <ul>
+<li>Expect that cost function inverted across the two contexts   </li>
+</ul>
+</li>
+<li>A version where visual display of outcomes is mouse hover contingent   <ul>
+<li>Expect that mouse hovers over extreme outcomes more in blocked condition   </li>
+<li>Could potentially model with sequential sampling (variation on aDDM).   </li>
+<li>Introduce a causal version by manipulating length of revealing   <ul>
+<li></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="lower-level-ideas">Lower level ideas</h2>
 <ul>
 <li>
 <p><strong>More precise measurement</strong>   </p>
 <ul>
+<li>Measuring effort intensity   <ul>
 <li>Calibrate participant-wise effort demand   </li>
-<li>Continue measuring NFC   </li>
-<li>Include Cog-ED   </li>
+<li>Individual efficacy (might not be different from the above)   </li>
+<li>Reward sensitivity   </li>
 <li>Eye tracking / pupil dilation   <ul>
 <li>Would be logistically challenging   </li>
 </ul>
 </li>
-<li>Get estimation of prospect theory parameters in traditional, monetary context   <ul>
-<li>Or just some independent measure of risk preference   </li>
+</ul>
+</li>
+<li>Measuring effort cost   <ul>
+<li>Subjective ratings of effort   <ul>
+<li>NASA-TLX   </li>
+</ul>
+</li>
+<li>Introduce optional breaks   <ul>
+<li>Length of break is a dv   </li>
+</ul>
+</li>
+<li>Cog-ED   </li>
+</ul>
+</li>
+<li>Continue measuring NFC   </li>
+<li>Measure baseline differences in risk preference   <ul>
+<li>Estimate prospect theory parameters in monetary context   </li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Controls</strong>   </p>
+<ul>
+<li>Motivation   <ul>
+<li>Need for cognition   <ul>
+<li>Intersperse risk absent trials to measure preference for effort per se   <ul>
+<li>From Mason et al   </li>
+</ul>
+</li>
+<li>The NFC scale   </li>
+</ul>
+</li>
+<li>Time aversion   <ul>
+<li>Control for time on task in each run of effort trials   </li>
+</ul>
+</li>
+<li>Error aversion   <ul>
+<li><em>Post-hoc:</em> partition subjects according to those who were more error prone <br />
+    for the easier effort demands and see if they have the same choice <br />
+    patterns (ie, the kool 2010 method)   <ul>
+<li>Not exactly sure whether that makes sense in the context of these risky <br />
+    choices, though   </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Overall engagement   <ul>
+<li>Intersperse EV unequal trials   </li>
+<li>Attention checks   </li>
+<li>Low accuracy and excessively low RT (ie button mashing)   </li>
+<li>Ask at the end of study about degree of distraction   <ul>
+<li>From Inzlicht boredom   </li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Reasoning about probability   </li>
+<li>Effort sampling   <ul>
+<li>Intersperse no choice trials so Ps experience all effort levels   <ul>
+<li>From Mason et al   </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -246,55 +389,63 @@ integrate into experiments.   </p>
 <li>Can enforce a response time window in task switching to parametrically <br />
     manipulate effort demand. This would require some manipulation validation, <br />
     though.   </li>
-</ul>
-</li>
-<li>Intersperse unequal EV trials   <ul>
-<li>This should serve to measure decision sensitivity   </li>
-<li>I'll have to think about exactly how to quantify this   </li>
+<li>Tasks from inzlicht boredom paper include the add tasks and symbol counting <br />
+    task, as well as stroop   </li>
 </ul>
 </li>
 <li>Include mouse-hover contingent outcomes   <ul>
 <li>This should provide a way to get at the influence of attention on choice   </li>
 </ul>
 </li>
-<li>Anchoring the reference point high / low   </li>
-<li>Optional break periods   <ul>
-<li>Duration of break serves as a dv   </li>
+<li>Anchoring the reference point high / low   <ul>
+<li>Doing so on each trial   <ul>
+<li>Effort demand randomly selected   </li>
+<li>Then presented with choices about reductions / increases   </li>
 </ul>
 </li>
-<li>Things to control for:   <ul>
-<li>Probability   </li>
-<li>Competing motivation   </li>
-<li>Time on task   </li>
 </ul>
 </li>
-<li>From Mason et al   <ul>
-<li>include trials that are matched on risk but vary in demand to weed out demand <br />
-    seekers   </li>
-<li>single option 'choices' to ensure Ps experience all difficulty levels   </li>
-</ul>
-</li>
+<li>Parametrically manipulate effort demand to allow for fitting computational models   </li>
+<li>Have Ps indicate (if choosing risky deck) which outcome they want   </li>
 </ul>
 </li>
 <li>
 <p><strong>Modeling</strong>   </p>
 <ul>
 <li>Brainstorm some competing candidate models   </li>
-<li>What are ways that parameter estimation could tease apart competing hypotheses?   </li>
+<li>What are ways that parameter estimation could test between competing hypotheses?   </li>
+<li>Sequential sampling models and Bayesian model of expectation dependent evaluation <br />
+    (<a href="https://psyarxiv.com/2sqyt/" class="external-link">example</a>).   </li>
 </ul>
 </li>
 <li>
 <p><strong>Misc</strong>   </p>
 <ul>
+<li>Run replications   </li>
 <li>Getting creative about possible converging measures   </li>
-<li>Keeping in mind the distinction between instantaneous vs prospective costs   </li>
-<li>Read empirical Inzlicht papers to get inspiration on how to rigorously document a <br />
-    phenomenon   </li>
+<li>Keeping in mind the distinction between instantaneous vs prospective costs   <ul>
+<li>Can do some rapid fire type procedure to test these two   </li>
+</ul>
+</li>
 <li>Read papers coming out of Shenhav's lab to get a sense of how to incorporate <br />
     modeling and Bayesian hierarchical parameter estimation   </li>
 <li>Remember that each modifcation needs to be motivated by careful consideration of <br />
     questions around the phenomenon. Each addition should help to test between clearly <br />
-    outlined competing explanations for the phenomenon.</li>
+    outlined competing explanations for the phenomenon.   </li>
+<li>What about framing things as effort prediction errors?   </li>
+<li>From the inzlicht boredom paper   <ul>
+<li>Exclusion criteria (specific for investigating boredom):   <ul>
+<li>Failed at least one of two attention checks   </li>
+<li>Failed more than 25% of trials on 'effortful but still simple' tasks   </li>
+<li>Self reported at end of study that they did anything else (eg, check phone) <br />
+    during the study.   <ul>
+<li>They lost 780/2311 Ps over this !!</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul></div>
@@ -312,13 +463,13 @@ integrate into experiments.   </p>
 
 </div>
 <div class="graph requires_js ">
-    <div id="A208798781260185103293628544812264819020{level}" class="graph_div"></div>
+    <div id="A36563984956556821905694337691861265469{level}" class="graph_div"></div>
     
     <div class="graph-button-row" style="display:flex;">
-        <button class="graph_button graph_show_button" id="B208798781260185103293628544812264819020{level}" level="{level}" note_temp_id="208798781260185103293628544812264819020" onclick="window.ObsHtmlGraph.run(this, '208798781260185103293628544812264819020', 'experiment-brainstorming');">
+        <button class="graph_button graph_show_button" id="B36563984956556821905694337691861265469{level}" level="{level}" note_temp_id="36563984956556821905694337691861265469" onclick="window.ObsHtmlGraph.run(this, '36563984956556821905694337691861265469', 'experiment-brainstorming');">
             Show Graph
         </button>
-        <button class="graph_button graph_type_button" id="C208798781260185103293628544812264819020{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
+        <button class="graph_button graph_type_button" id="C36563984956556821905694337691861265469{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
             2D
         </button>
     </div>
