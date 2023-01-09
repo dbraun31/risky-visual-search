@@ -22,11 +22,14 @@ integrate into experiments.
             function?
             * If so, why and how?
                 * **This is really the heart of it**
+                * Notions of 'why' really need to be contextualized within a goal-oriented
+                    theory of behavior... so might be outside the scope
             * How might this shifting of cost functions across contexts be similar /
                 different to that of (eg) monetary domain?
         3. What might be the role of visual attention in both of these possibilites?
-            * Experiencing effort &rarr; updating cost function &rarr; guiding top down
-                attention (competing with bottom up attention) &rarr; choice.
+            * Experiencing effort &rarr; updating cost function (overweighting extreme
+                options) &rarr; guiding top down attention more toward extreme options
+                (competing with bottom up attention) &rarr; choice.
 
     3. How can this relative evaluation inform the debate between intrinsic vs. opportunity
         costs?

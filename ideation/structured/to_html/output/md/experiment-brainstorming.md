@@ -12,21 +12,28 @@ integrate into experiments.
 * **Guiding questions**   
     1. Are effort costs evaluated relative to a reference point of effort intensity?   
         * Does sensitivity to changes in intensity increase or decrease from reference?   
-    2. Experience vs. description and the cost function    
-        1. How is this evaluation different depending on whether costs are experienced during   
-            evaluation or imagined?   
-            * What are the causal connections between the cost function and attention?   
-                * Experiencing effort intensity &rarr; updating cost function &rarr; guiding   
-                    top-down attenting &rarr; choice   
-            * Is the change in cost function mediated through changes in how extreme outcomes   
-                are attended?   
-                * This gets slippery, a change in cost function by definition implies a change   
-                    in weighting   
-            *    
-        2. Why would the cost function be different depending on whether outcomes are   
-        experienced or not? And how might the underlying mechanisms be similar / different   
-        for those involved in reasoning about (eg) money?   
-   
+    2. How is this evaluation different depending on whether costs are experienced or   
+       imagined?    
+        1. Is it a difference in the 'accuracy' of the estimations?   
+            * Can't say accuracy without some normative definition   
+            * But maybe ppl more closely attend the outcomes when they're experienced   
+                * Should be evidenced by mouse hover times and memory   
+            * I don't know that a decrease in accuracy of estimation would explain   
+                complete reversal of risk preference across effort contexts if the   
+                underlying cost function is the same...   
+                * Oh I think a sampling bias could probably explain it.   
+        2. Or does experiencing effort lead to adopting a totally different cost   
+            function?   
+            * If so, why and how?   
+                * **This is really the heart of it**   
+                * Notions of 'why' really need to be contextualized within a goal-oriented   
+                    theory of behavior... so might be outside the scope   
+            * How might this shifting of cost functions across contexts be similar /   
+                different to that of (eg) monetary domain?   
+        3. What might be the role of visual attention in both of these possibilites?   
+            * Experiencing effort &rarr; updating cost function (overweighting extreme   
+                options) &rarr; guiding top down attention more toward extreme options   
+                (competing with bottom up attention) &rarr; choice.   
    
     3. How can this relative evaluation inform the debate between intrinsic vs. opportunity   
         costs?   
@@ -37,13 +44,10 @@ integrate into experiments.
 ### Attention, effort cost and choice   
    
 **Hypothesis 1**   
+...   
    
-\```mermaid   
-flowchart LR   
-    Effort Experience --> Updating Cost Function --> Modulating Top-Down Attention --> Choice   
-\```   
    
-* **Empirical avenues**   
+* **Empirical avenues** (update this in response to changes above)   
     * Question 1   
         * Build on existing methods   
         * Task switching with a response window   
@@ -51,11 +55,13 @@ flowchart LR
     * Question 2   
         * Manipulate whether performance is interleaved with choice or blocked at the end   
             * Expect that cost function inverted across the two contexts   
+        * Go to lengths to rule out the idea that it's something about attention or   
+            sampling (ie, this idea that they're just attending differently to the   
+            information but that the underlying computations / evaluation is the same).   
         * A version where visual display of outcomes is mouse hover contingent   
             * Expect that mouse hovers over extreme outcomes more in blocked condition   
             * Could potentially model with sequential sampling (variation on aDDM).   
             * Introduce a causal version by manipulating length of revealing   
-                *    
    
 ## Lower level ideas   
    
@@ -142,4 +148,8 @@ flowchart LR
             * Failed more than 25% of trials on 'effortful but still simple' tasks   
             * Self reported at end of study that they did anything else (eg, check phone)   
                 during the study.   
-                * They lost 780/2311 Ps over this !!
+                * They lost 780/2311 Ps over this !!   
+    * Get some subjective rating of their goals for the experiment   
+        * eg, get through it with as little effort as possible / learn something new   
+        * pre and post   
+        * assess the extent to which their chocies align with their goals
