@@ -1,5 +1,5 @@
 ---
-tags: []
+{}
 ---
    
 # Random Thoughts   

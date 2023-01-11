@@ -101,6 +101,50 @@ grid.arrange(p1, p2, nrow = 1)
 
 Truly astonishing.
 
+## User defined likelihood function
+
+Stan allows you to define custom functions to use for either estimating the likelihood or for the prior (and probably more). Function definitions in the stan code need to come before everything else.
+
+User defined probability functions need to end with `_log` in the definition but drop the `_log` when calling (very weird). The name can't overlap with any build in function.
+
+```{stan output.var='exponential_custom'}
+functions{
+    real newexp_log(vector x, real lam) {
+        vector[num_elements(x)] prob;    
+        real lprob;
+        for (i in 1:num_elements(x)) {
+            prob[i] <- lam * exp(-lam*x[i]);
+        }
+        ## sum because it's a log likelihood
+        lprob <- sum(log(prob));
+        return lprob;
+    }
+}
+
+data {
+    int LENGTH;
+    vector[LENGTH] Y;
+}
+
+parameters {
+    real<lower=0> lambda;
+}
+
+model {
+    real alpha;
+    real beta;
+    alpha <- 1.0;
+    beta <- 1.0;
+    lambda ~ gamma(alpha, beta)
+    Y ~ newexp(lambda)
+}
+
+generated quantities{
+    real pred;
+    pred <- exponential_rng(lambda);
+}
+```
+
 
 
 

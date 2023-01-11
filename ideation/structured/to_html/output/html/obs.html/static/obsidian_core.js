@@ -2,18 +2,16 @@
 // ----------------------------------------------------------------------------
 // Globals (filled in by backend)
 var no_tab_mode = 1;
+var toc_pane = 1;
 var mermaid_enabled = 1;
 var toc_pane_div = "right_pane_content";
-var dir_index_pane_div = "";
+var content_pane_div = "left_pane_content";
 var html_url_prefix = "/gaita/ideation/structured/html";
 var CONFIGURED_HTML_URL_PREFIX = "/gaita/ideation/structured/html";
 var RELATIVE_PATHS = 0;
 var documentation_mode = 1;
 var tab_mode = !no_tab_mode;
-var gzip_hash = '239115991277383024360429811932093821491'                       // used to check whether the localStorage data is stale
-
-// global cache
-var fn_cache_ls_available = null;
+var gzip_hash = '117826819288544758003261756086871961092'                       // used to check whether the localStorage data is stale
 
 
 // Onloads
@@ -95,11 +93,11 @@ function load_theme() {
         return false
     }
 
-    let theme_name = ls_get('theme_name');
+    let theme_name = window.localStorage.getItem('theme_name');
     if (!theme_name){
-        ls_set('theme_name', 'obs-light');
+        window.localStorage.setItem('theme_name', 'obs-light');
     }
-    set_theme(ls_get('theme_name'));
+    set_theme(window.localStorage.getItem('theme_name'));
     disable_antiflash();
 }
 
@@ -119,7 +117,7 @@ function set_theme(theme_name){
     let body = document.body;
 
     // update localstorage 
-    ls_set('theme_name', theme_name);
+    window.localStorage.setItem('theme_name', theme_name);
 
     // update select element
     theme_div.value = theme_name
@@ -169,10 +167,11 @@ function load_page() {
                 l.onclick = function () {
                     // remove current url from the link
                     let current_url = document.URL
+                    console.log(current_url);
                     current_url = decodeURI(current_url.replace(window.location.protocol + '//', '').replace(window.location.host, ''))
                     current_url = current_url.split('#')[0];
 
-                    let link = decodeURI(this.getAttribute("href"))
+                    let link = this.getAttribute("href")
                     link = link.replace(current_url, '')
 
                     // if we are left with something like: '#blabla' then we have an anchor link
@@ -182,13 +181,15 @@ function load_page() {
                         window.location.href = link;
                         return false;
                     }
-                    
+
                     // we scroll to the anchor
                     // we do this manually because scrolling divs suck
                     let levelcont = document.getElementsByClassName("container")[0];
                     var el = levelcont.querySelectorAll(link.replaceAll(':', '\\:'))[0];
+
                     if (el) {
                         getParentContainer(el).scrollTop = el.offsetTop - rem(6);
+
                         el.classList.add('fade-it');
                         setTimeout(function() {
                             el.classList.remove('fade-it');
@@ -205,10 +206,10 @@ function load_page() {
     // scroll to div
     if (window.location.hash.length > 2 && window.location.hash[1] == '!') {
         let link = '#' + window.location.hash.substring(2, window.location.hash.length)
-        let levelcont = document.getElementsByClassName("container")[0].getElementsByClassName('content')[0];
+        let levelcont = document.getElementsByClassName("container")[0];
         var el = levelcont.querySelectorAll(link)[0];
         if (el) {
-            el.parentElement.parentElement.scrollTop = el.offsetTop - rem(6);
+            el.parentElement.scrollTop = el.offsetTop - rem(6);
         }
     }
 
@@ -217,7 +218,7 @@ function load_page() {
     if (tab_mode && window.location.hash != '') {
         let el = document.getElementById(window.location.hash.substr(2));
         if (el) {
-            el.parentElement.parentElement.scrollTop = el.offsetTop - rem(6);
+            el.parentElement.scrollTop = el.offsetTop - rem(6);
         }
     }
 
@@ -228,9 +229,6 @@ function load_page() {
         FirstContainer.level = '0';
         SetContainer(FirstContainer);
     }
-
-    // also init side panes if present
-    SetSidePanes();
 
     // Open the path on loading the page
     // This is everything after ?path=
@@ -254,10 +252,10 @@ function LoadTableOfContents(container_div)
         let toc = collection[0];
         if (toc.getElementsByTagName('li').length > 1) {
 
-            if (toc_pane_div && no_tab_mode) {
+            if (toc_pane && no_tab_mode) {
                 let tpd = document.getElementById(toc_pane_div);
                 tpd.display = 'block';
-                tpd.innerHTML = '<span class="toc-header">Table of contents</span>' + '<div class="toc-contents">' + collection[0].innerHTML + '</div>';
+                tpd.innerHTML = '<span class="toc-header">Table of contents</span>' + collection[0].innerHTML;
             }
             else {
                 toc.style.display = 'block';
@@ -266,17 +264,6 @@ function LoadTableOfContents(container_div)
         }
     }
 
-}
-
-function SetSidePanes() {
-    let lp = document.getElementById('left_pane_content');
-    if (lp){
-        SetContainer(lp)
-    }
-    let rp = document.getElementById('right_pane_content');
-    if (rp){
-        SetContainer(rp)
-    }
 }
 
 function SetContainer(container) {
@@ -337,16 +324,9 @@ function SetContainer(container) {
 
 // Adds link icon to headers and creates the anchor link to the header.
 function SetHeaders(container) {
-    let content = container.getElementsByClassName('content')
     let els = container.childNodes;
-    console.log(content)
-    if (content.length > 0){
-        content = content[0]
-        els = content.childNodes;
-    }
     for (let i = 0; i < els.length; i++) {
-        // Only apply this code block to h1, h2, etc
-        if (typeof els[i].tagName === 'undefined' || els[i].tagName[0] != 'H' || els[i].tagName == 'HR' ) {
+        if (typeof els[i].tagName === 'undefined' || els[i].tagName[0] != 'H') {
             continue;
         }
 
@@ -413,28 +393,6 @@ function toggle_menu(){
 
 // Core Functions 
 // ----------------------------------------------------------------------------
-function ls_test_available(){
-    if (fn_cache_ls_available != null){
-        return fn_cache_ls_available
-    }
-    try {
-        window.localStorage.setItem('obsdianhtml_test_val', 'obsdianhtml_test_val');
-        window.localStorage.removeItem('obsdianhtml_test_val');
-        fn_cache_ls_available = true; return true;
-    } catch(e) {
-        fn_cache_ls_available = false; return false;
-    }
-}
-
-function ls_get(key){
-    if(ls_test_available() == false){ return false }
-    return window.localStorage.getItem(key);
-}
-function ls_set(key, value){
-    if(ls_test_available() == false){ return false }
-    return window.localStorage.setItem(key, value);
-}
-
 
 function httpGetAsync(theUrl, callback, level, callbackpath) {
     var xmlHttp = new XMLHttpRequest();

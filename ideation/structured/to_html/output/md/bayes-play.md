@@ -9,7 +9,6 @@ output:
     standalone: true
     toc: true
     variant: markdown_github
-tags: []
 title: Playing with Bayes
 ---
    
@@ -17,7 +16,7 @@ title: Playing with Bayes
    
 From [this](https://link.springer.com/article/10.3758/s13428-016-0746-9) paper.   
    
-These are some simulations that might be relevant to [experiment-2-theory.md](./experiment-2-theory.md).   
+These are some simulations that might be relevant to [experiment-2-theory.md](/not_created.md).   
    
    
 ```stan
