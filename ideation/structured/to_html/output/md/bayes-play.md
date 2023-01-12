@@ -9,6 +9,7 @@ output:
     standalone: true
     toc: true
     variant: markdown_github
+tags: []
 title: Playing with Bayes
 ---
    

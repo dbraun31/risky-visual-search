@@ -35,6 +35,11 @@ envisioning two experiments:
     * For really difficult levels
         * Might not engage effort intensity if Ps no longer perceive efficacy of their
             efforts
+    * We'd want a different window for switch vs. repeat trials
+    * The window can probably be calculated based on quantiles of the subject-specific rt distribution
+        * This implies an initial practice phase to get those quantiles in the absence of a window
+        * And a second phase where they get experience with the different windows, and any adjustments to the windows
+            to account for differences in how hard they were trying in the practice... something like that.
 
 ### Procedure
 

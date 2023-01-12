@@ -1,5 +1,5 @@
 ---
-{}
+tags: []
 ---
    
 # Risky Visual Search Homepage   
@@ -11,6 +11,6 @@
    
 * **[Experiment Planning](./experiments.md)**    
     * All details having to do with planning experiments for spring 2023   
-* **[Modeling](/not_created.md)**   
+* **[Modeling](./modeling.md)**   
     * Everything related to proactive modeling (ie, in the absence of data).   
 * **[Random Thoughts](./random-thoughts.md)**

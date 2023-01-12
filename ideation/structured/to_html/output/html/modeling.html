@@ -5,7 +5,7 @@
         <head>
                 <!-- Page information -->
                 <meta charset="UTF-8" />
-                <meta name="node_id" content="index">
+                <meta name="node_id" content="modeling">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <link rel="shortcut icon" href="/gaita/ideation/structured/html/favicon.ico" />
 
@@ -47,7 +47,7 @@
 
                 <!-- Onload tweaks -->
                 <script>
-                        const CURRENT_NODE = 'index';
+                        const CURRENT_NODE = 'modeling';
                         const HTML_URL_PREFIX = '/gaita/ideation/structured/html';
                         const PAGE_DEPTH = 0;
                 </script>
@@ -161,7 +161,7 @@
                 }
         </script>
                                     <div class="graph_header_div requires_js">
-            <a id="graph_link" class="system-link" href="/gaita/ideation/structured/html/obs.html/graph/index.html?node=index" title="Open fullpage Graph">
+            <a id="graph_link" class="system-link" href="/gaita/ideation/structured/html/obs.html/graph/index.html?node=modeling" title="Open fullpage Graph">
                     <img class="graph_header_div_svg" src = "/gaita/ideation/structured/html/obs.html/static/graph.svg" alt="Open fullpage Graph" style="margin: 2px; width: 17px;"/>
             </a>
         </div>
@@ -218,34 +218,49 @@
     </div>
 </div>
                         <div class="container">
-                                <div class="content"><h1 id="risky-visual-search-homepage">Risky Visual Search Homepage</h1>
-<div class="callout callout-example active" rasa="1">
-<div class="callout-title">
-<div class="callout-title-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="callout-icon"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-</div>
-<div class="callout-title-name">Quantitative Resources <br />
-</div>
-</div>
-<div class="callout-content">
-<p>OSF repository (data and preregistrations): <a href="https://osf.io/erxsz/" class="external-link">https://osf.io/erxsz/</a> <br />
-Code: <a href="https://github.com/dab414/risky-visual-search" class="external-link">https://github.com/dab414/risky-visual-search</a> <br />
-Analyses: <a href="https://davebraun.net/gaita/experiments/analysis" class="external-link">https://davebraun.net/gaita/experiments/analysis</a> <br />
-</p>
-</div>
-</div>
+                                <div class="content"><h1 id="modeling">Modeling</h1>
+<p>This is a homepage for everything related to modeling before observing the <br />
+data---eg, model specification, model simulation, parameter recovery, <br />
+hypothetical hypothesis testing, etc.   </p>
+<p>I think the two main modeling approaches I'll be interested in using are <br />
+modeling a prospect-theory inspired cost function, and a sequential <br />
+sampling approach that's informed by mouse hover behavior.    </p>
+<h2 id="modeling-sandbox">Modeling sandbox</h2>
+<p>This is a space for general learning exercises that I'm  <br />
+undertaking prior to diving into this modeling more formally.   </p>
 <ul>
-<li><strong><a href="/gaita/ideation/structured/html/experiments.html">Experiment Planning</a></strong>    <ul>
-<li>All details having to do with planning experiments for spring 2023   </li>
+<li>
+<p><a href="/gaita/ideation/structured/html/bayes-play.html">Bayes play</a>   </p>
+<ul>
+<li>A document where I follow along with this first tutorial in <a href="https://link.springer.com/article/10.3758/s13428-016-0746-9" class="external-link">this</a> paper to use <code>rstan</code> to recover the lambda parameter of a simple exponential model.   </li>
 </ul>
 </li>
-<li><strong><a href="/gaita/ideation/structured/html/modeling.html">Modeling</a></strong>   <ul>
-<li>Everything related to proactive modeling (ie, in the absence of data).   </li>
+<li>
+<p><a href="/gaita/ideation/structured/html/prospect-theory-modeling-tests.html">Prospect theory modeling tests</a>   </p>
+<ul>
+<li>Doing initial tests of simulating data from prospect theory and recovering parameters from a model implemented in stan. Not worrying about group-level effects here, just assuming a single set of parameters.   </li>
 </ul>
 </li>
-<li><strong><a href="/gaita/ideation/structured/html/random-thoughts.html">Random Thoughts</a></strong></li>
-</ul></div>
+</ul>
+<h2 id="cost-function">Cost function</h2>
+<ul>
+<li>See <a href="https://doi.org/10.1016/j.jmp.2010.08.006" class="external-link" class="external-link">here</a> for fitting hierarchical Bayesian model to CPT.   </li>
+<li>Great overview of fitting prospect theory with MLE <a href="https://www.thegreatstatsby.com/posts/2021-03-08-ml-prospect/" class="external-link" class="external-link">here</a>.   <ul>
+<li>Sample risky choice data <a href="https://github.com/paulstillman/thegreatstatsby/blob/main/_posts/2021-03-08-ml-prospect/data_all_2021-01-08.csv" class="external-link">here</a>.   </li>
+</ul>
+</li>
+</ul>
+<p>I think a great way to piece this all together is to first get the full, hierarchical model specification from <a href="https://doi.org/10.1016/j.jmp.2010.08.006" class="external-link" class="external-link">here</a>, get intuitions for defining a likelihood function from <a href="https://www.thegreatstatsby.com/posts/2021-03-08-ml-prospect/" class="external-link" class="external-link">here</a>, and get intuitions for implementing a Bayesian hierarchical model in stan from <a href="https://www.youtube.com/watch?v=QqwCqPYbatA" class="external-link">here</a>.   </p>
+<p>How to integrate all the individual difference control measures?   </p>
+<p>Check out <a href="https://www.biorxiv.org/content/biorxiv/early/2022/05/07/2020.10.09.333310.full.pdf" class="external-link">this</a> paper for integrating computational model estimates into regression equations.   </p>
+<h2 id="sequential-sampling">Sequential sampling</h2></div>
 <div class="note-footer">
-<div class="backlinks" style="display:none"></div>
+<div class="backlinks">
+<h2>Backlinks</h2>
+<ul>
+	<li><a class="backlink" href="/gaita/ideation/structured/html/index.html">index</a></li>
+</ul>
+</div>
 
 <div class="tags">
 
@@ -253,13 +268,13 @@ Analyses: <a href="https://davebraun.net/gaita/experiments/analysis" class="exte
 
 </div>
 <div class="graph requires_js ">
-    <div id="A154165630159478716177176954754184356978{level}" class="graph_div"></div>
+    <div id="A291016652423353204594274170384044113983{level}" class="graph_div"></div>
     
     <div class="graph-button-row" style="display:flex;">
-        <button class="graph_button graph_show_button" id="B154165630159478716177176954754184356978{level}" level="{level}" note_temp_id="154165630159478716177176954754184356978" onclick="window.ObsHtmlGraph.run(this, '154165630159478716177176954754184356978', 'index');">
+        <button class="graph_button graph_show_button" id="B291016652423353204594274170384044113983{level}" level="{level}" note_temp_id="291016652423353204594274170384044113983" onclick="window.ObsHtmlGraph.run(this, '291016652423353204594274170384044113983', 'modeling');">
             Show Graph
         </button>
-        <button class="graph_button graph_type_button" id="C154165630159478716177176954754184356978{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
+        <button class="graph_button graph_type_button" id="C291016652423353204594274170384044113983{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
             2D
         </button>
     </div>

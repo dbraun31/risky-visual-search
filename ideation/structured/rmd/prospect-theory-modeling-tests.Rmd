@@ -1,0 +1,226 @@
+---
+title: 'Prospect Theory Modeling Tests'
+author: 'Dave Braun'
+date: January 12, 2023
+output:
+    md_document:
+        variant: markdown_github
+        toc: TRUE
+        df_print: 'paged'
+        standalone: TRUE
+knit: (function(input, encoding, output) {knitr::knit(input=input, encoding = encoding, output='../md/prospect-theory-modeling-tests.md')})
+---
+
+```{r include = FALSE, setup}
+## super useful docs on knitr
+## https://yihui.org/knitr/options/#chunk_options
+
+knitr::opts_knit$set(base.dir = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/')
+#knitr::opts_knit(base.dir = paste0(getwd(), '/../md/'))
+knitr::opts_chunk$set(fig.path = 'figures/', 
+                      fig.align = 'center',
+                      message = FALSE,
+                      warning = FALSE,
+                      echo = FALSE)
+
+```
+
+```{r include = FALSE}
+library(tidyverse)
+library(latex2exp)
+library(BH)
+library(rstan)
+library(gridExtra)
+```
+
+# Prospect Theory Modeling Tests
+
+## Simulate data
+
+I'm going to do a pretty simple simulation with a small set of parameters (not nested within subjects or anything), with the usual value function (maybe constraining $\alpha = \beta$) and a greatly simplified probability weighting function.
+
+Overall value for a prospect with two outcomes updated to include a cost function instead of value function:
+
+$$
+V = \Sigma~\pi(p)\cdot -Cost(x)
+$$
+
+Cost function
+
+$$
+Cost(x) = \begin{cases}
+-(x)^{\alpha} & \text{if } x \geq 0 \\
+\lambda(-x)^{\beta} & \text{if } x < 0
+\end{cases}
+$$
+
+The scale of $x$ here gets a bit tricky. If I'm manipulating effort demand as a response time window, then effort demand decreases as the response window increases. I think my approach will be to flip the sign of $x$ in the function, which is a bit confusing. But I think it's more important to have the range of the cost function scale with some aversive quantity, rather than just flipping it into a value function. And of course, in keeping with prospect theory, $x$ is coded relative to a reference point.
+
+$x$ reflects the response time window, which is inversely related to objective effort demand and therefore subjective effort cost. That is to say, as there is more time to response, the task becomes less effortful. So, in keeping with mainstream views in the literature, the subjective sense of effort cost $Cost(x)$ scales as a positive, monotonic function of effort demand, which is the inverse of the response time window $-x$. And for simplicity, $\alpha = \beta$. And $\alpha > 1$ to reflect increasing sensitivity in the context of experienced costs.
+
+I'll plot this to make it more clear:
+
+```{r plot-value-function}
+cost <- function(x, alpha = 2.5, lambda = 2){
+   if (x >= 0) {
+       return(-(x)^alpha)
+   } 
+    return(lambda * (-x)^alpha)
+}
+
+d <- data.frame(x = seq(-1, 1, by = .001))
+d$cost <- sapply(d$x, FUN = cost)
+
+d %>% 
+    ggplot(aes(x = -x, y = cost)) + 
+    geom_hline(yintercept = 0) + 
+    geom_vline(xintercept = 0) + 
+    geom_line(size = 1.5) + 
+    annotate('text', x = -.8, y = 0.5, label = 'Less effort demand') + 
+    annotate('text', x = .8, y = 0.5, label = 'More effort demand') + 
+    annotate('text', x = -.7, y = -1.85, label = 'Increased response time window') + 
+    annotate('text', x = .7, y = -1.85, label = 'Reduced response time window') + 
+    labs(
+        x = 'Inverse Response Time Window',
+        y = 'Cost'
+    ) + 
+    ylim(-2,2) + 
+    theme_bw() + 
+    theme(axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          panel.grid = element_blank())
+```
+
+
+Probability weighting function, modified for simplicity
+
+
+$$
+\begin{align*}
+\pi(p) = \begin{cases}
+p \cdot \gamma & \text{if } p = 0.5\\
+1 & \text{if } p = 1
+\end{cases}\\
+\gamma \in (0, 1)\\
+p \in \{0.5, 1\}
+\end{align*}
+$$
+
+Logistic choice rule
+
+
+$$
+p(safe) = \frac{1}{1 + e^{\varphi[V(risky) - V(safe)]}}
+$$
+
+Where when $\varphi=0;~p(safe)=0.5$ and the choice becomes more
+deterministically in line with subjective value as $\varphi$ approaches $1$.
+
+So the full set of parameters is $\{\alpha, \lambda, \gamma, \varphi\}$.
+
+Some fixed values:
+
+
+$$
+\begin{align*}
+\alpha = 1.5^*\\
+\lambda = 2\\
+\gamma = 0.7\\
+\varphi = 0.8
+\end{align*}
+$$
+
+\* *$\alpha>1$ reflects increasing sensitivity prediction.*
+
+### Run simulation
+
+Let's assume the response time window is manipulated discretely, and standardized relative to individual subjects so it'll be on the scale of quantile. So let's define the space of possible prospects as ($(outcome_1, probability_1; \ldots;~outcome_n, probability_n)$):
+
+
+$$
+\begin{align*}
+\text{Moderate gain: }[(0, 0.5; 0.5, 0.5), (0.25, 1)]\\
+\text{Moderate loss: }[(0, 0.5; -0.5, 0.5), (-0.25, 1)]\\
+\text{Extreme gain: }[(0, 0.5; 1, 0.5), (0.5, 1)]\\
+\text{Extreme loss: }[(0, 0.5; -1, 0.5), (-0.5, 1)]\\
+\end{align*}
+$$
+
+
+```{r}
+data <- data.frame(risky = seq(-1, 1, by = 0.5), safe = seq(-0.5, 0.5, by = 0.25))
+data <- data[data$risky != 0 & data$safe !=0,]
+data <- do.call('rbind', replicate(1000, data, simplify = FALSE))
+
+## parameters
+alpha = 1.5
+lambda = 2
+gamma = 1
+phi = .04
+
+## functions
+p_choose_safe <- function(Vrisky, Vsafe) {
+    return(1 / (1 + exp(phi * (Vrisky - Vsafe))))
+}
+
+V <- function(x, p) {
+    out <- 0
+    for (outcome in x) {
+        out <- out + (pweight(p, gamma = gamma) * -cost(outcome, alpha = alpha, lambda = lambda)) 
+    }
+    return(out)
+}
+
+cost <- function(x, alpha, lambda){
+   if (x >= 0) {
+       return(-(x)^alpha)
+   } 
+    return(lambda * (-x)^alpha)
+}
+
+
+pweight <- function(p, gamma) {
+    if (p == 1){
+        return(1)
+    }
+    return(p * gamma)
+}
+
+choose <- function(risky, safe, mul = 10) {
+    Vrisky <- V(x = c(risky, 0)*mul, p = 0.5)
+    Vsafe <- V(x = safe*mul, p = 1)
+    return(p_choose_safe(Vrisky, Vsafe))
+}
+
+data$ssd_p <- mapply(choose, data$risky, data$safe)
+data$ssd <- rbinom(nrow(data), 1, data$ssd_p)
+head(data)
+```
+ 
+
+
+If I'm not missing anything obvious, these tests are strongly pointing to the idea that probability of choice is *strongly* influenced by the absolute levels of $x$. The ordinal predictions aren't, but the effect size totally is...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
