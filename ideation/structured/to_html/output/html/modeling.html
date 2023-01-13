@@ -206,6 +206,7 @@
 </div>
 <ul class="dir-list">
 	<li><a class="" href="/gaita/ideation/structured/html/bayes-play.html"  >bayes-play</a></li>
+	<li><a class="" href="/gaita/ideation/structured/html/betancourt-bayes-notes.html"  >betancourt-bayes-notes</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/experiment-brainstorming.html"  >experiment-brainstorming</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/experiments.html"  >experiments</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/index.html"  >index</a></li>
@@ -243,17 +244,27 @@ undertaking prior to diving into this modeling more formally.   </p>
 </li>
 </ul>
 <h2 id="cost-function">Cost function</h2>
+<h3 id="general-resources">General resources</h3>
 <ul>
 <li>See <a href="https://doi.org/10.1016/j.jmp.2010.08.006" class="external-link" class="external-link">here</a> for fitting hierarchical Bayesian model to CPT.   </li>
 <li>Great overview of fitting prospect theory with MLE <a href="https://www.thegreatstatsby.com/posts/2021-03-08-ml-prospect/" class="external-link" class="external-link">here</a>.   <ul>
 <li>Sample risky choice data <a href="https://github.com/paulstillman/thegreatstatsby/blob/main/_posts/2021-03-08-ml-prospect/data_all_2021-01-08.csv" class="external-link">here</a>.   </li>
 </ul>
 </li>
+<li>Stan code for prospect theory variant (<a href="https://osf.io/npd54" class="external-link">osf code</a>).   </li>
+<li>Video lecture series on rstan modeling for social science (<a href="https://www.youtube.com/playlist?list=PLu77iLvsj_GNmWqDdX-26kZ56dCZqkzBO" class="external-link">youtube</a>).   </li>
+<li>Check out <a href="https://www.biorxiv.org/content/biorxiv/early/2022/05/07/2020.10.09.333310.full.pdf" class="external-link">this</a> paper for integrating computational model estimates into regression equations.   </li>
+<li>Long lecture (2.5 hrs) on hierarchical Bayesian theory (no stan; <a href="https://www.youtube.com/watch?v=qQFF4tPgeWI" class="external-link">youtube</a>).   </li>
+<li>This lecture (<a href="https://www.youtube.com/watch?v=pHsuIaPbNbY" class="external-link">part 1</a>, <a href="https://www.youtube.com/watch?v=xWQpEAyI5s8" class="external-link">part 2</a>) might be the best overview of stan and Bayes I've seen yet.   <ul>
+<li>See <a href="/gaita/ideation/structured/html/betancourt-bayes-notes.html">notes</a>.   </li>
+</ul>
+</li>
 </ul>
 <p>I think a great way to piece this all together is to first get the full, hierarchical model specification from <a href="https://doi.org/10.1016/j.jmp.2010.08.006" class="external-link" class="external-link">here</a>, get intuitions for defining a likelihood function from <a href="https://www.thegreatstatsby.com/posts/2021-03-08-ml-prospect/" class="external-link" class="external-link">here</a>, and get intuitions for implementing a Bayesian hierarchical model in stan from <a href="https://www.youtube.com/watch?v=QqwCqPYbatA" class="external-link">here</a>.   </p>
+<h3 id="my-attempts">My attempts</h3>
 <p>How to integrate all the individual difference control measures?   </p>
-<p>Check out <a href="https://www.biorxiv.org/content/biorxiv/early/2022/05/07/2020.10.09.333310.full.pdf" class="external-link">this</a> paper for integrating computational model estimates into regression equations.   </p>
-<h2 id="sequential-sampling">Sequential sampling</h2></div>
+<h2 id="sequential-sampling">Sequential sampling</h2>
+<p>Gaze, sequential sampling, and multialternative risky choice (<a href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1010283" class="external-link">paper</a>).</p></div>
 <div class="note-footer">
 <div class="backlinks">
 <h2>Backlinks</h2>
@@ -268,13 +279,13 @@ undertaking prior to diving into this modeling more formally.   </p>
 
 </div>
 <div class="graph requires_js ">
-    <div id="A291016652423353204594274170384044113983{level}" class="graph_div"></div>
+    <div id="A320627325266131626031255489092579970205{level}" class="graph_div"></div>
     
     <div class="graph-button-row" style="display:flex;">
-        <button class="graph_button graph_show_button" id="B291016652423353204594274170384044113983{level}" level="{level}" note_temp_id="291016652423353204594274170384044113983" onclick="window.ObsHtmlGraph.run(this, '291016652423353204594274170384044113983', 'modeling');">
+        <button class="graph_button graph_show_button" id="B320627325266131626031255489092579970205{level}" level="{level}" note_temp_id="320627325266131626031255489092579970205" onclick="window.ObsHtmlGraph.run(this, '320627325266131626031255489092579970205', 'modeling');">
             Show Graph
         </button>
-        <button class="graph_button graph_type_button" id="C291016652423353204594274170384044113983{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
+        <button class="graph_button graph_type_button" id="C320627325266131626031255489092579970205{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
             2D
         </button>
     </div>

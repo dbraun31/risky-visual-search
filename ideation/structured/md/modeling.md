@@ -21,15 +21,25 @@ undertaking prior to diving into this modeling more formally.
 
 ## Cost function
 
+### General resources
+
 * See [here](https://doi.org/10.1016/j.jmp.2010.08.006) for fitting hierarchical Bayesian model to CPT.
 * Great overview of fitting prospect theory with MLE [here](https://www.thegreatstatsby.com/posts/2021-03-08-ml-prospect/).
     * Sample risky choice data [here](https://github.com/paulstillman/thegreatstatsby/blob/main/_posts/2021-03-08-ml-prospect/data_all_2021-01-08.csv).
+* Stan code for prospect theory variant ([osf code](https://osf.io/npd54)).
+* Video lecture series on rstan modeling for social science ([youtube](https://www.youtube.com/playlist?list=PLu77iLvsj_GNmWqDdX-26kZ56dCZqkzBO)).
+* Check out [this](https://www.biorxiv.org/content/biorxiv/early/2022/05/07/2020.10.09.333310.full.pdf) paper for integrating computational model estimates into regression equations.
+* Long lecture (2.5 hrs) on hierarchical Bayesian theory (no stan; [youtube](https://www.youtube.com/watch?v=qQFF4tPgeWI)).
+* This lecture ([part 1](https://www.youtube.com/watch?v=pHsuIaPbNbY), [part 2](https://www.youtube.com/watch?v=xWQpEAyI5s8)) might be the best overview of stan and Bayes I've seen yet.
+    * See [[betancourt-bayes-notes|notes]].
 
 I think a great way to piece this all together is to first get the full, hierarchical model specification from [here](https://doi.org/10.1016/j.jmp.2010.08.006), get intuitions for defining a likelihood function from [here](https://www.thegreatstatsby.com/posts/2021-03-08-ml-prospect/), and get intuitions for implementing a Bayesian hierarchical model in stan from [here](https://www.youtube.com/watch?v=QqwCqPYbatA).
 
+### My attempts
 
 How to integrate all the individual difference control measures?
 
-Check out [this](https://www.biorxiv.org/content/biorxiv/early/2022/05/07/2020.10.09.333310.full.pdf) paper for integrating computational model estimates into regression equations.
 
 ## Sequential sampling
+
+Gaze, sequential sampling, and multialternative risky choice ([paper](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1010283)).

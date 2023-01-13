@@ -148,15 +148,18 @@ $$
 
 
 ```{r}
-data <- data.frame(risky = seq(-1, 1, by = 0.5), safe = seq(-0.5, 0.5, by = 0.25))
-data <- data[data$risky != 0 & data$safe !=0,]
+data <- data.frame(risky1 = seq(-1, 1, by = 0.5), 
+                   risky2 = c(-0.5, 0, 0, 0, 0.5),
+                   safe = c(-.75, -.25, 0, .25, .75))
+data <- data[data$risky1 != 0,]
 data <- do.call('rbind', replicate(1000, data, simplify = FALSE))
 
 ## parameters
-alpha = 1.5
+alpha = 3.5
 lambda = 2
-gamma = 1
-phi = .04
+## from tversky kahneman 1992
+gamma = .877
+phi = 10
 
 ## functions
 p_choose_safe <- function(Vrisky, Vsafe) {
@@ -186,27 +189,117 @@ pweight <- function(p, gamma) {
     return(p * gamma)
 }
 
-choose <- function(risky, safe, mul = 10) {
-    Vrisky <- V(x = c(risky, 0)*mul, p = 0.5)
+choose <- function(risky1, risky2, safe, mul = 1) {
+    Vrisky <- V(x = c(risky1, risky2)*mul, p = 0.5)
     Vsafe <- V(x = safe*mul, p = 1)
     return(p_choose_safe(Vrisky, Vsafe))
 }
 
-data$ssd_p <- mapply(choose, data$risky, data$safe)
+data$ssd_p <- mapply(choose, data$risky1, data$risky2, data$safe)
 data$ssd <- rbinom(nrow(data), 1, data$ssd_p)
-head(data)
+data %>% 
+    mutate(framing = ifelse(risky1 > 0, 'Easier', 'Harder')) %>% 
+    ggplot(aes(x = framing, y = ssd)) + 
+    geom_jitter(alpha = .4, height = .05) + 
+    geom_bar(stat = 'summary', fun.y = 'mean', fill = 'steelblue', alpha = .6) + 
+    geom_errorbar(stat = 'summary', fun.y = 'sd', width = .5) + 
+    labs(
+        x = 'Framing', 
+        y = 'Proportion Selection Safe Deck'
+    ) + 
+    theme_bw() + 
+    theme(axis.ticks = element_blank(),
+          panel.grid = element_blank())
 ```
  
 
 
-If I'm not missing anything obvious, these tests are strongly pointing to the idea that probability of choice is *strongly* influenced by the absolute levels of $x$. The ordinal predictions aren't, but the effect size totally is...
+If I'm not missing anything obvious, these tests are pointing to the idea that probability of choice is *strongly* influenced by the absolute levels of $x$. The ordinal predictions aren't, but the effect size totally is...
+
+So the only thing I can think of is if the scale of the decision sensitivity parameter just scales proportionately with the scale of the objective outcomes, and maybe the other parameters are invariant? Because preference strength still depends on absolute level even when controlling for absolute differences in absolute outcomes. So I'm not sure. This would be a good thing to test during parameter recovery.
+
+Another interesting thing to keep an eye on is what level alpha will need to be to offset the influence of the probability weighting function discounting probability.
+
+## Modeling
+
+```{stan output.var = 'prospect_model'}
+
+data {
+    int N;
+    real risky1[N];
+    real risky2[N];
+    real safe[N];
+    int choice[N];
+}
+
+parameters {
+    real<lower=0> lambda;
+    real<lower=0> alpha;
+    real<lower=0> gamma;
+    real<lower=0> phi;
+}
+
+model {
+    real sv[N];
+    real risky1v[N];
+    real risky2v[N];
+    real safev[N];
+    
+    // priors
+    lambda ~ normal(1, 3);
+    alpha ~ normal(1, 3);
+    gamma ~ normal(1, 3);
+    phi ~ normal(1, 3);
+    
+    for (i in 1:N) {
+        if (risky1[i] < 0) {
+            risky1v[i] = lambda * (-risky1[i])^alpha * (0.5*gamma);
+            risky2v[i] = lambda * (-risky2[i])^alpha * (0.5*gamma);
+            safev[i] = lambda * (-safe[i])^alpha;
+        } else {
+            risky1v[i] = -(risky1[i])^alpha * (0.5*gamma);
+            risky2v[i] = -(risky2[i])^alpha * (0.5*gamma);
+            safev[i] = -(safe[i])^alpha;
+        }
+        sv[i] = inv_logit(phi * ((risky1v[i] + risky2v[i]) - safev[i]));
+    }
+    choice ~ bernoulli(sv);
+}
+```
 
 
+```{r}
+fit <- stan(file = 'prospect_model.stan',
+            data = list(N = nrow(data),
+                        risky1 = data$risky1,
+                        risky2 = data$risky2,
+                        safe = data$safe,
+                        choice = data$ssd),
+            warmup = 750,
+            iter = 1500,
+            chains = 3)
+
+fit <- sampling(prospect_model,
+            data = list(N = nrow(data),
+                        risky1 = data$risky1,
+                        risky2 = data$risky2,
+                        safe = data$safe,
+                        choice = data$ssd),
+            warmup = 750,
+            iter = 1500,
+            chains = 3)
+
+```
 
 
-
-
-
+```{r}
+result %>% 
+    select(-lp__) %>% 
+    gather(parameter, estimate, lambda:phi) %>% 
+    ggplot(aes(x = iteration, y = estimate)) + 
+    geom_line() + 
+    facet_wrap(~parameter, scales = 'free')
+```
 
 
 

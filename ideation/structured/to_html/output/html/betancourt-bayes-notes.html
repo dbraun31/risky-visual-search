@@ -5,7 +5,7 @@
         <head>
                 <!-- Page information -->
                 <meta charset="UTF-8" />
-                <meta name="node_id" content="prospect-theory-modeling-tests">
+                <meta name="node_id" content="betancourt-bayes-notes">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <link rel="shortcut icon" href="/gaita/ideation/structured/html/favicon.ico" />
 
@@ -47,7 +47,7 @@
 
                 <!-- Onload tweaks -->
                 <script>
-                        const CURRENT_NODE = 'prospect-theory-modeling-tests';
+                        const CURRENT_NODE = 'betancourt-bayes-notes';
                         const HTML_URL_PREFIX = '/gaita/ideation/structured/html';
                         const PAGE_DEPTH = 0;
                 </script>
@@ -161,7 +161,7 @@
                 }
         </script>
                                     <div class="graph_header_div requires_js">
-            <a id="graph_link" class="system-link" href="/gaita/ideation/structured/html/obs.html/graph/index.html?node=prospect-theory-modeling-tests" title="Open fullpage Graph">
+            <a id="graph_link" class="system-link" href="/gaita/ideation/structured/html/obs.html/graph/index.html?node=betancourt-bayes-notes" title="Open fullpage Graph">
                     <img class="graph_header_div_svg" src = "/gaita/ideation/structured/html/obs.html/static/graph.svg" alt="Open fullpage Graph" style="margin: 2px; width: 17px;"/>
             </a>
         </div>
@@ -219,77 +219,175 @@
     </div>
 </div>
                         <div class="container">
-                                <div class="content"><h1 id="prospect-theory-modeling-tests">Prospect Theory Modeling Tests</h1>
-<h2 id="simulate-data">Simulate data</h2>
-<p>I'm going to do a pretty simple simulation with a small set of parameters (not nested within subjects or anything), with the usual value function (maybe constraining <span class="arithmatex">\(\alpha = \beta\)</span>) and a greatly simplified probability weighting function.   </p>
-<p>Overall value for a prospect with two outcomes updated to include a cost function instead of value function:   </p>
-<div class="arithmatex">\[
-V = \Sigma~\pi(p)\cdot -Cost(x)
-\]</div>
-<p>Cost function   </p>
-<div class="arithmatex">\[
-Cost(x) = \begin{cases}
--(x)^{\alpha} &amp; \text{if } x \geq 0 \\
-\lambda(-x)^{\beta} &amp; \text{if } x &lt; 0
-\end{cases}
-\]</div>
-<p>The scale of <span class="arithmatex">\(x\)</span> here gets a bit tricky. If I'm manipulating effort demand as a response time window, then effort demand decreases as the response window increases. I think my approach will be to flip the sign of <span class="arithmatex">\(x\)</span> in the function, which is a bit confusing. But I think it's more important to have the range of the cost function scale with some aversive quantity, rather than just flipping it into a value function. And of course, in keeping with prospect theory, <span class="arithmatex">\(x\)</span> is coded relative to a reference point.   </p>
-<p><span class="arithmatex">\(x\)</span> reflects the response time window, which is inversely related to objective effort demand and therefore subjective effort cost. That is to say, as there is more time to response, the task becomes less effortful. So, in keeping with mainstream views in the literature, the subjective sense of effort cost <span class="arithmatex">\(Cost(x)\)</span> scales as a positive, monotonic function of effort demand, which is the inverse of the response time window <span class="arithmatex">\(-x\)</span>. And for simplicity, <span class="arithmatex">\(\alpha = \beta\)</span>. And <span class="arithmatex">\(\alpha &gt; 1\)</span> to reflect increasing sensitivity in the context of experienced costs.   </p>
-<p>I'll plot this to make it more clear:   </p>
-<p><img src="/gaita/ideation/structured/html/figures/plot-value-function-1.png" title="plot of chunk plot-value-function" alt="plot of chunk plot-value-function" style="display: block; margin: auto;" />   </p>
-<p>Probability weighting function, modified for simplicity   </p>
+                                <div class="content"><h1 id="hamiltonian-monte-carlo">Hamiltonian Monte Carlo</h1>
+<p>This is a space for taking notes on a two-part lecture on Bayes and Stan (<a href="https://www.youtube.com/watch?v=pHsuIaPbNbY" class="external-link">part 1</a>, <a href="https://www.youtube.com/watch?v=xWQpEAyI5s8" class="external-link">part 2</a>)   </p>
+<p>Starting by scoping out a 2d space between sample size and model complexity. Saying that as sample size gets bigger, it's harder to fit more complex models. He aspires to specify complex, scientifically meaningful models and fit them to big data.   </p>
+<p>A solution is MCMC. Bayesian inference is nice because everything you need for inference is in the posterior distribution.   </p>
+<p>To answer statistical questions about parameters, one can either use optimizations or expectations:   </p>
 <div class="arithmatex">\[
 \begin{align*}
-\pi(p) = \begin{cases}
-p \cdot \gamma &amp; \text{if } p = 0.5\\
-1 &amp; \text{if } p = 1
-\end{cases}\\
-\gamma \in (0, 1)\\
-p \in \{0.5, 1\}
+f(\hat{\theta}), \hat{\theta} = \text{argmax}\pi(\theta)\\
+\mathbb{E}[f(\theta)] = \int d \theta \pi(\theta) f(\theta)
 \end{align*}
 \]</div>
-<p>Logistic choice rule   </p>
-<div class="arithmatex">\[
-p(safe) = \frac{1}{1 + e^{\varphi[V(risky) - V(safe)]}}
-\]</div>
-<p>Where when <span class="arithmatex">\(\varphi=0;~p(safe)=0.5\)</span> and the choice becomes more <br />
-deterministically in line with subjective value as <span class="arithmatex">\(\varphi\)</span> approaches <span class="arithmatex">\(1\)</span>.   </p>
-<p>So the full set of parameters is <span class="arithmatex">\(\{\alpha, \lambda, \gamma, \varphi\}\)</span>.   </p>
-<p>Some fixed values:   </p>
-<div class="arithmatex">\[
-\begin{align*}
-\alpha = 1.5^*\\
-\lambda = 2\\
-\gamma = 0.7\\
-\varphi = 0.8
-\end{align*}
-\]</div>
-<p>* <em><span class="arithmatex">\(\alpha&gt;1\)</span> reflects increasing sensitivity prediction.</em>   </p>
-<h3 id="run-simulation">Run simulation</h3>
-<p>Let's assume the response time window is manipulated discretely, and standardized relative to individual subjects so it'll be on the scale of quantile. So let's define the space of possible prospects as (<span class="arithmatex">\((outcome_1, probability_1; \ldots;~outcome_n, probability_n)\)</span>):   </p>
-<div class="arithmatex">\[
-\begin{align*}
-\text{Moderate gain: }[(0, 0.5; 0.5, 0.5), (0.25, 1)]\\
-\text{Moderate loss: }[(0, 0.5; -0.5, 0.5), (-0.25, 1)]\\
-\text{Extreme gain: }[(0, 0.5; 1, 0.5), (0.5, 1)]\\
-\text{Extreme loss: }[(0, 0.5; -1, 0.5), (-0.5, 1)]\\
-\end{align*}
-\]</div>
+<p>He's arguing that expectations are the only things that make sense in high dimensions. He goes into some math as to why, but it's a bit beyond me.   </p>
+<p>A challenge is that computing integrals in high dimensional systems is computationally hard. Constructing a posterior is straight forward. So MCMC is essentially just a way of computing an integral in high dimensions.   </p>
+<h2 id="stages-of-mcmc">Stages of MCMC</h2>
+<ul>
+<li>Warmup   <ul>
+<li>The algorithm runs for a bit until parameter estimates generally settle down over iterations.   </li>
+<li>Goes into a bunch of math. You essentially need to reach an equilibrium convergence.   </li>
+<li>You run into trouble if a parameter has a multi modal distribution   <ul>
+<li>Which is why you need to run multiple chains   </li>
+<li>MCMC not well equipped to handle multi modality   </li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Sampling   <ul>
+<li>Typically a hands-off process, meaning the manual interventions mostly occur in warmup   </li>
+<li>Stressing the importance of inspecting chains visually to look for odd behavior   </li>
+</ul>
+</li>
+<li>Analysis   <ul>
+<li>Under mild conditions, Monte Carlo expectations are distributed around the true value   <ul>
+<li><span class="arithmatex">\(\hat{f} \sim \mathcal{N}(\mathbb{E}[f], \text{MCSE}^2)\)</span>   </li>
+<li><span class="arithmatex">\(\text{MCSE}^2 = \text{Var}(f) / \text{ESS}\)</span>, ESS = effective sample size    </li>
+<li>Effective sample size is roughly the number of independent samples in the chain, see below   </li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>$$
+\text{ESS} = \frac{N}{1 + 2 \Sigma^N_{n=1}\rho_n}
+$$ <br />
+<span class="arithmatex">\(\rho\)</span> is a measure of autocorrelation. <span class="arithmatex">\(n\)</span> is number of lag across iterations. You're essentially summing up autocorrelations across many different lags. ESS gets small as autocorrelation gets big (autocorrelation is bad).   </p>
+<h3 id="inspecting-mcmc-estimates">Inspecting MCMC estimates</h3>
+<p>In the stan output, you get some summary of parameters having to do with the MCMC chain---look at these to assess whether there was something weird with the chain.    </p>
+<p>Talks a bit about model validation and some of the difficulty around generating predictions. I guess predictions are difficult because you only have one dataset, so you can't validate predictions against data that the model hasn't seen (?).    </p>
+<h3 id="motivating-hamilitonian-mcmc">Motivating Hamilitonian MCMC</h3>
+<p>He says this part is math heavy, but there's good reason that this HMC is good for high dimensions.   </p>
+<p>Yea this is over my head and probably not that important. He's just talking about algorithms trying to efficiently explore high dimensional parameter space.   </p>
+<h1 id="implementation">Implementation</h1>
+<p>Essentially what Stan is doing is constructing a high dimensional probability density.   </p>
+<h2 id="program-blocks-to-define-stan-model">Program blocks to define Stan model</h2>
+<ul>
+<li>data   </li>
+<li>transformed data   </li>
+<li>parameters (required)   </li>
+<li>transformed parameters   </li>
+<li>model (required)   </li>
+<li>generated quantities    </li>
+</ul>
+<h3 id="data">Data</h3>
+<p>Read in stuff externally.    </p>
 <div class="lang-general">
 
-<div class="codehilite"><pre><span></span><code>##    risky  safe     ssd_p ssd
-## 1   -1.0 -0.50 0.5915759   1
-## 2   -0.5 -0.25 0.5326997   0
-## 4    0.5  0.25 0.4836326   1
-## 5    1.0  0.50 0.4538215   0
-## 11  -1.0 -0.50 0.5915759   0
-## 21  -0.5 -0.25 0.5326997   1
+<div class="codehilite"><pre><span></span><code><span class="k">data</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
+<span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="n">program</span><span class="w"> </span><span class="n">looks</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">local</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="n">environment</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">these</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span>
+<span class="w">    </span><span class="nc">int</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="nc">int</span><span class="w"> </span><span class="n">x</span><span class="o">[</span><span class="n">N</span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="k">array</span><span class="w"></span>
+<span class="w">    </span><span class="nc">int</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"></span>
+<span class="err">}</span><span class="w"></span>
 </code></pre></div>
 
 
 </div>
 
-<p>If I'm not missing anything obvious, these tests are strongly pointing to the idea that probability of choice is <em>strongly</em> influenced by the absolute levels of <span class="arithmatex">\(x\)</span>. The ordinal predictions aren't, but the effect size totally is...</p></div>
+<h3 id="transformed-data">Transformed data</h3>
+<p>Where data gets preprocessed.   </p>
+<div class="lang-general">
+
+<div class="codehilite"><pre><span></span><code><span class="n">transformed</span><span class="w"> </span><span class="k">data</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
+<span class="w">    </span><span class="nc">int</span><span class="w"> </span><span class="n">y</span><span class="o">[</span><span class="n">N</span><span class="o">]</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="mi">1</span><span class="err">:</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="err">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">y</span><span class="o">[</span><span class="n">n</span><span class="o">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">x</span><span class="o">[</span><span class="n">n</span><span class="o">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span><span class="w"> </span>
+<span class="w">    </span><span class="err">}</span><span class="w"></span>
+<span class="err">}</span><span class="w"></span>
+</code></pre></div>
+
+
+</div>
+
+<h3 id="parameters">Parameters</h3>
+<div class="lang-general">
+
+<div class="codehilite"><pre><span></span><code><span class="kn">parameters</span> <span class="p">{</span>
+    <span class="kt">real</span><span class="o">&lt;</span><span class="k">lower</span><span class="p">=</span><span class="mf">0</span><span class="o">&gt;</span> <span class="n">lambda1</span><span class="p">;</span>
+    <span class="kt">real</span><span class="o">&lt;</span><span class="k">lower</span><span class="p">=</span><span class="mf">0</span><span class="o">&gt;</span> <span class="n">lambda2</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+</div>
+
+<h3 id="transformed-parameters">Transformed parameters</h3>
+<p>Only parameters in parameter block get sampled by MCMC   </p>
+<div class="lang-general">
+
+<div class="codehilite"><pre><span></span><code><span class="n">transformed</span> <span class="n">parameters</span> <span class="p">{</span>
+    <span class="n">real</span><span class="o">&lt;</span><span class="n">lower</span><span class="o">=</span><span class="m">0</span><span class="o">&gt;</span> <span class="n">lambda</span><span class="p">;</span>
+    <span class="n">lambda</span> <span class="o">&lt;-</span> <span class="n">lambda1</span> <span class="o">+</span> <span class="n">lambda2</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+</div>
+
+<p>The four blocks above define the scope of variables from which the model is built.    </p>
+<h3 id="model">Model</h3>
+<p>Where the posterior is defined.   </p>
+<div class="lang-general">
+
+<div class="codehilite"><pre><span></span><code><span class="kn">model</span> <span class="p">{</span>
+    <span class="o">//</span> <span class="n">y</span> <span class="n">is</span> <span class="n">distributed</span> <span class="n">as</span> <span class="n">a</span> <span class="n">poisson</span> <span class="n">with</span> <span class="n">parameter</span> <span class="n">lambda</span>
+    <span class="n">y</span> <span class="o">~</span> <span class="n">poisson</span><span class="p">(</span><span class="n">lambda</span><span class="p">);</span>
+    <span class="o">//</span> <span class="n">weakly</span> <span class="n">informative</span> <span class="n">priors</span>
+    <span class="o">//</span> <span class="n">essentially</span> <span class="n">defining</span> <span class="n">a</span> <span class="n">range</span> <span class="kr">for</span> <span class="n">sampling</span>
+    <span class="n">lambda1</span> <span class="o">~</span> <span class="n">cauchy</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">2.5</span><span class="p">);</span>
+    <span class="n">lambda2</span> <span class="o">~</span> <span class="n">cauchy</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">2.5</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+</div>
+
+<h3 id="generated-quantities">Generated quantities</h3>
+<p>Allows for post processing (eg posterior predictive checks). Can get random variables to generate pseudo data.   </p>
+<div class="lang-general">
+
+<div class="codehilite"><pre><span></span><code><span class="n">generated</span> <span class="n">quantities</span> <span class="p">{</span>
+    <span class="n">int</span> <span class="n">x_predict</span><span class="p">;</span>
+    <span class="n">x_predict</span> <span class="o">&lt;-</span> <span class="nf">poisson_rng</span><span class="p">(</span><span class="n">lambda</span><span class="p">)</span> <span class="o">+</span> <span class="n">offset</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+</div>
+
+<p>The order of the blocks is important.   </p>
+<p><img alt="matrix" src="matrix.jpg" />   </p>
+<h2 id="data-types">Data types</h2>
+<ul>
+<li>int   </li>
+<li>real   </li>
+</ul>
+<p>Can establish upper and lower bounds.    </p>
+<p>Stan transforms all variables to unbounded before sampling (via inverse logit).    </p>
+<p>Vectors: <code>real a[10]</code>   <br />
+A few others I'm not getting into. Some special data types for special parameter sets.    </p>
+<h3 id="usual-control-statements">Usual control statements</h3>
+<p><code>if/then/else</code>   </p>
+<p><code>for (i in 1:I)</code>   <br />
+<code>while (i &lt; I)</code>   </p>
+<h3 id="model-sampling">Model sampling</h3>
+<p>Statements can be vectorized   </p>
+<p>Instead of defining a distribution for each element, define across entire vector at once.   </p>
+<p><code>y ~ normal(mu, sigma)</code>   </p>
+<p><code>mu</code> and <code>sigma</code> can be scalars or vectors.    </p>
+<h2 id="example">Example</h2>
+<p>Does some crazy stuff to fit a 2d trend with a moderator.</p></div>
 <div class="note-footer">
 <div class="backlinks">
 <h2>Backlinks</h2>
@@ -304,13 +402,13 @@ deterministically in line with subjective value as <span class="arithmatex">\(\v
 
 </div>
 <div class="graph requires_js ">
-    <div id="A16785185960730987076922950774249593891{level}" class="graph_div"></div>
+    <div id="A226554503506869771672008522576254122426{level}" class="graph_div"></div>
     
     <div class="graph-button-row" style="display:flex;">
-        <button class="graph_button graph_show_button" id="B16785185960730987076922950774249593891{level}" level="{level}" note_temp_id="16785185960730987076922950774249593891" onclick="window.ObsHtmlGraph.run(this, '16785185960730987076922950774249593891', 'prospect-theory-modeling-tests');">
+        <button class="graph_button graph_show_button" id="B226554503506869771672008522576254122426{level}" level="{level}" note_temp_id="226554503506869771672008522576254122426" onclick="window.ObsHtmlGraph.run(this, '226554503506869771672008522576254122426', 'betancourt-bayes-notes');">
             Show Graph
         </button>
-        <button class="graph_button graph_type_button" id="C16785185960730987076922950774249593891{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
+        <button class="graph_button graph_type_button" id="C226554503506869771672008522576254122426{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
             2D
         </button>
     </div>
