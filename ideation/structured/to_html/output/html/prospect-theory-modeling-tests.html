@@ -201,7 +201,10 @@
 <div id="folder-container-1" class="dir-container requires_js " path="/gaita/ideation/structured/html/figures">
 	<ul class="dir-list">
 		<li><a class="" href="/gaita/ideation/structured/html/figures/plot-value-function-1.png"  class="external-link">plot-value-function-1</a></li>
+		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-2-1.png"  class="external-link">unnamed-chunk-2-1</a></li>
 		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-3-1.png"  class="external-link">unnamed-chunk-3-1</a></li>
+		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-8-1.png"  class="external-link">unnamed-chunk-8-1</a></li>
+		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-8-2.png"  class="external-link">unnamed-chunk-8-2</a></li>
 	</ul>
 </div>
 <ul class="dir-list">
@@ -275,21 +278,42 @@ deterministically in line with subjective value as <span class="arithmatex">\(\v
 \text{Extreme loss: }[(0, 0.5; -1, 0.5), (-0.5, 1)]\\
 \end{align*}
 \]</div>
+<p><img src="/gaita/ideation/structured/html/figures/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" />   </p>
+<p>If I'm not missing anything obvious, these tests are pointing to the idea that probability of choice is <em>strongly</em> influenced by the absolute levels of <span class="arithmatex">\(x\)</span>. The ordinal predictions aren't, but the effect size totally is...   </p>
+<p>So the only thing I can think of is if the scale of the decision sensitivity parameter just scales proportionately with the scale of the objective outcomes, and maybe the other parameters are invariant? Because preference strength still depends on absolute level even when controlling for absolute differences in absolute outcomes. So I'm not sure. This would be a good thing to test during parameter recovery.   </p>
+<p>Another interesting thing to keep an eye on is what level alpha will need to be to offset the influence of the probability weighting function discounting probability.   </p>
+<h2 id="modeling">Modeling</h2>
 <div class="lang-general">
 
-<div class="codehilite"><pre><span></span><code>##    risky  safe     ssd_p ssd
-## 1   -1.0 -0.50 0.5915759   1
-## 2   -0.5 -0.25 0.5326997   0
-## 4    0.5  0.25 0.4836326   1
-## 5    1.0  0.50 0.4538215   0
-## 11  -1.0 -0.50 0.5915759   0
-## 21  -0.5 -0.25 0.5326997   1
+<div class="codehilite"><pre><span></span><code><span class="err">##</span><span class="w"> </span><span class="nt">Inference</span><span class="w"> </span><span class="nt">for</span><span class="w"> </span><span class="nt">Stan</span><span class="w"> </span><span class="nt">model</span><span class="o">:</span><span class="w"> </span><span class="nt">94078dfef6525385fbcfd05f3d01aed3</span><span class="o">.</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">3</span><span class="w"> </span><span class="nt">chains</span><span class="o">,</span><span class="w"> </span><span class="nt">each</span><span class="w"> </span><span class="nt">with</span><span class="w"> </span><span class="nt">iter</span><span class="o">=</span><span class="nt">2000</span><span class="o">;</span><span class="w"> </span><span class="nt">warmup</span><span class="o">=</span><span class="nt">750</span><span class="o">;</span><span class="w"> </span><span class="nt">thin</span><span class="o">=</span><span class="nt">1</span><span class="o">;</span><span class="w"> </span>
+<span class="err">##</span><span class="w"> </span><span class="nt">post-warmup</span><span class="w"> </span><span class="nt">draws</span><span class="w"> </span><span class="nt">per</span><span class="w"> </span><span class="nt">chain</span><span class="o">=</span><span class="nt">1250</span><span class="o">,</span><span class="w"> </span><span class="nt">total</span><span class="w"> </span><span class="nt">post-warmup</span><span class="w"> </span><span class="nt">draws</span><span class="o">=</span><span class="nt">3750</span><span class="o">.</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span>
+<span class="err">##</span><span class="w">            </span><span class="nt">mean</span><span class="w"> </span><span class="nt">se_mean</span><span class="w">   </span><span class="nt">sd</span><span class="w">     </span><span class="nt">2</span><span class="p">.</span><span class="nc">5</span><span class="o">%</span><span class="w">      </span><span class="nt">25</span><span class="o">%</span><span class="w">      </span><span class="nt">50</span><span class="o">%</span><span class="w">      </span><span class="nt">75</span><span class="o">%</span><span class="w">    </span><span class="nt">97</span><span class="p">.</span><span class="nc">5</span><span class="o">%</span><span class="w"> </span><span class="nt">n_eff</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">lambda</span><span class="w">     </span><span class="nt">2</span><span class="p">.</span><span class="nc">86</span><span class="w">    </span><span class="nt">0</span><span class="p">.</span><span class="nc">03</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">47</span><span class="w">     </span><span class="nt">1</span><span class="p">.</span><span class="nc">98</span><span class="w">     </span><span class="nt">2</span><span class="p">.</span><span class="nc">52</span><span class="w">     </span><span class="nt">2</span><span class="p">.</span><span class="nc">85</span><span class="w">     </span><span class="nt">3</span><span class="p">.</span><span class="nc">17</span><span class="w">     </span><span class="nt">3</span><span class="p">.</span><span class="nc">82</span><span class="w">   </span><span class="nt">335</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">alpha</span><span class="w">      </span><span class="nt">3</span><span class="p">.</span><span class="nc">59</span><span class="w">    </span><span class="nt">0</span><span class="p">.</span><span class="nc">02</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">41</span><span class="w">     </span><span class="nt">2</span><span class="p">.</span><span class="nc">97</span><span class="w">     </span><span class="nt">3</span><span class="p">.</span><span class="nc">30</span><span class="w">     </span><span class="nt">3</span><span class="p">.</span><span class="nc">52</span><span class="w">     </span><span class="nt">3</span><span class="p">.</span><span class="nc">82</span><span class="w">     </span><span class="nt">4</span><span class="p">.</span><span class="nc">51</span><span class="w">   </span><span class="nt">318</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">phi</span><span class="w">        </span><span class="nt">1</span><span class="p">.</span><span class="nc">89</span><span class="w">    </span><span class="nt">0</span><span class="p">.</span><span class="nc">01</span><span class="w"> </span><span class="nt">0</span><span class="p">.</span><span class="nc">10</span><span class="w">     </span><span class="nt">1</span><span class="p">.</span><span class="nc">62</span><span class="w">     </span><span class="nt">1</span><span class="p">.</span><span class="nc">84</span><span class="w">     </span><span class="nt">1</span><span class="p">.</span><span class="nc">91</span><span class="w">     </span><span class="nt">1</span><span class="p">.</span><span class="nc">96</span><span class="w">     </span><span class="nt">2</span><span class="p">.</span><span class="nc">00</span><span class="w">   </span><span class="nt">296</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">lp__</span><span class="w">   </span><span class="nt">-2628</span><span class="p">.</span><span class="nc">81</span><span class="w">    </span><span class="nt">0</span><span class="p">.</span><span class="nc">07</span><span class="w"> </span><span class="nt">1</span><span class="p">.</span><span class="nc">45</span><span class="w"> </span><span class="nt">-2632</span><span class="p">.</span><span class="nc">39</span><span class="w"> </span><span class="nt">-2629</span><span class="p">.</span><span class="nc">57</span><span class="w"> </span><span class="nt">-2628</span><span class="p">.</span><span class="nc">46</span><span class="w"> </span><span class="nt">-2627</span><span class="p">.</span><span class="nc">72</span><span class="w"> </span><span class="nt">-2626</span><span class="p">.</span><span class="nc">95</span><span class="w">   </span><span class="nt">395</span><span class="w"></span>
+<span class="err">##</span><span class="w">        </span><span class="nt">Rhat</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">lambda</span><span class="w"> </span><span class="nt">1</span><span class="p">.</span><span class="nc">01</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">alpha</span><span class="w">  </span><span class="nt">1</span><span class="p">.</span><span class="nc">01</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">phi</span><span class="w">    </span><span class="nt">1</span><span class="p">.</span><span class="nc">00</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">lp__</span><span class="w">   </span><span class="nt">1</span><span class="p">.</span><span class="nc">00</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span>
+<span class="err">##</span><span class="w"> </span><span class="nt">Samples</span><span class="w"> </span><span class="nt">were</span><span class="w"> </span><span class="nt">drawn</span><span class="w"> </span><span class="nt">using</span><span class="w"> </span><span class="nt">NUTS</span><span class="o">(</span><span class="nt">diag_e</span><span class="o">)</span><span class="w"> </span><span class="nt">at</span><span class="w"> </span><span class="nt">Sat</span><span class="w"> </span><span class="nt">Jan</span><span class="w"> </span><span class="nt">14</span><span class="w"> </span><span class="nt">17</span><span class="p">:</span><span class="nd">05</span><span class="p">:</span><span class="nd">21</span><span class="w"> </span><span class="nt">2023</span><span class="o">.</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">For</span><span class="w"> </span><span class="nt">each</span><span class="w"> </span><span class="nt">parameter</span><span class="o">,</span><span class="w"> </span><span class="nt">n_eff</span><span class="w"> </span><span class="nt">is</span><span class="w"> </span><span class="nt">a</span><span class="w"> </span><span class="nt">crude</span><span class="w"> </span><span class="nt">measure</span><span class="w"> </span><span class="nt">of</span><span class="w"> </span><span class="nt">effective</span><span class="w"> </span><span class="nt">sample</span><span class="w"> </span><span class="nt">size</span><span class="o">,</span><span class="w"></span>
+<span class="err">##</span><span class="w"> </span><span class="nt">and</span><span class="w"> </span><span class="nt">Rhat</span><span class="w"> </span><span class="nt">is</span><span class="w"> </span><span class="nt">the</span><span class="w"> </span><span class="nt">potential</span><span class="w"> </span><span class="nt">scale</span><span class="w"> </span><span class="nt">reduction</span><span class="w"> </span><span class="nt">factor</span><span class="w"> </span><span class="nt">on</span><span class="w"> </span><span class="nt">split</span><span class="w"> </span><span class="nt">chains</span><span class="w"> </span><span class="o">(</span><span class="nt">at</span><span class="w"> </span>
+<span class="err">##</span><span class="w"> </span><span class="nt">convergence</span><span class="o">,</span><span class="w"> </span><span class="nt">Rhat</span><span class="o">=</span><span class="nt">1</span><span class="o">).</span><span class="w"></span>
 </code></pre></div>
 
 
 </div>
 
-<p>If I'm not missing anything obvious, these tests are strongly pointing to the idea that probability of choice is <em>strongly</em> influenced by the absolute levels of <span class="arithmatex">\(x\)</span>. The ordinal predictions aren't, but the effect size totally is...</p></div>
+<p><img src="/gaita/ideation/structured/html/figures/unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" /><img src="/gaita/ideation/structured/html/figures/unnamed-chunk-8-2.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" />   </p>
+<p>Estimation of <span class="arithmatex">\(\gamma\)</span> needs to be constrained in the range <span class="arithmatex">\([0, 1]\)</span> in order for the model to perform well.   </p>
+<p>I need to look really carefully at how the likelihood function is being defined. <br />
+These posterior distributions are stable but mostly reliably missing the true <br />
+parameter values.</p></div>
 <div class="note-footer">
 <div class="backlinks">
 <h2>Backlinks</h2>
@@ -304,13 +328,13 @@ deterministically in line with subjective value as <span class="arithmatex">\(\v
 
 </div>
 <div class="graph requires_js ">
-    <div id="A16785185960730987076922950774249593891{level}" class="graph_div"></div>
+    <div id="A130966576609449311078880594507384728307{level}" class="graph_div"></div>
     
     <div class="graph-button-row" style="display:flex;">
-        <button class="graph_button graph_show_button" id="B16785185960730987076922950774249593891{level}" level="{level}" note_temp_id="16785185960730987076922950774249593891" onclick="window.ObsHtmlGraph.run(this, '16785185960730987076922950774249593891', 'prospect-theory-modeling-tests');">
+        <button class="graph_button graph_show_button" id="B130966576609449311078880594507384728307{level}" level="{level}" note_temp_id="130966576609449311078880594507384728307" onclick="window.ObsHtmlGraph.run(this, '130966576609449311078880594507384728307', 'prospect-theory-modeling-tests');">
             Show Graph
         </button>
-        <button class="graph_button graph_type_button" id="C16785185960730987076922950774249593891{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
+        <button class="graph_button graph_type_button" id="C130966576609449311078880594507384728307{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
             2D
         </button>
     </div>

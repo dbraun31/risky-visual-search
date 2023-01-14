@@ -42,4 +42,7 @@ How to integrate all the individual difference control measures?
 
 ## Sequential sampling
 
-Gaze, sequential sampling, and multialternative risky choice ([paper](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1010283)).
+### General resources
+
+* Gaze, sequential sampling, and multialternative risky choice ([paper](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1010283)).
+* Connecting utility models to process models for risky choice ([paper](https://jbusemey.pages.iu.edu/JohnsonBusemeyerDecision.pdf)).

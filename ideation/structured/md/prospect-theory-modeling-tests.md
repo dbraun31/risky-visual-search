@@ -100,20 +100,17 @@ $$
 $$
 
 
-
-```
-##    risky  safe     ssd_p ssd
-## 1   -1.0 -0.50 0.5915759   1
-## 2   -0.5 -0.25 0.5326997   0
-## 4    0.5  0.25 0.4836326   1
-## 5    1.0  0.50 0.4538215   0
-## 11  -1.0 -0.50 0.5915759   0
-## 21  -0.5 -0.25 0.5326997   1
-```
+<img src="figures/unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" />
  
 
 
-If I'm not missing anything obvious, these tests are strongly pointing to the idea that probability of choice is *strongly* influenced by the absolute levels of $x$. The ordinal predictions aren't, but the effect size totally is...
+If I'm not missing anything obvious, these tests are pointing to the idea that probability of choice is *strongly* influenced by the absolute levels of $x$. The ordinal predictions aren't, but the effect size totally is...
+
+So the only thing I can think of is if the scale of the decision sensitivity parameter just scales proportionately with the scale of the objective outcomes, and maybe the other parameters are invariant? Because preference strength still depends on absolute level even when controlling for absolute differences in absolute outcomes. So I'm not sure. This would be a good thing to test during parameter recovery.
+
+Another interesting thing to keep an eye on is what level alpha will need to be to offset the influence of the probability weighting function discounting probability.
+
+## Modeling
 
 
 
@@ -123,9 +120,38 @@ If I'm not missing anything obvious, these tests are strongly pointing to the id
 
 
 
+```
+## Inference for Stan model: 94078dfef6525385fbcfd05f3d01aed3.
+## 3 chains, each with iter=2000; warmup=750; thin=1; 
+## post-warmup draws per chain=1250, total post-warmup draws=3750.
+## 
+##            mean se_mean   sd     2.5%      25%      50%      75%    97.5% n_eff
+## lambda     2.86    0.03 0.47     1.98     2.52     2.85     3.17     3.82   335
+## alpha      3.59    0.02 0.41     2.97     3.30     3.52     3.82     4.51   318
+## phi        1.89    0.01 0.10     1.62     1.84     1.91     1.96     2.00   296
+## lp__   -2628.81    0.07 1.45 -2632.39 -2629.57 -2628.46 -2627.72 -2626.95   395
+##        Rhat
+## lambda 1.01
+## alpha  1.01
+## phi    1.00
+## lp__   1.00
+## 
+## Samples were drawn using NUTS(diag_e) at Sat Jan 14 17:05:21 2023.
+## For each parameter, n_eff is a crude measure of effective sample size,
+## and Rhat is the potential scale reduction factor on split chains (at 
+## convergence, Rhat=1).
+```
 
 
 
+<img src="figures/unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" /><img src="figures/unnamed-chunk-8-2.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" />
+
+
+Estimation of $\gamma$ needs to be constrained in the range $[0, 1]$ in order for the model to perform well.
+
+I need to look really carefully at how the likelihood function is being defined.
+These posterior distributions are stable but mostly reliably missing the true
+parameter values.
 
 
 

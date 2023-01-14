@@ -23,6 +23,7 @@ knitr::opts_chunk$set(fig.path = 'figures/',
                       warning = FALSE,
                       echo = FALSE)
 
+options(mc.cores = parallel::detectCores())
 ```
 
 ```{r include = FALSE}
@@ -155,11 +156,12 @@ data <- data[data$risky1 != 0,]
 data <- do.call('rbind', replicate(1000, data, simplify = FALSE))
 
 ## parameters
-alpha = 3.5
+alpha = 3
 lambda = 2
 ## from tversky kahneman 1992
 gamma = .877
-phi = 10
+phi = .4
+
 
 ## functions
 p_choose_safe <- function(Vrisky, Vsafe) {
@@ -169,9 +171,16 @@ p_choose_safe <- function(Vrisky, Vsafe) {
 V <- function(x, p) {
     out <- 0
     for (outcome in x) {
-        out <- out + (pweight(p, gamma = gamma) * -cost(outcome, alpha = alpha, lambda = lambda)) 
+        out <- out + (pweight(p, gamma = gamma) * value(outcome, alpha = alpha, lambda = lambda)) 
     }
     return(out)
+}
+
+value <- function(x, alpha, lambda) {
+    if (x >= 0) {
+        return(x^alpha)
+    } 
+    return(-lambda * (-x)^alpha)
 }
 
 cost <- function(x, alpha, lambda){
@@ -182,14 +191,19 @@ cost <- function(x, alpha, lambda){
 }
 
 
-pweight <- function(p, gamma) {
+pweight <- function(p, gamma, neutralize = TRUE) {
+    # adjusting to neutralize function
+    if (neutralize) {
+        return(p)
+    }
+    
     if (p == 1){
         return(1)
     }
     return(p * gamma)
 }
 
-choose <- function(risky1, risky2, safe, mul = 1) {
+choose <- function(risky1, risky2, safe, mul = 2) {
     Vrisky <- V(x = c(risky1, risky2)*mul, p = 0.5)
     Vsafe <- V(x = safe*mul, p = 1)
     return(p_choose_safe(Vrisky, Vsafe))
@@ -201,8 +215,9 @@ data %>%
     mutate(framing = ifelse(risky1 > 0, 'Easier', 'Harder')) %>% 
     ggplot(aes(x = framing, y = ssd)) + 
     geom_jitter(alpha = .4, height = .05) + 
-    geom_bar(stat = 'summary', fun.y = 'mean', fill = 'steelblue', alpha = .6) + 
-    geom_errorbar(stat = 'summary', fun.y = 'sd', width = .5) + 
+    #geom_bar(stat = 'summary', fun.y = 'mean', fill = 'steelblue', alpha = .6) + 
+    stat_summary(fun = 'mean', geom='bar', fill = 'steelblue', alpha = .6) + 
+    #geom_errorbar(stat = 'summary', fun.y = 'sd', width = .5) + 
     labs(
         x = 'Framing', 
         y = 'Proportion Selection Safe Deck'
@@ -222,8 +237,8 @@ Another interesting thing to keep an eye on is what level alpha will need to be 
 
 ## Modeling
 
-```{stan output.var = 'prospect_model'}
-
+```{stan output.var = 'prospect_model', eval = FALSE}
+// this model does well
 data {
     int N;
     real risky1[N];
@@ -233,10 +248,10 @@ data {
 }
 
 parameters {
-    real<lower=0> lambda;
-    real<lower=0> alpha;
-    real<lower=0> gamma;
-    real<lower=0> phi;
+    real<lower=0, upper=10> lambda;
+    real<lower=0, upper=5> alpha;
+    real<lower=0, upper=1> gamma;
+    real<lower=0, upper=15> phi;
 }
 
 model {
@@ -246,20 +261,20 @@ model {
     real safev[N];
     
     // priors
-    lambda ~ normal(1, 3);
-    alpha ~ normal(1, 3);
-    gamma ~ normal(1, 3);
-    phi ~ normal(1, 3);
+    lambda ~ uniform(0, 4);
+    alpha ~ uniform(0, 4);
+    gamma ~ uniform(0, 1);
+    phi ~ uniform(0, 12);
     
     for (i in 1:N) {
         if (risky1[i] < 0) {
-            risky1v[i] = lambda * (-risky1[i])^alpha * (0.5*gamma);
-            risky2v[i] = lambda * (-risky2[i])^alpha * (0.5*gamma);
-            safev[i] = lambda * (-safe[i])^alpha;
+            risky1v[i] = -lambda * (-risky1[i])^alpha * (0.5*gamma);
+            risky2v[i] = -lambda * (-risky2[i])^alpha * (0.5*gamma);
+            safev[i] = -lambda * (-safe[i])^alpha;
         } else {
-            risky1v[i] = -(risky1[i])^alpha * (0.5*gamma);
-            risky2v[i] = -(risky2[i])^alpha * (0.5*gamma);
-            safev[i] = -(safe[i])^alpha;
+            risky1v[i] = (risky1[i])^alpha * (0.5*gamma);
+            risky2v[i] = (risky2[i])^alpha * (0.5*gamma);
+            safev[i] = (safe[i])^alpha;
         }
         sv[i] = inv_logit(phi * ((risky1v[i] + risky2v[i]) - safev[i]));
     }
@@ -267,17 +282,52 @@ model {
 }
 ```
 
+```{stan output.var = 'prospect_model'}
+// less informative priors and no probability weighting
+data {
+    int N;
+    real risky1[N];
+    real risky2[N];
+    real safe[N];
+    int choice[N];
+}
+
+parameters {
+    real<lower=0, upper=10> lambda;
+    real<lower=0, upper=10> alpha;
+    real<lower=0, upper=10> phi;
+}
+
+model {
+    real sv[N];
+    real risky1v;
+    real risky2v;
+    real safev;
+    
+    // priors
+    lambda ~ uniform(0, 10);
+    alpha ~ uniform(0, 10);
+    phi ~ uniform(0, 2);
+    
+    for (i in 1:N) {
+        if (risky1[i] < 0) {
+            risky1v = -lambda * ((-risky1[i])^alpha) * 0.5;
+            risky2v = -lambda * ((-risky2[i])^alpha) * 0.5;
+            safev = -lambda * (-safe[i])^alpha;
+        } else {
+            risky1v = (risky1[i]^alpha) * 0.5;
+            risky2v = (risky2[i]^alpha) * 0.5;
+            safev = (safe[i]^alpha);
+        }
+        sv[i] = 1 / (1 + exp(-phi * (safev - (risky1v + risky2v))));
+    }
+    choice ~ bernoulli(sv);
+}
+```
+
+
 
 ```{r}
-fit <- stan(file = 'prospect_model.stan',
-            data = list(N = nrow(data),
-                        risky1 = data$risky1,
-                        risky2 = data$risky2,
-                        safe = data$safe,
-                        choice = data$ssd),
-            warmup = 750,
-            iter = 1500,
-            chains = 3)
 
 fit <- sampling(prospect_model,
             data = list(N = nrow(data),
@@ -286,27 +336,71 @@ fit <- sampling(prospect_model,
                         safe = data$safe,
                         choice = data$ssd),
             warmup = 750,
-            iter = 1500,
+            iter = 2000,
             chains = 3)
 
+```
+```{r}
+print(fit)
+```
+```{r}
+result <- as.data.frame(fit)
+result$iteration <- 1:(nrow(result))
+result <- result %>% 
+    select(-lp__) %>% 
+    gather(parameter, estimate, lambda:phi)
 ```
 
 
 ```{r}
+params <- c(
+    alpha = alpha,
+    lambda = lambda,
+    phi = phi
+)
+params <- data.frame(parameter = names(params), ground_truth = params)
+params <- result %>% 
+    group_by(parameter) %>% 
+    summarize(mean = mean(estimate), lower = quantile(estimate, probs = .025),
+              upper = quantile(estimate, probs = .975), sd = sd(estimate)) %>% 
+    inner_join(params)
+
 result %>% 
-    select(-lp__) %>% 
-    gather(parameter, estimate, lambda:phi) %>% 
     ggplot(aes(x = iteration, y = estimate)) + 
-    geom_line() + 
-    facet_wrap(~parameter, scales = 'free')
+    geom_line(alpha = .6) + 
+    geom_hline(data = params, aes(yintercept = ground_truth), 
+               linetype = 'dashed', color = 'steelblue', size = 2) +
+    facet_wrap(~parameter, scales = 'free') + 
+    theme_bw() + 
+    theme(axis.ticks = element_blank(),
+          panel.grid = element_blank(),
+          strip.background = element_rect(color = 'black', fill = 'white'))
+
+result %>% 
+    ggplot(aes(x = estimate)) + 
+    geom_histogram(fill = 'steelblue', alpha = .6) + 
+    geom_vline(data = params, aes(xintercept = mean), linetype = 'dashed', color = 'yellow') + 
+    geom_vline(data = params, aes(xintercept = lower), linetype = 'dashed', color = 'yellow') + 
+    geom_vline(data = params, aes(xintercept = upper), linetype = 'dashed', color = 'yellow') + 
+    geom_vline(data = params, aes(xintercept = ground_truth), linetype = 'dashed', color = 'green') +
+    labs(
+        x = 'Estimate',
+        y = 'Count'
+    ) + 
+    facet_wrap(~parameter, scales = 'free') +
+    theme_bw() + 
+    theme(strip.background = element_rect(color = 'black', fill = 'white'))
 ```
 
 
+Estimation of $\gamma$ needs to be constrained in the range $[0, 1]$ in order for the model to perform well.
+
+I need to look really carefully at how the likelihood function is being defined.
+These posterior distributions are stable but mostly reliably missing the true
+parameter values.
 
 
-
-
-
+Realized my wonky cost function coding was making things backwards.
 
 
 
