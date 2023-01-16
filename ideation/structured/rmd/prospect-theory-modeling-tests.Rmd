@@ -17,11 +17,13 @@ knit: (function(input, encoding, output) {knitr::knit(input=input, encoding = en
 
 knitr::opts_knit$set(base.dir = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/')
 #knitr::opts_knit(base.dir = paste0(getwd(), '/../md/'))
-knitr::opts_chunk$set(fig.path = 'figures/', 
-                      fig.align = 'center',
-                      message = FALSE,
-                      warning = FALSE,
-                      echo = FALSE)
+knitr::opts_chunk$set(
+                        fig.path = 'figures/', 
+                        fig.align = 'center',
+                        message = FALSE,
+                        echo = FALSE,
+                        warning = FALSE
+                      )
 
 options(mc.cores = parallel::detectCores())
 ```
@@ -35,6 +37,8 @@ library(gridExtra)
 ```
 
 # Prospect Theory Modeling Tests
+
+For the polished html, see [here](https://davebraun.net/gaita/ideation/structured/html/polished/prospect-theory-modeling-tests.html)
 
 ## Simulate data
 
@@ -148,24 +152,24 @@ $$
 $$
 
 
-```{r}
+```{r run-simulation}
 data <- data.frame(risky1 = seq(-1, 1, by = 0.5), 
                    risky2 = c(-0.5, 0, 0, 0, 0.5),
-                   safe = c(-.75, -.25, 0, .25, .75))
+                   safe = c(-0.75, -.25, 0, .25, 0.75))
 data <- data[data$risky1 != 0,]
 data <- do.call('rbind', replicate(1000, data, simplify = FALSE))
 
 ## parameters
 alpha = 3
 lambda = 2
-## from tversky kahneman 1992
-gamma = .877
-phi = .4
+gamma = 1
+phi = .14
+multiplier = 3
 
 
 ## functions
 p_choose_safe <- function(Vrisky, Vsafe) {
-    return(1 / (1 + exp(phi * (Vrisky - Vsafe))))
+    return(1 / (1 + exp(-phi * (Vsafe - Vrisky))))
 }
 
 V <- function(x, p) {
@@ -183,19 +187,15 @@ value <- function(x, alpha, lambda) {
     return(-lambda * (-x)^alpha)
 }
 
-cost <- function(x, alpha, lambda){
-   if (x >= 0) {
-       return(-(x)^alpha)
-   } 
-    return(lambda * (-x)^alpha)
-}
+# cost <- function(x, alpha, lambda){
+#    if (x >= 0) {
+#        return(-(x)^alpha)
+#    } 
+#     return(lambda * (-x)^alpha)
+# }
 
 
-pweight <- function(p, gamma, neutralize = TRUE) {
-    # adjusting to neutralize function
-    if (neutralize) {
-        return(p)
-    }
+pweight <- function(p, gamma) {
     
     if (p == 1){
         return(1)
@@ -203,7 +203,7 @@ pweight <- function(p, gamma, neutralize = TRUE) {
     return(p * gamma)
 }
 
-choose <- function(risky1, risky2, safe, mul = 2) {
+choose <- function(risky1, risky2, safe, mul = multiplier) {
     Vrisky <- V(x = c(risky1, risky2)*mul, p = 0.5)
     Vsafe <- V(x = safe*mul, p = 1)
     return(p_choose_safe(Vrisky, Vsafe))
@@ -307,11 +307,11 @@ model {
     // priors
     lambda ~ uniform(0, 10);
     alpha ~ uniform(0, 10);
-    phi ~ uniform(0, 2);
+    phi ~ uniform(0, 10);
     
     for (i in 1:N) {
         if (risky1[i] < 0) {
-            risky1v = -lambda * ((-risky1[i])^alpha) * 0.5;
+            risky1v = -lambda * ((-risky1[i])^alpha) * 0.5 ;
             risky2v = -lambda * ((-risky2[i])^alpha) * 0.5;
             safev = -lambda * (-safe[i])^alpha;
         } else {
@@ -328,18 +328,17 @@ model {
 
 
 ```{r}
-
 fit <- sampling(prospect_model,
             data = list(N = nrow(data),
-                        risky1 = data$risky1,
-                        risky2 = data$risky2,
-                        safe = data$safe,
+                        risky1 = data$risky1*multiplier,
+                        risky2 = data$risky2*multiplier,
+                        safe = data$safe*multiplier,
                         choice = data$ssd),
             warmup = 750,
             iter = 2000,
             chains = 3)
-
 ```
+
 ```{r}
 print(fit)
 ```
@@ -352,7 +351,7 @@ result <- result %>%
 ```
 
 
-```{r}
+```{r model-results}
 params <- c(
     alpha = alpha,
     lambda = lambda,
@@ -393,7 +392,7 @@ result %>%
 ```
 
 
-Estimation of $\gamma$ needs to be constrained in the range $[0, 1]$ in order for the model to perform well.
+Estimation of $\gamma$ needs to be constrained in the range $[0, 1]$ in order for the model to perform well. And I think there's sufficient motivation to not worry about trying to estimate $\gamma$ because of its correlations with other parameters, especially $\alpha$. And I can use [this](https://osf.io/npd54) paper as a precedent for omitting $\gamma$.
 
 I need to look really carefully at how the likelihood function is being defined.
 These posterior distributions are stable but mostly reliably missing the true
@@ -401,6 +400,8 @@ parameter values.
 
 
 Realized my wonky cost function coding was making things backwards.
+
+OH- the multiplier was making things all screwy because I was only applying it to the data generation and not to the model input. Ran a test to confirm that, if scaling is consistent, estimation of the parameters is robust to the scaling of inputs, which is nice and what you would expect / hope for.
 
 
 

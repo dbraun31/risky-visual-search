@@ -120,23 +120,24 @@ Another interesting thing to keep an eye on is what level alpha will need to be 
 
 
 
+
 ```
-## Inference for Stan model: 94078dfef6525385fbcfd05f3d01aed3.
+## Inference for Stan model: 971bab69c456ef52daa4aba139d872d3.
 ## 3 chains, each with iter=2000; warmup=750; thin=1; 
 ## post-warmup draws per chain=1250, total post-warmup draws=3750.
 ## 
 ##            mean se_mean   sd     2.5%      25%      50%      75%    97.5% n_eff
-## lambda     2.86    0.03 0.47     1.98     2.52     2.85     3.17     3.82   335
-## alpha      3.59    0.02 0.41     2.97     3.30     3.52     3.82     4.51   318
-## phi        1.89    0.01 0.10     1.62     1.84     1.91     1.96     2.00   296
-## lp__   -2628.81    0.07 1.45 -2632.39 -2629.57 -2628.46 -2627.72 -2626.95   395
+## lambda     2.11    0.01 0.32     1.60     1.89     2.07     2.28     2.88  1371
+## alpha      2.80    0.00 0.15     2.52     2.70     2.79     2.90     3.12  1090
+## phi        0.18    0.00 0.05     0.10     0.15     0.18     0.21     0.29  1053
+## lp__   -2609.37    0.04 1.34 -2613.02 -2609.89 -2609.01 -2608.44 -2607.91  1002
 ##        Rhat
-## lambda 1.01
-## alpha  1.01
-## phi    1.00
-## lp__   1.00
+## lambda    1
+## alpha     1
+## phi       1
+## lp__      1
 ## 
-## Samples were drawn using NUTS(diag_e) at Sat Jan 14 17:05:21 2023.
+## Samples were drawn using NUTS(diag_e) at Mon Jan 16 13:53:38 2023.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).
@@ -147,13 +148,16 @@ Another interesting thing to keep an eye on is what level alpha will need to be 
 <img src="figures/unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" /><img src="figures/unnamed-chunk-8-2.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" />
 
 
-Estimation of $\gamma$ needs to be constrained in the range $[0, 1]$ in order for the model to perform well.
+Estimation of $\gamma$ needs to be constrained in the range $[0, 1]$ in order for the model to perform well. And I think there's sufficient motivation to not worry about trying to estimate $\gamma$ because of its correlations with other parameters, especially $\alpha$. And I can use [this](https://osf.io/npd54) paper as a precedent for omitting $\gamma$.
 
 I need to look really carefully at how the likelihood function is being defined.
 These posterior distributions are stable but mostly reliably missing the true
 parameter values.
 
 
+Realized my wonky cost function coding was making things backwards.
+
+OH- the multiplier was making things all screwy because I was only applying it to the data generation and not to the model input. Ran a test to confirm that, if scaling is consistent, estimation of the parameters is robust to the scaling of inputs, which is nice and what you would expect / hope for.
 
 
 
