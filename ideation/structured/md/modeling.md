@@ -39,6 +39,9 @@ I think a great way to piece this all together is to first get the full, hierarc
 
 How to integrate all the individual difference control measures?
 
+* [[hierarchical-prospect-theory|Validate hierarchical prospect theory model]]
+    * Generating data and recovering parameters from a hierarchical
+        implementation of prospect theory using Bayesian estimation.
 
 ## Sequential sampling
 

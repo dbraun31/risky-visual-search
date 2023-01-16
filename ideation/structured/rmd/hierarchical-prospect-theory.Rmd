@@ -1,0 +1,400 @@
+---
+title: 'Hierarchical Prospect Theory Modeling Tests'
+author: 'Dave Braun'
+date: January 16, 2023
+output:
+    md_document:
+        variant: markdown_github
+        toc: TRUE
+        df_print: 'paged'
+        standalone: TRUE
+knit: (function(input, encoding, output) {knitr::knit(input=input, encoding = encoding, output='../md/hierarchical-prospect-theory.md')})
+---
+
+```{r include = FALSE, setup}
+## super useful docs on knitr
+## https://yihui.org/knitr/options/#chunk_options
+
+knitr::opts_knit$set(base.dir = '/home/dave/Dropbox (Lehigh University)/post_doc/professional/projects/gaita/ideation/structured/md/')
+#knitr::opts_knit(base.dir = paste0(getwd(), '/../md/'))
+knitr::opts_chunk$set(
+                        fig.path = 'figures/', 
+                        fig.align = 'center',
+                        message = FALSE,
+                        echo = FALSE,
+                        warning = FALSE
+                      )
+
+options(mc.cores = parallel::detectCores())
+```
+
+```{r include = FALSE}
+library(tidyverse)
+library(latex2exp)
+library(BH)
+library(rstan)
+library(gridExtra)
+```
+
+# Hierarchical Prospect Theory Modeling 
+
+For the polished html, see [here](https://davebraun.net/gaita/ideation/structured/html/polished/hierarchical-prospect-theory.html)
+
+I'm going to start by implementing traditional prospect theory (only the value function), meaning not trying to put things in the language of an effort cost function.
+
+## Simulate data
+
+### Functional form and subject parameters
+
+Overall subjective value computation for a prospect (omitting the probability weighting function for simplicity):
+
+$$
+V = \Sigma~p\cdot v(x)
+$$
+
+Value function
+
+$$
+v(x) = \begin{cases}
+-(x)^{\alpha_i} & \text{if } x \geq 0 \\
+\lambda_i(-x)^{\alpha_i} & \text{if } x < 0
+\end{cases}
+$$
+Where parameters $\lambda_i$ and $\alpha_i$ are specific to subject $i$.
+
+Plotting the value function with $\alpha=2.5$:
+
+```{r plot-value-function}
+value <- function(x, alpha = 2.5, lambda = 2){
+   if (x >= 0) {
+       return((x)^alpha)
+   } 
+    return(-lambda * (-x)^alpha)
+}
+
+d <- data.frame(x = seq(-1, 1, by = .001))
+d$sv <- sapply(d$x, FUN = value)
+
+d %>% 
+    ggplot(aes(x = x, y = sv)) + 
+    geom_hline(yintercept = 0) + 
+    geom_vline(xintercept = 0) + 
+    geom_line(size = 1.5) + 
+    # annotate('text', x = -.8, y = 0.5, label = 'Less effort demand') + 
+    # annotate('text', x = .8, y = 0.5, label = 'More effort demand') + 
+    # annotate('text', x = -.7, y = -1.85, label = 'Increased response time window') + 
+    # annotate('text', x = .7, y = -1.85, label = 'Reduced response time window') + 
+    labs(
+        x = 'Objective reference-dependent outcome',
+        y = 'Subjective Value'
+    ) + 
+    ylim(-2,2) + 
+    theme_bw() + 
+    theme(axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          panel.grid = element_blank())
+```
+
+
+Logistic choice rule
+
+
+$$
+\begin{align*}
+p(safe)_t = \frac{1}{1 + e^{-\varphi_i[V(safe_t) - V(risky_t) - \gamma_i]}}\\
+Choice_t \sim Bernoulli[p(safe)_t]
+\end{align*}
+$$
+Where $\varphi_i$ is a decision sensitivity parameter for subject $i$ in range $[0, \infty)$ where values closer to $0$ imply choosing at random. And $\gamma$ is a baseline risk preference parameter for subject $i$ where positive values suggest a greater bias towards risk seeking and negative values towards risk aversion.
+
+
+### Group-level parameters
+
+Subject-level parameters are random effects drawn from probability distributions with group-level parameters.
+
+$$
+\begin{align*}
+\alpha_i \sim \mathcal{N}(\mu_{\alpha}, \sigma_{\alpha})\\
+\lambda_i \sim \mathcal{N}(\mu_{\lambda}, \sigma{\lambda})\\
+\varphi_i \sim \mathcal{N}(\mu_{\varphi}, \sigma_{\varphi})\\
+\gamma_i \sim \mathcal{N}(\mu_{\gamma}, \sigma_{\gamma})
+\end{align*}
+$$
+
+So the full set of parameters to be estimated is $\{\mu_{\alpha}, \sigma_{\alpha}, \mu_{\lambda}, \sigma_{\lambda}, \mu_{\varphi}, \sigma_{\varphi}, \mu_{\gamma}, \sigma_{\gamma}\}$, where the $\mu_.$ parameters are the true population means and the $\sigma_.$ parameters are the true population variances. 
+
+**Fixed values**
+
+Adjust the $\alpha$ parameters to ensure that $1$ is outside the 95th percentiles.
+
+```{r}
+mu <- 3.5
+sd <- 1
+data <- data.frame(x = seq(0, 10, by = .001))
+data$density <- dnorm(data$x, mu, sd)
+data %>% 
+    ggplot(aes(x = x, y = density)) + 
+    geom_vline(xintercept = 1, linetype = 'dashed') + 
+    annotate('text', x = 7.5, y = 0.3, label = paste0('mu = ', mu, ', sd = ', sd)) + 
+    geom_density(stat = 'identity', fill = 'steelblue', alpha = 0.6) + 
+    labs(
+        x = latex2exp::TeX(r'($\alpha$)'),
+        y = 'Density'
+    ) +
+    theme_bw()
+
+
+alpha_m <- 3.5
+alpha_sd <- 1
+lambda_m <- 2
+lambda_sd <- 1
+phi_m <- .4
+phi_sd <- .001
+gamma_m <- 0
+gamma_sd <- 0.5
+```
+
+$$
+\begin{align*}
+\alpha_{\mu} = `r alpha_m`\\
+\alpha_{\sigma} = `r alpha_sd`\\
+\lambda_{\mu} = `r lambda_m`\\
+\lambda_{\sigma} = `r lambda_sd`\\
+\varphi_{\mu} = `r phi_m`\\
+\varphi_{\sigma} = `r phi_sd`\\
+\gamma_{\mu} = `r gamma_m`\\
+\gamma_{\sigma} = `r gamma_sd`
+\end{align*}
+$$
+
+
+### Simulate from generative model
+
+Let's assume the response time window is manipulated discretely, and standardized relative to individual subjects so it'll be on the scale of quantile. So let's define the space of possible prospects as ($(outcome_1, probability_1; \ldots;~outcome_n, probability_n)$):
+
+
+$$
+\begin{align*}
+\text{Moderate gain: }[(0, 0.5; 0.5, 0.5), (0.25, 1)]\\
+\text{Moderate loss: }[(0, 0.5; -0.5, 0.5), (-0.25, 1)]\\
+\text{Extreme gain: }[(0, 0.5; 1, 0.5), (0.5, 1)]\\
+\text{Extreme loss: }[(0, 0.5; -1, 0.5), (-0.5, 1)]\\
+\end{align*}
+$$
+
+
+```{r run-simulation}
+data <- data.frame(risky1 = seq(-1, 1, by = 0.5), 
+                   risky2 = c(-0.5, 0, 0, 0, 0.5),
+                   safe = c(-0.75, -.25, 0, .25, 0.75))
+data <- data[data$risky1 != 0,]
+data <- do.call('rbind', replicate(1000, data, simplify = FALSE))
+
+## parameters
+alpha = 3
+lambda = 2
+gamma = 1
+phi = .14
+multiplier = 3
+
+
+## functions
+p_choose_safe <- function(Vrisky, Vsafe) {
+    return(1 / (1 + exp(-phi * (Vsafe - Vrisky))))
+}
+
+V <- function(x, p) {
+    out <- 0
+    for (outcome in x) {
+        out <- out + (pweight(p, gamma = gamma) * value(outcome, alpha = alpha, lambda = lambda)) 
+    }
+    return(out)
+}
+
+value <- function(x, alpha, lambda) {
+    if (x >= 0) {
+        return(x^alpha)
+    } 
+    return(-lambda * (-x)^alpha)
+}
+
+# cost <- function(x, alpha, lambda){
+#    if (x >= 0) {
+#        return(-(x)^alpha)
+#    } 
+#     return(lambda * (-x)^alpha)
+# }
+
+
+pweight <- function(p, gamma) {
+    
+    if (p == 1){
+        return(1)
+    }
+    return(p * gamma)
+}
+
+choose <- function(risky1, risky2, safe, mul = multiplier) {
+    Vrisky <- V(x = c(risky1, risky2)*mul, p = 0.5)
+    Vsafe <- V(x = safe*mul, p = 1)
+    return(p_choose_safe(Vrisky, Vsafe))
+}
+
+data$ssd_p <- mapply(choose, data$risky1, data$risky2, data$safe)
+data$ssd <- rbinom(nrow(data), 1, data$ssd_p)
+data %>% 
+    mutate(framing = ifelse(risky1 > 0, 'Easier', 'Harder')) %>% 
+    ggplot(aes(x = framing, y = ssd)) + 
+    geom_jitter(alpha = .4, height = .05) + 
+    #geom_bar(stat = 'summary', fun.y = 'mean', fill = 'steelblue', alpha = .6) + 
+    stat_summary(fun = 'mean', geom='bar', fill = 'steelblue', alpha = .6) + 
+    #geom_errorbar(stat = 'summary', fun.y = 'sd', width = .5) + 
+    labs(
+        x = 'Framing', 
+        y = 'Proportion Selection Safe Deck'
+    ) + 
+    theme_bw() + 
+    theme(axis.ticks = element_blank(),
+          panel.grid = element_blank())
+```
+ 
+
+
+If I'm not missing anything obvious, these tests are pointing to the idea that probability of choice is *strongly* influenced by the absolute levels of $x$. The ordinal predictions aren't, but the effect size totally is...
+
+So the only thing I can think of is if the scale of the decision sensitivity parameter just scales proportionately with the scale of the objective outcomes, and maybe the other parameters are invariant? Because preference strength still depends on absolute level even when controlling for absolute differences in absolute outcomes. So I'm not sure. This would be a good thing to test during parameter recovery.
+
+Another interesting thing to keep an eye on is what level alpha will need to be to offset the influence of the probability weighting function discounting probability.
+
+## Modeling
+
+```{stan output.var = 'prospect_model', eval = FALSE}
+// less informative priors and no probability weighting
+data {
+    int N;
+    real risky1[N];
+    real risky2[N];
+    real safe[N];
+    int choice[N];
+}
+
+parameters {
+    real<lower=0, upper=10> lambda;
+    real<lower=0, upper=10> alpha;
+    real<lower=0, upper=10> phi;
+}
+
+model {
+    real sv[N];
+    real risky1v;
+    real risky2v;
+    real safev;
+    
+    // priors
+    lambda ~ uniform(0, 10);
+    alpha ~ uniform(0, 10);
+    phi ~ uniform(0, 10);
+    
+    for (i in 1:N) {
+        if (risky1[i] < 0) {
+            risky1v = -lambda * ((-risky1[i])^alpha) * 0.5 ;
+            risky2v = -lambda * ((-risky2[i])^alpha) * 0.5;
+            safev = -lambda * (-safe[i])^alpha;
+        } else {
+            risky1v = (risky1[i]^alpha) * 0.5;
+            risky2v = (risky2[i]^alpha) * 0.5;
+            safev = (safe[i]^alpha);
+        }
+        sv[i] = 1 / (1 + exp(-phi * (safev - (risky1v + risky2v))));
+    }
+    choice ~ bernoulli(sv);
+}
+```
+
+
+
+```{r, eval = FALSE}
+fit <- sampling(prospect_model,
+            data = list(N = nrow(data),
+                        risky1 = data$risky1*multiplier,
+                        risky2 = data$risky2*multiplier,
+                        safe = data$safe*multiplier,
+                        choice = data$ssd),
+            warmup = 750,
+            iter = 2000,
+            chains = 3)
+```
+
+```{r, eval = FALSE}
+print(fit)
+```
+```{r, eval = FALSE}
+result <- as.data.frame(fit)
+result$iteration <- 1:(nrow(result))
+result <- result %>% 
+    select(-lp__) %>% 
+    gather(parameter, estimate, lambda:phi)
+```
+
+
+```{r model-results, eval = FALSE}
+params <- c(
+    alpha = alpha,
+    lambda = lambda,
+    phi = phi
+)
+params <- data.frame(parameter = names(params), ground_truth = params)
+params <- result %>% 
+    group_by(parameter) %>% 
+    summarize(mean = mean(estimate), lower = quantile(estimate, probs = .025),
+              upper = quantile(estimate, probs = .975), sd = sd(estimate)) %>% 
+    inner_join(params)
+
+result %>% 
+    ggplot(aes(x = iteration, y = estimate)) + 
+    geom_line(alpha = .6) + 
+    geom_hline(data = params, aes(yintercept = ground_truth), 
+               linetype = 'dashed', color = 'steelblue', size = 2) +
+    facet_wrap(~parameter, scales = 'free') + 
+    theme_bw() + 
+    theme(axis.ticks = element_blank(),
+          panel.grid = element_blank(),
+          strip.background = element_rect(color = 'black', fill = 'white'))
+
+result %>% 
+    ggplot(aes(x = estimate)) + 
+    geom_histogram(fill = 'steelblue', alpha = .6) + 
+    geom_vline(data = params, aes(xintercept = mean), linetype = 'dashed', color = 'yellow') + 
+    geom_vline(data = params, aes(xintercept = lower), linetype = 'dashed', color = 'yellow') + 
+    geom_vline(data = params, aes(xintercept = upper), linetype = 'dashed', color = 'yellow') + 
+    geom_vline(data = params, aes(xintercept = ground_truth), linetype = 'dashed', color = 'green') +
+    labs(
+        x = 'Estimate',
+        y = 'Count'
+    ) + 
+    facet_wrap(~parameter, scales = 'free') +
+    theme_bw() + 
+    theme(strip.background = element_rect(color = 'black', fill = 'white'))
+```
+
+
+Estimation of $\gamma$ needs to be constrained in the range $[0, 1]$ in order for the model to perform well. And I think there's sufficient motivation to not worry about trying to estimate $\gamma$ because of its correlations with other parameters, especially $\alpha$. And I can use [this](https://osf.io/npd54) paper as a precedent for omitting $\gamma$.
+
+I need to look really carefully at how the likelihood function is being defined.
+These posterior distributions are stable but mostly reliably missing the true
+parameter values.
+
+
+Realized my wonky cost function coding was making things backwards.
+
+OH- the multiplier was making things all screwy because I was only applying it to the data generation and not to the model input. Ran a test to confirm that, if scaling is consistent, estimation of the parameters is robust to the scaling of inputs, which is nice and what you would expect / hope for.
+
+
+
+
+
+
+
+
+
+
