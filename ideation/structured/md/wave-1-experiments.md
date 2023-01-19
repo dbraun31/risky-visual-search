@@ -52,40 +52,31 @@ level (ie, response window time) X transition X accuracy. Fit a simple
 logistic function for each subject where:
 
 $$
-logit(\text{accuracy}) = \beta_0 + \beta_1 \cdot X_{1} + \beta_2 \cdot X_2 + \beta_3 \cdot X_1 \cdot X_2
+logit(\text{accuracy}) = \beta_0 + \beta_1 \cdot X_{1} + \beta_2 \cdot X_2 
 $$
 
 Where $X_1$ is response time window and $X_2$ is transition, $x_2 \in
 \{\text{0, 1}\}$.
 
-Then I'll need to program from scratch in JavaScript an OLS to find the
-parameter values. This will be difficult bc it's a three dimensional
-regression equation (see [here](https://mathworld.wolfram.com/LeastSquaresFitting.html) for math).
+I think just call out to python and run it through sklearn (see
+`~/stats-example` on the webspace).
 
-Yea no that seems way too complicated. I think just call out to python and
-do something like [this](https://www.statsmodels.org/stable/examples/notebooks/generated/formulas.html)
-
-We'll want to simultaneously administer practice while getting an individual estimate of
-demand level. It'll be important for Ps to explicitly see the ms of the time window when
-experiencing the trial, so they can form an association between length of time window and
-effort demand. Look back to the Ceyda papers to get a sense of how to calibrate effort
-demand (and keep in mind that they felt they didn't extend the range far enough to the
-difficult end). 
 
 *Trial sequence.*
 
 * Receive general instructions
     * You should respond as quickly and accurately as possible regardless
 * Perform five trials per time window
-    * Increase until incorrect or timeout on all five trials
+    * Start around 1,000 ms
+    * Decrease until incorrect or timeout on all five trials
+        * In increments of ~ 50 ms
     * Need to consider some minimum safeguard (ie, someone who isn't trying or paying
         attention)
-    * Have the level of time window displayed on each trial
     * Will prob want to keep the number of switches in the run constant
 * A separate slide telling them 'the response window is now decreasing to X ms'
 * We'll want the difficulty gradient to be such that practice lasts [3, 5] min.
-* Look back to the sayali preprint to see what those sigmoid methods were for determining
-    difficulty per subject
+    * 50 ms steps for five trials each should give about 70 trials
+        (assuming ppl bottom out around 300 ms window)
 
 **Main task.**
 

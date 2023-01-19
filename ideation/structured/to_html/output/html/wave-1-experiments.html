@@ -284,21 +284,12 @@ envisioning two experiments:   </p>
 level (ie, response window time) X transition X accuracy. Fit a simple <br />
 logistic function for each subject where:   </p>
 <div class="arithmatex">\[
-logit(\text{accuracy}) = \beta_0 + \beta_1 \cdot X_{1} + \beta_2 \cdot X_2 + \beta_3 \cdot X_1 \cdot X_2
+logit(\text{accuracy}) = \beta_0 + \beta_1 \cdot X_{1} + \beta_2 \cdot X_2 
 \]</div>
 <p>Where <span class="arithmatex">\(X_1\)</span> is response time window and <span class="arithmatex">\(X_2\)</span> is transition, <span class="arithmatex">\(x_2 \in   
 \{\text{0, 1}\}\)</span>.   </p>
-<p>Then I'll need to program from scratch in JavaScript an OLS to find the <br />
-parameter values. This will be difficult bc it's a three dimensional <br />
-regression equation (see <a href="https://mathworld.wolfram.com/LeastSquaresFitting.html" class="external-link">here</a> for math).   </p>
-<p>Yea no that seems way too complicated. I think just call out to python and <br />
-do something like <a href="https://www.statsmodels.org/stable/examples/notebooks/generated/formulas.html" class="external-link">this</a>   </p>
-<p>We'll want to simultaneously administer practice while getting an individual estimate of <br />
-demand level. It'll be important for Ps to explicitly see the ms of the time window when <br />
-experiencing the trial, so they can form an association between length of time window and <br />
-effort demand. Look back to the Ceyda papers to get a sense of how to calibrate effort <br />
-demand (and keep in mind that they felt they didn't extend the range far enough to the <br />
-difficult end).    </p>
+<p>I think just call out to python and run it through sklearn (see <br />
+<code>~/stats-example</code> on the webspace).   </p>
 <p><em>Trial sequence.</em>   </p>
 <ul>
 <li>Receive general instructions   <ul>
@@ -306,17 +297,22 @@ difficult end).    </p>
 </ul>
 </li>
 <li>Perform five trials per time window   <ul>
-<li>Increase until incorrect or timeout on all five trials   </li>
+<li>Start around 1,000 ms   </li>
+<li>Decrease until incorrect or timeout on all five trials   <ul>
+<li>In increments of ~ 50 ms   </li>
+</ul>
+</li>
 <li>Need to consider some minimum safeguard (ie, someone who isn't trying or paying <br />
     attention)   </li>
-<li>Have the level of time window displayed on each trial   </li>
 <li>Will prob want to keep the number of switches in the run constant   </li>
 </ul>
 </li>
 <li>A separate slide telling them 'the response window is now decreasing to X ms'   </li>
-<li>We'll want the difficulty gradient to be such that practice lasts [3, 5] min.   </li>
-<li>Look back to the sayali preprint to see what those sigmoid methods were for determining <br />
-    difficulty per subject   </li>
+<li>We'll want the difficulty gradient to be such that practice lasts [3, 5] min.   <ul>
+<li>50 ms steps for five trials each should give about 70 trials <br />
+    (assuming ppl bottom out around 300 ms window)   </li>
+</ul>
+</li>
 </ul>
 <p><strong>Main task.</strong>   </p>
 <ul>
@@ -338,13 +334,13 @@ difficult end).    </p>
 
 </div>
 <div class="graph requires_js ">
-    <div id="A45690881213215256665131858699792947058{level}" class="graph_div"></div>
+    <div id="A124535288161180346668229223437052795337{level}" class="graph_div"></div>
     
     <div class="graph-button-row" style="display:flex;">
-        <button class="graph_button graph_show_button" id="B45690881213215256665131858699792947058{level}" level="{level}" note_temp_id="45690881213215256665131858699792947058" onclick="window.ObsHtmlGraph.run(this, '45690881213215256665131858699792947058', 'wave-1-experiments');">
+        <button class="graph_button graph_show_button" id="B124535288161180346668229223437052795337{level}" level="{level}" note_temp_id="124535288161180346668229223437052795337" onclick="window.ObsHtmlGraph.run(this, '124535288161180346668229223437052795337', 'wave-1-experiments');">
             Show Graph
         </button>
-        <button class="graph_button graph_type_button" id="C45690881213215256665131858699792947058{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
+        <button class="graph_button graph_type_button" id="C124535288161180346668229223437052795337{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
             2D
         </button>
     </div>
