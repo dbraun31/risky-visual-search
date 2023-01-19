@@ -201,6 +201,7 @@
 <div id="folder-container-1" class="dir-container requires_js " path="/gaita/ideation/structured/html/figures">
 	<ul class="dir-list">
 		<li><a class="" href="/gaita/ideation/structured/html/figures/plot-value-function-1.png"  class="external-link">plot-value-function-1</a></li>
+		<li><a class="" href="/gaita/ideation/structured/html/figures/run-simulation-1.png"  class="external-link">run-simulation-1</a></li>
 		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-2-1.png"  class="external-link">unnamed-chunk-2-1</a></li>
 		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-3-1.png"  class="external-link">unnamed-chunk-3-1</a></li>
 		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-8-1.png"  class="external-link">unnamed-chunk-8-1</a></li>
@@ -212,6 +213,7 @@
 	<li><a class="" href="/gaita/ideation/structured/html/betancourt-bayes-notes.html"  >betancourt-bayes-notes</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/experiment-brainstorming.html"  >experiment-brainstorming</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/experiments.html"  >experiments</a></li>
+	<li><a class="" href="/gaita/ideation/structured/html/hierarchical-prospect-theory.html"  >hierarchical-prospect-theory</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/index.html"  >index</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/modeling.html"  >modeling</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/prospect-theory-modeling-tests.html"  >prospect-theory-modeling-tests</a></li>
@@ -278,6 +280,19 @@ envisioning two experiments:   </p>
 <h3 id="procedure">Procedure</h3>
 <p><strong>Practice.</strong>   </p>
 <p><em>Random thoughts.</em>    </p>
+<p><strong>Effort calibration.</strong> For each subject, we get 3D data of difficulty <br />
+level (ie, response window time) X transition X accuracy. Fit a simple <br />
+logistic function for each subject where:   </p>
+<div class="arithmatex">\[
+logit(\text{accuracy}) = \beta_0 + \beta_1 \cdot X_{1} + \beta_2 \cdot X_2 + \beta_3 \cdot X_1 \cdot X_2
+\]</div>
+<p>Where <span class="arithmatex">\(X_1\)</span> is response time window and <span class="arithmatex">\(X_2\)</span> is transition, <span class="arithmatex">\(x_2 \in   
+\{\text{0, 1}\}\)</span>.   </p>
+<p>Then I'll need to program from scratch in JavaScript an OLS to find the <br />
+parameter values. This will be difficult bc it's a three dimensional <br />
+regression equation (see <a href="https://mathworld.wolfram.com/LeastSquaresFitting.html" class="external-link">here</a> for math).   </p>
+<p>Yea no that seems way too complicated. I think just call out to python and <br />
+do something like <a href="https://www.statsmodels.org/stable/examples/notebooks/generated/formulas.html" class="external-link">this</a>   </p>
 <p>We'll want to simultaneously administer practice while getting an individual estimate of <br />
 demand level. It'll be important for Ps to explicitly see the ms of the time window when <br />
 experiencing the trial, so they can form an association between length of time window and <br />
@@ -323,13 +338,13 @@ difficult end).    </p>
 
 </div>
 <div class="graph requires_js ">
-    <div id="A161607066679670689429648476881129002356{level}" class="graph_div"></div>
+    <div id="A45690881213215256665131858699792947058{level}" class="graph_div"></div>
     
     <div class="graph-button-row" style="display:flex;">
-        <button class="graph_button graph_show_button" id="B161607066679670689429648476881129002356{level}" level="{level}" note_temp_id="161607066679670689429648476881129002356" onclick="window.ObsHtmlGraph.run(this, '161607066679670689429648476881129002356', 'wave-1-experiments');">
+        <button class="graph_button graph_show_button" id="B45690881213215256665131858699792947058{level}" level="{level}" note_temp_id="45690881213215256665131858699792947058" onclick="window.ObsHtmlGraph.run(this, '45690881213215256665131858699792947058', 'wave-1-experiments');">
             Show Graph
         </button>
-        <button class="graph_button graph_type_button" id="C161607066679670689429648476881129002356{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
+        <button class="graph_button graph_type_button" id="C45690881213215256665131858699792947058{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
             2D
         </button>
     </div>

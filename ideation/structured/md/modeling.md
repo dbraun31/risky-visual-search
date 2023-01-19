@@ -32,6 +32,8 @@ undertaking prior to diving into this modeling more formally.
 * Long lecture (2.5 hrs) on hierarchical Bayesian theory (no stan; [youtube](https://www.youtube.com/watch?v=qQFF4tPgeWI)).
 * This lecture ([part 1](https://www.youtube.com/watch?v=pHsuIaPbNbY), [part 2](https://www.youtube.com/watch?v=xWQpEAyI5s8)) might be the best overview of stan and Bayes I've seen yet.
     * See [[betancourt-bayes-notes|notes]].
+* See [here](https://link.springer.com/article/10.1007/s11238-010-9234-3) for motivation for not estimating the probability weighting function concurrently with the value function.
+    * Different parameter combinations can explain the same choice profile.
 
 I think a great way to piece this all together is to first get the full, hierarchical model specification from [here](https://doi.org/10.1016/j.jmp.2010.08.006), get intuitions for defining a likelihood function from [here](https://www.thegreatstatsby.com/posts/2021-03-08-ml-prospect/), and get intuitions for implementing a Bayesian hierarchical model in stan from [here](https://www.youtube.com/watch?v=QqwCqPYbatA).
 

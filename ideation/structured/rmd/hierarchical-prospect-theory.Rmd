@@ -114,14 +114,18 @@ Subject-level parameters are random effects drawn from probability distributions
 
 $$
 \begin{align*}
-\alpha_i \sim \mathcal{N}(\mu_{\alpha}, \sigma_{\alpha})\\
-\lambda_i \sim \mathcal{N}(\mu_{\lambda}, \sigma{\lambda})\\
-\varphi_i \sim \mathcal{N}(\mu_{\varphi}, \sigma_{\varphi})\\
-\gamma_i \sim \mathcal{N}(\mu_{\gamma}, \sigma_{\gamma})
+\alpha_i \sim \mathcal{N}(\mu_{\alpha}, \sigma_{\alpha, i})\\
+\lambda_i \sim \mathcal{N}(\mu_{\lambda}, \sigma_{\lambda, i})\\
+\varphi_i \sim \mathcal{N}(\mu_{\varphi}, \sigma_{\varphi, i})\\
+\gamma_i \sim \mathcal{N}(\mu_{\gamma}, \sigma_{\gamma, i})
 \end{align*}
 $$
 
-So the full set of parameters to be estimated is $\{\mu_{\alpha}, \sigma_{\alpha}, \mu_{\lambda}, \sigma_{\lambda}, \mu_{\varphi}, \sigma_{\varphi}, \mu_{\gamma}, \sigma_{\gamma}\}$, where the $\mu_.$ parameters are the true population means and the $\sigma_.$ parameters are the true population variances. 
+So the full set of parameters to be estimated is $\{\mu_{\alpha}, \sigma_{\alpha,i}, \mu_{\lambda}, \sigma_{\lambda, i}, \mu_{\varphi}, \sigma_{\varphi, i}, \mu_{\gamma}, \sigma_{\gamma, i}\}$, where the $\mu_.$ parameters are the true population means and the $\sigma_.$ parameters are the subject-wise variances. 
+
+*Aside:*
+
+Down the road I can model some of these subject specific 
 
 **Fixed values**
 
@@ -135,6 +139,8 @@ data$density <- dnorm(data$x, mu, sd)
 data %>% 
     ggplot(aes(x = x, y = density)) + 
     geom_vline(xintercept = 1, linetype = 'dashed') + 
+    geom_vline(xintercept = mu - sd*1.96, linetype = 'dashed', color = 'steelblue') + 
+    geom_vline(xintercept = mu + sd*1.96, linetype = 'dashed', color = 'steelblue') + 
     annotate('text', x = 7.5, y = 0.3, label = paste0('mu = ', mu, ', sd = ', sd)) + 
     geom_density(stat = 'identity', fill = 'steelblue', alpha = 0.6) + 
     labs(
@@ -177,36 +183,50 @@ $$
 \begin{align*}
 \text{Moderate gain: }[(0, 0.5; 0.5, 0.5), (0.25, 1)]\\
 \text{Moderate loss: }[(0, 0.5; -0.5, 0.5), (-0.25, 1)]\\
-\text{Extreme gain: }[(0, 0.5; 1, 0.5), (0.5, 1)]\\
-\text{Extreme loss: }[(0, 0.5; -1, 0.5), (-0.5, 1)]\\
+\text{Extreme gain: }[(0.5, 0.5; 1, 0.5), (0.75, 1)]\\
+\text{Extreme loss: }[(-0.5, 0.5; -1, 0.5), (-0.75, 1)]\\
 \end{align*}
 $$
 
 
 ```{r run-simulation}
-data <- data.frame(risky1 = seq(-1, 1, by = 0.5), 
+d <- data.frame(risky1 = seq(-1, 1, by = 0.5), 
                    risky2 = c(-0.5, 0, 0, 0, 0.5),
                    safe = c(-0.75, -.25, 0, .25, 0.75))
-data <- data[data$risky1 != 0,]
-data <- do.call('rbind', replicate(1000, data, simplify = FALSE))
+d <- d[d$risky1 != 0,]
+
+N <- 100
+trials_per_subject <- 1000/4
+d <- do.call('rbind', replicate(trials_per_subject*N, d, simplify = FALSE))
+d$subject <- rep(1:N, each=trials_per_subject)
+
 
 ## parameters
-alpha = 3
-lambda = 2
-gamma = 1
-phi = .14
-multiplier = 3
+parameters <- list(
+    alpha_m = 3.5,
+    alpha_sd = 1.5,
+    lambda_m = 2,
+    lambda_sd = 1,
+    phi_m = 7,
+    phi_sd = 4,
+    gamma_m = 0,
+    gamma_sd = .5)
 
+## dummy p weight parameter
+w <- 1
+
+## multiplier
+multiplier <- 1
 
 ## functions
-p_choose_safe <- function(Vrisky, Vsafe) {
-    return(1 / (1 + exp(-phi * (Vsafe - Vrisky))))
+p_choose_safe <- function(Vrisky, Vsafe, phi, gamma) {
+    return(1 / (1 + exp(-phi * (Vsafe - Vrisky - gamma))))
 }
 
-V <- function(x, p) {
+V <- function(x, p, alpha, lambda) {
     out <- 0
     for (outcome in x) {
-        out <- out + (pweight(p, gamma = gamma) * value(outcome, alpha = alpha, lambda = lambda)) 
+        out <- out + (pweight(p, w=w) * value(outcome, alpha = alpha, lambda = lambda)) 
     }
     return(out)
 }
@@ -226,29 +246,56 @@ value <- function(x, alpha, lambda) {
 # }
 
 
-pweight <- function(p, gamma) {
+pweight <- function(p, w) {
     
     if (p == 1){
         return(1)
     }
-    return(p * gamma)
+    return(p * w)
 }
 
-choose <- function(risky1, risky2, safe, mul = multiplier) {
-    Vrisky <- V(x = c(risky1, risky2)*mul, p = 0.5)
-    Vsafe <- V(x = safe*mul, p = 1)
-    return(p_choose_safe(Vrisky, Vsafe))
+choose <- function(risky1, risky2, safe, alpha, lambda, phi, gamma, mul = multiplier) {
+    Vrisky <- V(x = c(risky1, risky2)*mul, p = 0.5, alpha, lambda)
+    Vsafe <- V(x = safe*mul, p = 1, alpha, lambda)
+    return(p_choose_safe(Vrisky, Vsafe, phi, gamma))
 }
 
-data$ssd_p <- mapply(choose, data$risky1, data$risky2, data$safe)
-data$ssd <- rbinom(nrow(data), 1, data$ssd_p)
-data %>% 
+determine_parameters <- function(d, parameters) {
+    N <- length(unique(d$subject))
+    param_df <- data.frame(subject = 1:N)
+    
+    for (param in c('alpha', 'lambda', 'phi', 'gamma')) {
+        mu <- paste0(param, '_m')
+        sd <- paste0(param, '_sd')
+        param_df[, param] <- rnorm(N, parameters[[mu]], parameters[[sd]])
+        ## set floor at zero for all except gamma
+        if (param != 'gamma') {
+            param_df[param_df[,param] < 0, param] <- 0
+        }
+    }
+    
+    return(param_df)    
+}
+
+## get subject specfic parameters
+pd <- determine_parameters(d, parameters)
+
+d <- d %>% 
+    inner_join(pd)
+
+d$ssd_p <- mapply(choose, d$risky1, d$risky2, d$safe, d$alpha, d$lambda, d$phi, d$gamma)
+d$ssd <- rbinom(nrow(d), 1, d$ssd_p)
+d %>% 
     mutate(framing = ifelse(risky1 > 0, 'Easier', 'Harder')) %>% 
+    group_by(subject, framing) %>% 
+    summarize(ssd = mean(ssd)) %>% 
     ggplot(aes(x = framing, y = ssd)) + 
-    geom_jitter(alpha = .4, height = .05) + 
-    #geom_bar(stat = 'summary', fun.y = 'mean', fill = 'steelblue', alpha = .6) + 
-    stat_summary(fun = 'mean', geom='bar', fill = 'steelblue', alpha = .6) + 
-    #geom_errorbar(stat = 'summary', fun.y = 'sd', width = .5) + 
+    geom_hline(yintercept = .5, linetype = 'dotted') + 
+    stat_summary(fun = 'mean', geom='bar', fill = 'steelblue', alpha = .6, color = 'black') + 
+    geom_errorbar(stat = 'summary', fun.y = 'sd', width = .2) + 
+    geom_jitter(alpha = .4, height = 0, width = .05) + 
+    geom_line(aes(group = subject), linetype = 'dashed', alpha = .6) + 
+    ylim(0,1) + 
     labs(
         x = 'Framing', 
         y = 'Proportion Selection Safe Deck'
@@ -256,15 +303,14 @@ data %>%
     theme_bw() + 
     theme(axis.ticks = element_blank(),
           panel.grid = element_blank())
+
+d <- d %>% 
+    select(-alpha:-gamma)
 ```
  
 
 
-If I'm not missing anything obvious, these tests are pointing to the idea that probability of choice is *strongly* influenced by the absolute levels of $x$. The ordinal predictions aren't, but the effect size totally is...
 
-So the only thing I can think of is if the scale of the decision sensitivity parameter just scales proportionately with the scale of the objective outcomes, and maybe the other parameters are invariant? Because preference strength still depends on absolute level even when controlling for absolute differences in absolute outcomes. So I'm not sure. This would be a good thing to test during parameter recovery.
-
-Another interesting thing to keep an eye on is what level alpha will need to be to offset the influence of the probability weighting function discounting probability.
 
 ## Modeling
 
@@ -276,12 +322,37 @@ data {
     real risky2[N];
     real safe[N];
     int choice[N];
+    int ind[N]; // subject index
+    int nsubj;
 }
 
 parameters {
-    real<lower=0, upper=10> lambda;
-    real<lower=0, upper=10> alpha;
-    real<lower=0, upper=10> phi;
+    real<lower=0> alpha_mu;
+    real<lower=0> alpha_sd;
+    real<lower=0> lambda_mu;
+    real<lower=0> lambda_sd;
+    real<lower=0> phi_mu;
+    real<lower=0> phi_sd;
+    real gamma_mu;
+    real<lower=0> gamma_sd;
+    real alpha_sample[nsubj];
+    real lambda_sample[nsubj];
+    real phi_sample[nsubj];
+    real gamma_sample[nsubj];
+}
+
+transformed parameters {
+    real alpha_applied[nsubj];
+    real lambda_applied[nsubj];
+    real phi_applied[nsubj];
+    real gamma_applied[nsubj];
+    
+    for (s in 1:nsubj) {
+        alpha_applied[s] = exp(alpha_sample[s]);
+        lambda_applied[s] = exp(lambda_sample[s]);
+        phi_applied[s] = exp(phi_sample[s]);
+        gamma_applied[s] = exp(gamma_sample[s]);
+    }
 }
 
 model {
@@ -291,21 +362,32 @@ model {
     real safev;
     
     // priors
-    lambda ~ uniform(0, 10);
-    alpha ~ uniform(0, 10);
-    phi ~ uniform(0, 10);
+    lambda_mu ~ uniform(0, 10);
+    alpha_mu ~ uniform(0, 10);
+    phi_mu ~ uniform(0, 10);
+    gamma_mu ~ uniform(0, 10);
+    lambda_sd ~ cauchy(0, 2.5);
+    alpha_sd ~ cauchy(0, 2.5);
+    phi_sd ~ cauchy(0, 2.5);
+    gamma_sd ~ cauchy(0, 2.5);
+    
+    alpha_sample ~ normal(alpha_mu, alpha_sd);
+    lambda_sample ~ normal(lambda_mu, lambda_sd);
+    phi_sample ~ normal(phi_mu, phi_sd);
+    gamma_sample ~ normal(gamma_mu, gamma_sd);
+    
     
     for (i in 1:N) {
         if (risky1[i] < 0) {
-            risky1v = -lambda * ((-risky1[i])^alpha) * 0.5 ;
-            risky2v = -lambda * ((-risky2[i])^alpha) * 0.5;
-            safev = -lambda * (-safe[i])^alpha;
+            risky1v = -lambda_applied[ind[i]] * ((-risky1[i])^alpha_applied[ind[i]]) * 0.5 ;
+            risky2v = -lambda_applied[ind[i]] * ((-risky2[i])^alpha_applied[ind[i]]) * 0.5;
+            safev = -lambda_applied[ind[i]] * (-safe[i])^alpha_applied[ind[i]];
         } else {
-            risky1v = (risky1[i]^alpha) * 0.5;
-            risky2v = (risky2[i]^alpha) * 0.5;
-            safev = (safe[i]^alpha);
+            risky1v = (risky1[i]^alpha_applied[ind[i]]) * 0.5;
+            risky2v = (risky2[i]^alpha_applied[ind[i]]) * 0.5;
+            safev = (safe[i]^alpha_applied[ind[i]]);
         }
-        sv[i] = 1 / (1 + exp(-phi * (safev - (risky1v + risky2v))));
+        sv[i] = 1 / (1 + exp(-phi_applied[ind[i]] * (safev - (risky1v + risky2v) - gamma_applied[ind[i]])));
     }
     choice ~ bernoulli(sv);
 }
@@ -315,15 +397,19 @@ model {
 
 ```{r, eval = FALSE}
 fit <- sampling(prospect_model,
-            data = list(N = nrow(data),
-                        risky1 = data$risky1*multiplier,
-                        risky2 = data$risky2*multiplier,
-                        safe = data$safe*multiplier,
-                        choice = data$ssd),
+            data = list(N = nrow(d),
+                        risky1 = d$risky1*multiplier,
+                        risky2 = d$risky2*multiplier,
+                        safe = d$safe*multiplier,
+                        choice = d$ssd,
+                        nsubj = length(unique(d$subject)),
+                        ind = d$subject),
             warmup = 750,
             iter = 2000,
             chains = 3)
 ```
+
+I'll have to look into how to make this more efficient.
 
 ```{r, eval = FALSE}
 print(fit)

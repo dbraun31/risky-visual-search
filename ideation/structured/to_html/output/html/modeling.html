@@ -201,6 +201,7 @@
 <div id="folder-container-1" class="dir-container requires_js " path="/gaita/ideation/structured/html/figures">
 	<ul class="dir-list">
 		<li><a class="" href="/gaita/ideation/structured/html/figures/plot-value-function-1.png"  class="external-link">plot-value-function-1</a></li>
+		<li><a class="" href="/gaita/ideation/structured/html/figures/run-simulation-1.png"  class="external-link">run-simulation-1</a></li>
 		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-2-1.png"  class="external-link">unnamed-chunk-2-1</a></li>
 		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-3-1.png"  class="external-link">unnamed-chunk-3-1</a></li>
 		<li><a class="" href="/gaita/ideation/structured/html/figures/unnamed-chunk-8-1.png"  class="external-link">unnamed-chunk-8-1</a></li>
@@ -212,6 +213,7 @@
 	<li><a class="" href="/gaita/ideation/structured/html/betancourt-bayes-notes.html"  >betancourt-bayes-notes</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/experiment-brainstorming.html"  >experiment-brainstorming</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/experiments.html"  >experiments</a></li>
+	<li><a class="" href="/gaita/ideation/structured/html/hierarchical-prospect-theory.html"  >hierarchical-prospect-theory</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/index.html"  >index</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/modeling.html"  >modeling</a></li>
 	<li><a class="" href="/gaita/ideation/structured/html/prospect-theory-modeling-tests.html"  >prospect-theory-modeling-tests</a></li>
@@ -262,10 +264,21 @@ undertaking prior to diving into this modeling more formally.   </p>
 <li>See <a href="/gaita/ideation/structured/html/betancourt-bayes-notes.html">notes</a>.   </li>
 </ul>
 </li>
+<li>See <a href="https://link.springer.com/article/10.1007/s11238-010-9234-3" class="external-link">here</a> for motivation for not estimating the probability weighting function concurrently with the value function.   <ul>
+<li>Different parameter combinations can explain the same choice profile.   </li>
+</ul>
+</li>
 </ul>
 <p>I think a great way to piece this all together is to first get the full, hierarchical model specification from <a href="https://doi.org/10.1016/j.jmp.2010.08.006" class="external-link" class="external-link">here</a>, get intuitions for defining a likelihood function from <a href="https://www.thegreatstatsby.com/posts/2021-03-08-ml-prospect/" class="external-link" class="external-link">here</a>, and get intuitions for implementing a Bayesian hierarchical model in stan from <a href="https://www.youtube.com/watch?v=QqwCqPYbatA" class="external-link">here</a>.   </p>
 <h3 id="my-attempts">My attempts</h3>
 <p>How to integrate all the individual difference control measures?   </p>
+<ul>
+<li><a href="/gaita/ideation/structured/html/hierarchical-prospect-theory.html">Validate hierarchical prospect theory model</a>   <ul>
+<li>Generating data and recovering parameters from a hierarchical <br />
+    implementation of prospect theory using Bayesian estimation.   </li>
+</ul>
+</li>
+</ul>
 <h2 id="sequential-sampling">Sequential sampling</h2>
 <h3 id="general-resources_1">General resources</h3>
 <ul>
@@ -286,13 +299,13 @@ undertaking prior to diving into this modeling more formally.   </p>
 
 </div>
 <div class="graph requires_js ">
-    <div id="A216560594372656220916496151639853128216{level}" class="graph_div"></div>
+    <div id="A194313358743026914902515024475517036123{level}" class="graph_div"></div>
     
     <div class="graph-button-row" style="display:flex;">
-        <button class="graph_button graph_show_button" id="B216560594372656220916496151639853128216{level}" level="{level}" note_temp_id="216560594372656220916496151639853128216" onclick="window.ObsHtmlGraph.run(this, '216560594372656220916496151639853128216', 'modeling');">
+        <button class="graph_button graph_show_button" id="B194313358743026914902515024475517036123{level}" level="{level}" note_temp_id="194313358743026914902515024475517036123" onclick="window.ObsHtmlGraph.run(this, '194313358743026914902515024475517036123', 'modeling');">
             Show Graph
         </button>
-        <button class="graph_button graph_type_button" id="C216560594372656220916496151639853128216{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
+        <button class="graph_button graph_type_button" id="C194313358743026914902515024475517036123{level}" style="flex:1" onclick="window.ObsHtmlGraph.switch_graph_type(this);">
             2D
         </button>
     </div>
