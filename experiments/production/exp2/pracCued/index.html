@@ -5,7 +5,7 @@
     <meta name='viewport' content='width=device-width, initial-scale=1, user-scalable=no'>
     <title>Braun Dissertation</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle.css?v=5'>
+    <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle_decks.css?v=5'>
     <link rel='stylesheet' type='text/css' href='../style/exp2Style.css'>
     <script src='../js/exp3Functions.js'></script>
     <script src='../../global_js/globalFunctions_decks.js?v=1'></script>
@@ -41,15 +41,24 @@ $(document).ready(function(){
     // experimentStartTime in MS
     var experimentStartTime = Date.now();
     var rtStartTime = new Date();
+    // starting time for the rt window
+    var rt_window = 3500;
+    // how much to decrease the rt window across cycles
+    var rt_window_big_step = 200;
+	var rt_window_small_step = 100;
+	// at what point do i start higher resolution sampling
+	var rt_window_break_point = 2500;
+	var rt_window_min = 200;
+	var timeout = 0;
+	var first_cycle = 1;
+	var pswitch = .5;
 
     // thresholds & manipulations
     // trial threshold is how many cued trials per cycle
-    var trialThreshold = 17;
+    var trialThreshold = 7;
     var rsi = 200;
     var errorTimeout = 500;
-    var cycleThreshold = 9;
     var cycleCount = 0;
-    var notFirstRun = 0;
 
 
     var vid = document.getElementById('tutorial');
@@ -94,8 +103,6 @@ $(document).ready(function(){
     $('.stimSlide').hide();
     $('.interCycleSlide').hide();
     $('#development').hide();
-    $('#botCatcher').hide();
-
 
     if (secret_code.includes('dave')) {
         $('#titleSlide').hide();
@@ -169,35 +176,52 @@ function startCued() {
 function runCycle() {
     $('.stimSlide').hide();
     
-    if (cycleCount == cycleThreshold) {
-        endCued();
+    if (rt_window == rt_window_min) {
+		alert('YOU SUCK');
+		save_csv(trialStruct);
+        //endCued();
     } else {
 
-        transitionArray = generateTransitionArray(8);
         cycleCount += 1;
         trialCount = 0;
-        if (notFirstRun) {
-            $('.interCycleSlide').show();
-            setTimeout(function(){
-                $('.interCycleSlide').hide();
-                $('.stimSlide').show()
-                runTrial();
-            }, 5000)
-        } else {
-            notFirstRun = 1;
-            $('.stimSlide').show()
-            runTrial();
-        }
+        $('.stimSlide').show();
+		if (!first_cycle) {
+			if (rt_window > rt_window_break_point) {
+				// if in the big range, do the big step
+				rt_window -= rt_window_big_step;
+				if (rt_window == rt_window_break_point) {
+					// if first trial in small range, set pswitch=0
+					pswitch = 0;
+				}
+			} else {
+				// increment pswitch proportional to rt window
+				let length = compute_length(rt_window_break_point, 
+											rt_window_min, 
+											rt_window_small_step);
+
+				pswitch += compute_step_size(1, 0, length);
+				// if in the small range, do the small step
+				rt_window -= rt_window_small_step;	
+			}
+		}
+		console.log(rt_window);
+		console.log(pswitch);
+		first_cycle = 0;
+        runTrial();
     }
 }
 
 function runTrial() {
     // update count
     trialCount += 1;
+	
+	//reset timeout
+	timeout = 0;
 
     // generate stimulus
     $('.stimContainer').hide();
-    currentTaskColor = transitionArray[trialCount - 1];
+	// generate stimulus on each trial
+	currentTaskColor = generateTransition(pswitch, prevTaskColor);
     currentStim = generateCuedStim();
     currentTask = taskCueCode[currentTaskColor];
     $('.stimContainer').html('<p>' + currentStim + '</p>');
@@ -229,67 +253,96 @@ function runTrial() {
 
         // listen for response keys 
         $(document).bind('keydown.listenForKeys', function(e){
-            if ($.inArray(e.which, [74, 75]) + 1) {
-                
-                // log rt
-                rt = new Date() - rtStartTime;
+			handle_response(e, timeout);		
+		});
 
-                // stop listening for response keys
-                $(document).unbind('keydown.listenForKeys');
+		// defining this as an implicit global so handle_response() can see it
+		response_timer = setTimeout(function(){
+			timeout = 1;
+			handle_response(0, timeout);
+		}, rt_window);
 
-                // code error
-                error = cuedIsError(String(e.which), currentTask, currentStim);
-                
-                // code transition
-                transition = codeTransition(prevTaskColor, currentTaskColor);
-
-                // log data
-                trialStruct.push({
-                    'trialCount': trialCount,
-                    'rsi': rsi,
-                    'runTimeMins': Math.round((Date.now() - experimentStartTime) / 1000 / 60),
-                    'stimulus': currentStim,
-                    'stimColor': currentTaskColor,
-                    'taskCode': currentTask,
-                    'responseKey': keyCode[e.which],
-                    'transition': transition,
-                    'error': error,
-                    'rt': rt
-                });
-
-
-                // update prevTaskColor
-                prevTaskColor = currentTaskColor;
-
-                // prepare for next trial
-                if (error) {
-                    $('.errorContainer').show();
-                    errorCount += 1;
-
-                    setTimeout(function(){
-                        if (trialCount == trialThreshold) {
-                            $('.errorContainer').hide();
-                            runCycle();
-                        } else {
-                            $('.errorContainer').hide();
-                            runTrial();
-                        }
-                    }, errorTimeout)
-                } else {
-                    if (trialCount == trialThreshold) {
-                        runCycle();
-                    } else {
-                        runTrial();
-                    }
-                }
-
-            }
-        });
-
-    }, rsi);
-
-
+	}, rsi); //end rsi timeout
 }
+
+function handle_response(e, timeout) {
+	// add an or to check for timeout
+	if (timeout | $.inArray(e.which, [74, 75, 68, 70]) + 1) {
+		//stop rt window
+		clearTimeout(response_timer);	
+
+		// log rt
+		if (timeout) {
+			rt = NaN;
+		} else {
+			rt = new Date() - rtStartTime;
+		}
+
+		// stop listening for response keys
+		$(document).unbind('keydown.listenForKeys');
+
+		// code error
+		if (timeout) {
+			error = 0;
+		} else {
+			error = cuedIsError(String(e.which), currentTask, currentStim);
+		}
+		
+		// code transition
+		transition = codeTransition(prevTaskColor, currentTaskColor);
+
+		// log data
+		trialStruct.push({
+			'trialCount': trialCount,
+			'rsi': rsi,
+			'runTimeMins': Math.round((Date.now() - experimentStartTime) / 1000 / 60),
+			'stimulus': currentStim,
+			'rt_window': rt_window,
+			'stimColor': currentTaskColor,
+			'taskCode': currentTask,
+			'responseKey': keyCode[e.which],
+			'pswitch': pswitch,
+			'transition': transition,
+			'error': error,
+			'rt': rt,
+			'timeout': timeout
+		});
+
+
+		// update prevTaskColor
+		prevTaskColor = currentTaskColor;
+
+		// prepare for next trial
+		if (error | timeout) {
+			if (error) {
+				$('#errorContainer').show();
+				errorCount += 1;	
+			} else {
+				$('#timeoutContainer').show();
+			}
+
+			setTimeout(function(){
+				if (trialCount == trialThreshold) {
+					$('#errorContainer').hide();
+					$('#timeoutContainer').hide();
+					runCycle();
+				} else {
+					$('#errorContainer').hide();
+					$('#timeoutContainer').hide();
+					runTrial();
+				}
+			}, errorTimeout)
+		} else {
+
+			if (trialCount == trialThreshold) {
+				runCycle();
+			} else {
+				runTrial();
+			}
+		}
+
+	} // end is response in array
+} // end handle_response()	
 
 function endCued() {
     // store and send cued data and ship to next phase
@@ -368,14 +421,6 @@ function sendToServer(secret_code, currentData) {
                 <button id='submitDevelopment' class='experimentButton'>Submit</button>
             </div>
 
-            <!-- BOT CATCHER -->
-            <div id = 'botCatcher'>
-                <h1>Your accuracy has fallen below that which is acceptable for continuing</h1></br>
-                <h2>If you would like to have another chance at completing this experiment:</h2>
-                <p>Email Dave Braun (dab414@lehigh.edu) and tell him you received error code 465.</p>
-                <p>Otherwise, you will not receive credit for participating.</p>
-            </div>
-
             <!-- BEGIN TITLE SLIDE -->
             <div id='titleSlide'>
                 <div class='titleBar'>
@@ -415,10 +460,6 @@ function sendToServer(secret_code, currentData) {
             </div>
         </div> <!-- end detail slide -->
 
-        <div class='interCycleSlide'>
-            <p>That was the end of that 17-trial cycle, the next one will begin shortly. Remember 8 of the 16 trial transitions will be task switches, and that is the difficulty level that can be expected during these types of tasks.</p>
-        </div>
-
         <!-- KEY REMIND SLIDE -->
         <div id='keyRemindSlide'>
             <div class='titleBar'>
@@ -441,9 +482,13 @@ function sendToServer(secret_code, currentData) {
             <div class='keyContainer'>
             </div>
 
-            <div class='errorContainer'>
+            <div class='errorContainer' id='errorContainer'>
                 <p><strong>ERROR!</strong></p>
             </div>
+
+			<div class='errorContainer' id='timeoutContainer'>
+				<p><strong>TIMEOUT!</strong</p>
+			</div>
 
             <div class='stimContainer'>
             </div>

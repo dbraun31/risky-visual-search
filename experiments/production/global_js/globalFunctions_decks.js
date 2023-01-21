@@ -100,32 +100,37 @@ function createClientCueText(taskCueCode) {
 function cuedIsError(key, currentTask, currentStim) {
   // takes as input:
     // key: the number key [74, 75] that was pressed
+    // key: 68 = d, 70 = f
     // currentTask: 'par' or 'mag'
     // taskCueCode: dict mapping color to task
       // eg: {'blue': 'mag' ... etc}
   // returns: error = [0 | 1] 
 
   // for now, im assuming that (for par) 74 (j) is odd and 75 (k) is even
+  // and that for mag 68 (d) is low and 70 (f) is high
 
-  var error = 0;
+  var error = 1;
 
   // searching for cases where errors are committed
   if (currentTask == 'par') {
-    if (currentStim % 2 && key == 75) {
-      error = 1;
-    } else if (currentStim % 2 == 0 && key == 74) {
-      error = 1;
+    if (currentStim % 2 && key == 74) {
+      error = 0;
+    } else if (currentStim % 2 == 0 && key == 75) {
+      error = 0;
     } 
 
   } else if (currentTask == 'mag') {
-    if (currentStim < 5 && key == 75) {
-      error = 1;
-    } else if (currentStim > 5 && key == 74) {
-      error = 1;
+    if (currentStim < 5 && key == 68) {
+      error = 0;
+    } else if (currentStim > 5 && key == 70) {
+      error = 0;
     }
 
   } else {
     console.log('Something with if/else handling failed in cuedIsError()');
+	console.log(currentStim);
+	console.log(currentTask);
+	console.log(key);
   }
 
   return error;
@@ -290,5 +295,112 @@ function registerId(experiment){
 }
 
 
+
+function generateTransitionArray(nSwitches, n_trials) {
+  // Takes as input the number of switches that should occur out of n-1 total transitions
+  // Returns an array of length n where each element is string containing a color: 'red' or 'blue'
+    // Where the number of switches between colors equals nSwitches
+
+  // Initialize array with values 1:16 to use as indices
+  var indicesContainer = []
+  for (i = 1; i < n_trials; i++) {
+    indicesContainer[i-1] = i; 
+  }
+
+  // Initialize out vector with random starting color
+  var out = [];
+  out[0] = Math.random(1) > .5 ? 'blue' : 'red';
+
+  // Start everything at repeat
+  for (i = 0; i < n_trials; i++) {
+    if (i) {
+      out[i] = 'repeat';
+    }
+  }
+
+  // Randomly set nSwitch number of elements in out to switch
+  for (i = 0; i < nSwitches; i++) {
+    out[getRandomFromBucket(indicesContainer)] = 'switch';
+  }
+
+  // Convert 'switch' and 'repeat' to their color values based on the starting color
+  for (i = 1; i < out.length; i++) {
+    if (out[i] == 'repeat') {
+      out[i] = out[i-1];
+    } else {
+      out[i] = out[i-1] == 'red' ? 'blue' : 'red';
+    }
+  }
+
+  return out;
+
+} // end generateTransitionArray()
+
+function getRandomFromBucket(bucket) {
+  var randomIndex = Math.floor(Math.random()*bucket.length);
+  return bucket.splice(randomIndex, 1)[0];
+}
+
+// a class tracking the accuracy of the last n trials
+// ended up coding and not needing
+class Accuracy {
+	
+	constructor(n) {
+		this.accuracy = Array(n).fill(0);
+	}
+
+	update_acc(acc) {
+		this.accuracy.push(acc);
+		this.accuracy.shift();
+	}
+
+	get acc_mean() {
+		return this.accuracy.reduce((a,b) => a + b) / this.accuracy.length
+	}
+}
+
+// development: for saving out csv
+
+function save_csv(trial_struct) {
+
+	data = [];
+	for (let i=0; i<trial_struct.length; i++) {
+		rt_window = trial_struct[i]['rt_window'];
+		transition = trial_struct[i]['transition'];
+		transition = transition=='repeat' ? 0:1;
+        pswitch = trial_struct[i]['pswitch'];
+        accuracy = 1;
+        if (trial_struct[i]['timeout'] | trial_struct[i]['error']) {
+		    accuracy = 0;
+        }
+		data.push([rt_window, transition, pswitch, accuracy]);
+	}
+
+	let csv_content = 'data:text/csv;charset=utf-8,';
+
+	data.forEach(function(row_array) {
+		let row = row_array.join(',');
+		csv_content += row + '\r\n';
+	});
+
+    // from here:
+    // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+    var encodedUri = encodeURI(csv_content);
+    var link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'my_data.csv');
+    document.body.appendChild(link);
+    link.click();
+}
+
+function compute_step_size(end, start, n) {
+    // compute step size for any vector with length
+    return Math.abs(end-start) / (n-1)
+}
+
+function compute_length(end, start, step_size) {
+    // compute length for any vector with step size
+    return Math.floor(Math.abs(end - start) / step_size + 1)
+}
 
 
