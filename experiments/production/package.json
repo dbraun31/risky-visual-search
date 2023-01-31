@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "csv-parse": "^5.3.4",
+    "csv-to-array-matrix": "^0.1.1",
+    "mathjs": "^11.5.1"
+  }
+}
