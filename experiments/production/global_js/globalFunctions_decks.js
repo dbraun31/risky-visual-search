@@ -359,22 +359,30 @@ class Accuracy {
 	}
 }
 
-// development: for saving out csv
 
-function save_csv(trial_struct) {
-
+function extract_sig_data(trial_struct, rt_window_break_point) {
+    // takes in the overall trial structure from the practice
+    // strips out only data needed to fit sigmoid (plus switch info)
 	data = [];
 	for (let i=0; i<trial_struct.length; i++) {
-		rt_window = trial_struct[i]['rt_window'];
-		transition = trial_struct[i]['transition'];
-		transition = transition=='repeat' ? 0:1;
-        pswitch = trial_struct[i]['pswitch'];
-        accuracy = 1;
-        if (trial_struct[i]['timeout'] | trial_struct[i]['error']) {
-		    accuracy = 0;
+        // only save data within the critical range
+        rt_window = trial_struct[i]['rt_window'];
+        if (rt_window <= rt_window_break_point) {
+            transition = trial_struct[i]['transition'];
+            transition = transition=='repeat' ? 0:1;
+            pswitch = trial_struct[i]['pswitch'];
+            accuracy = 1;
+            if (trial_struct[i]['timeout'] | trial_struct[i]['error']) {
+                accuracy = 0;
+            }
+            data.push([rt_window, transition, pswitch, accuracy]);
         }
-		data.push([rt_window, transition, pswitch, accuracy]);
 	}
+
+    return data;
+}
+
+function save_csv(data) {
 
 	let csv_content = 'data:text/csv;charset=utf-8,';
 
