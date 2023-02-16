@@ -10,7 +10,7 @@ try:
 
     d = np.array(eval(fs['data'].value))
 
-    X = d[:,0]
+    X = d[:,0].reshape(-1, 1)
     y = d[:,-1]
 
     lr = LR().fit(X, y)

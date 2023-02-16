@@ -24,9 +24,9 @@
 				document.location = 'mobile/';
 			}
 
-			var sona_id = getParam('id', 'error');
+			var survey_code = getParam('id', 'error');
 			
-			if (sona_id == 'error' | sona_id == '') {
+			if (survey_code == 'error' | survey_code == '') {
 				$('#error').show();
 				$('#accept').hide();
 			}
@@ -43,7 +43,8 @@
 			// if consent is rejected
 			$('#reject_consent').click(function(){
 				urlArgs = {
-					'survey_code': sona_id,
+                    // sona needs these params with these exact key names
+					'survey_code': survey_code,
 					'credit_token': '637cec40967f47ca9ba904b1514e6aa2',
 					'experiment_id': '280'
 				}
@@ -56,10 +57,10 @@
 				//otherwise, send to instruction screen
 
 			urlArgs = {
-				'id': sona_id
+				'survey_code': survey_code
 			}
 
-			window.location.replace('record-id/?' + $.param(urlArgs));
+			window.location.replace('pracCued/?' + $.param(urlArgs));
 			});
 
 		});

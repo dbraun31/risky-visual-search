@@ -411,4 +411,6 @@ function compute_length(end, start, step_size) {
     return Math.floor(Math.abs(end - start) / step_size + 1)
 }
 
-
+function create_id() {
+    return Math.random().toString(36).slice(2)
+}
