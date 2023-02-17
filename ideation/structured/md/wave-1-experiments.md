@@ -23,6 +23,10 @@ envisioning two experiments:
         * Evidence that responses to this question are associated with risk behavior in
             gambling task ([paper](https://doi.org/10.1111/j.1542-4774.2011.01015.x)).
     * Probably the best one I've seen yet ([paper](https://doi.org/10.1126/sciadv.1701381)).
+        * Yea this shows that trying to estimate risk preferences from
+            behavioral tasks is real problematic.
+        * Other ways to assess the cost function:
+            * WTA, visual perception (think sensitivity generally), the mason door / symbol approach, labor supply, Caplin's K ([Ham's paper](https://psyarxiv.com/wubv4/)).
 * Consider incorporating Cog-ED
     * Maybe before and after?
 * How to control for time costs?
@@ -34,6 +38,8 @@ envisioning two experiments:
 * Ensure relatively equal effort sampling (ie, no choice trials; Mason et al)
     * Also no risk trials
     * Gotta decide on relative proportions
+* What about control efficacy?
+* How to present outcomes (in what units) to participants in DST
 
 
 ### Procedure

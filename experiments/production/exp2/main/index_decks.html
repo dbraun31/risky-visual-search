@@ -8,10 +8,10 @@
   <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle.css?v=1'>
   <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle_decks.css'>
   <link rel='stylesheet' type='text/css' href='../style/exp3Style.css?v=1'>
-  <script src='../js/exp3Functions.js?v=2'></script>
-  <script src='../../globalJs/globalFunctions.js?v=1'></script>
-  <script src='../../globalJs/TimTurkTools.js'></script>
-  <script src='../../globalJs/jquery-bbq.js'></script>
+  <script src='../js/exp2Functions.js?v=2'></script>
+  <script src='../../global_js/globalFunctions_decks.js?v=1'></script>
+  <script src='../../global_js/TimTurkTools.js'></script>
+  <script src='../../global_js/jquery-bbq.js'></script>
 
 <script>
 
@@ -80,14 +80,28 @@ vid.onended = function() {
 // control conditions
 var conditionOrder = new Array();
 var transitionArray = new Array();
-var difficulty = '';
-var difference = '';
+var direction = '';
+var magnitude = '';
+
+// condition container (FLAG)
+var cc = {
+        'easy-ext': .95,
+        'easy-mod': .85,
+        'reference': .75,
+        'hard-mod': .65,
+        'hard-ext': .55
+    }
+
+// get effort calibration parameters
+var b0 = getParam('b0', 1.086957);
+var b1 = getParam('b1', -0.000434783);
+
 
 //DEVELOPMENT
 // var vid = document.getElementById('tutorial');
 
 // serve client facing controls string
-var controlsString = '<p>The blue task is: ' + clientCueCode['blue'] + (clientCueCode['blue'] == 'Magnitude'? ' (j: low, k: high)': ' (j: odd, k: even)') +'</p><p>The red task is: ' + clientCueCode['red'] + (clientCueCode['red'] == 'Magnitude'? ' (j: low, k: high)' : ' (j: odd, k: even)') +'</p>';
+var controlsString = '<p>The blue task is: ' + clientCueCode['blue'] + (clientCueCode['blue'] == 'Magnitude'? ' (d: low, f: high)': ' (j: odd, k: even)') +'</p><p>The red task is: ' + clientCueCode['red'] + (clientCueCode['red'] == 'Magnitude'? ' (d: low, f: high)' : ' (j: odd, k: even)') +'</p>';
 
 // set initial state
 $('#detailSlide').hide();
@@ -193,19 +207,6 @@ function runTrial() {
     cycleCount += 1;
     cycleTrialCount = 0;
 
-    /*
-    // add the bot catcher
-    if (trialCount) {
-      var nTrials = (trialCount) * 17;
-      var accuracy = 1 - (errorCount / nTrials);
-      if (accuracy < .7) {
-        $('.expSlide').hide();
-        $('#botCatcher').show();
-        return
-      }
-    }
-    */
-
 
     if (cycleCount > cycleThreshold) {
       endSegment();
@@ -218,13 +219,12 @@ function runTrial() {
 
   cycleTrialCount += 1;
   trialCount += 1;
-  difficulty = currentCondition['name'] == 'HE' || currentCondition['name'] == 'HM' ? 'Harder than Reference' : 'Easier than Reference';
-  difference = currentCondition['name'] == 'HE' || currentCondition['name'] == 'EE' ? 'Extreme' : 'Moderate';
+  direction = currentCondition['name'] == 'HE' || currentCondition['name'] == 'HM' ? 'Harder than Reference' : 'Easier than Reference';
+  magnitude = currentCondition['name'] == 'HE' || currentCondition['name'] == 'EE' ? 'Extreme' : 'Moderate';
   // Get deck code that maps condition to decks
   deckCode = getDeckCode(currentCondition);
 
-  // CORRECTED handles correct rounding of effort units
-  activeSeparator = updateDeckAttributes(deckCode, corrected);
+  activeSeparator = updateDeckAttributes(deckCode);
   updateAttributeColors(deckCode);
 
   // listen for space bar
@@ -413,8 +413,8 @@ function saveTrialData() {
     'stimColor': currentTaskColor,
     'task': currentTask,
     'condition': currentCondition['name'],
-    'difference': difference,
-    'difficulty': difficulty,
+    'magnitude': magnitude,
+    'direction': direction,
     'cuedResponseKey': cuedResponseKey,
     'choiceResponseKey': choiceResponseKey,
     'transition': transition,

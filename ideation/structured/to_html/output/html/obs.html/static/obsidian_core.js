@@ -10,7 +10,7 @@ var CONFIGURED_HTML_URL_PREFIX = "/gaita/ideation/structured/html";
 var RELATIVE_PATHS = 0;
 var documentation_mode = 1;
 var tab_mode = !no_tab_mode;
-var gzip_hash = '180051293374455763046515669721204337635'                       // used to check whether the localStorage data is stale
+var gzip_hash = '56227200962837133762275744223296957789'                       // used to check whether the localStorage data is stale
 
 // global cache
 var fn_cache_ls_available = null;

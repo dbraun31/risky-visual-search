@@ -8,9 +8,8 @@
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.js' type='text/javascript'></script>
     <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle_decks.css?v=5'>
     <link rel='stylesheet' type='text/css' href='../style/exp2Style.css'>
-    <script src='../js/exp2Functions.js'></script>
+    <script src='../js/exp3Functions.js'></script>
     <script src='../../global_js/globalFunctions_decks.js?v=64'></script>
-    <script src='../../global_js/logistic_regression.js'></script>
     <script src='../../global_js/TimTurkTools.js'></script>
 
     <script>
@@ -19,12 +18,13 @@ $(document).ready(function(){
 
     // id vars
     var survey_code = getParam('survey_code', '');
-    var id = getParam('id', '');
+    var id = create_id();
+
     var pilot = getParam('pilot', '');
 
     // global vars
     var transition = 'startBlock';
-    var taskCueCode = getParam('taskCuedCode', '');
+    var taskCueCode = createTaskCue();
     var clientCueCode = createClientCueText(taskCueCode);
     var transitionArray = [];
     var currentTaskColor = '';
@@ -37,22 +37,28 @@ $(document).ready(function(){
     // truncated data for sigmoid fitting
     var sig_data = new Array();
     var rt = 0;
+    // FLAG
     var keyCode = {74: 'j', 75: 'k', 68: 'd', 70: 'f'};
     var prevTaskColor = '';
     var experimentName = 'experiment2';
-    var phase = 'main';
+    var phase = 'pracCued';
     // experimentStartTime in MS
     var experimentStartTime = Date.now();
     var rtStartTime = new Date();
     // starting time for the rt window
-    var rt_window = -99;
+    var rt_window = 3500;
+    // how much to decrease the rt window across cycles
+    var rt_window_big_step = 200;
+	var rt_window_small_step = 100;
+	// at what point do i start higher resolution sampling
+	var rt_window_break_point = 2500;
+	var rt_window_min = 200;
 	var timeout = 0;
 	var first_cycle = 1;
-	var pswitch = -99;
-
+	var pswitch = .5;
     // sigmoid slope and intercept
-    var intercept = getParam('b0', '');
-    var slope = getParam('b1', '');
+    var intercept = -99;
+    var slope = -99;
 
     // thresholds & manipulations
     // trial threshold is how many cued trials per cycle
@@ -61,15 +67,6 @@ $(document).ready(function(){
     var errorTimeout = 500;
     var cycleCount = 0;
 
-    // condition container
-    // values are accuracy levels
-    cc = {
-        'reference': .75,
-        'easy_mod': .85,
-        'easy_ext': .95,
-        'hard_mod': .65,
-        'hard_ext': .55
-    }
 
     var vid = document.getElementById('tutorial');
     var instructionsReceived = 0;
@@ -79,6 +76,32 @@ $(document).ready(function(){
 
     // string for serving client key reminders
     var controlsString = '<p>The blue task is: ' + clientCueCode['blue'] + (clientCueCode['blue'] == 'Magnitude'? ' (d: low, f: high)': ' (j: odd, k: even)') +'</p><p>The red task is: ' + clientCueCode['red'] + (clientCueCode['red'] == 'Magnitude'? ' (d: low, f: high)' : ' (j: odd, k: even)') +'</p>';
+
+    function registerId(experiment){
+    // posts a blank text file to server as a way of recording IDs who at least started the experiment
+    // FLAG
+
+        if (pilot == 'true') {
+            id = 'pilot_' + Math.random().toString(36).slice(2);
+        }
+
+        var dataToServer = {
+            'curId': id,
+            'experiment': experiment,
+            'sessionCode': 'init',
+            'currentData': 'Survey ID: ' + survey_code
+        }
+
+        $.post(
+        url = 'https://davebraun.net/cgi-bin/saveData_gaita.py',
+        data = dataToServer
+        )
+    }
+
+
+
+    // save an init
+    registerId(experimentName);
 
     // control flow of first few clicks
     $('#titleSlide').show();
@@ -161,19 +184,11 @@ function startCued() {
 function runCycle() {
     $('.stimSlide').hide();
     
-    // this needs to be a check against end experiment threshold
     if (rt_window == rt_window_min) {
-        // FLAG
 		sig_data = extract_sig_data(trialStruct, rt_window_break_point);
         // this function initiates the ending sequence
         glm(sig_data);
     } else {
-
-        // need to add this reference_check var
-        if (reference_check) {
-            rt_window = get_rt_window(cc['reference'], b0, b1);
-            pswitch = get_pswitch(rt_window);
-        } else {
 
         cycleCount += 1;
         trialCount = 0;
@@ -338,7 +353,6 @@ function handle_response(e, timeout) {
 } // end handle_response()	
 
 function glm(sig_data) {
-    // FLAG
     // this operation is asynchronous by default, see
     // https://stackoverflow.com/questions/3222347/javascript-global-variables-after-ajax-requests
 
@@ -406,11 +420,11 @@ function sendToServer(secret_code, currentData) {
         url = 'https://davebraun.net/cgi-bin/saveData_gaita.py',
         data = dataToServer,
         success = function(data) {
-            window.location.replace('../main/?' + $.param(urlArgs));
+            //window.location.replace('../dst/?' + $.param(urlArgs));
         }).fail(function(data){
             console.log('FAILURE');
             console.log(data);
-            window.location.replace('../main/?' + $.param(urlArgs));
+            //window.location.replace('../dst/?' + $.param(urlArgs));
         });
 
 }

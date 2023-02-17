@@ -88,16 +88,16 @@ function determineOutcomePswitch(chosenDeckLocation, deckCode) {
 
 }
 
-function updateDeckAttributes(deckCode, corrected) {
+function updateDeckAttributes(deckCode) {
   // Fill deck attributes
-  $('#leftDeckTop').html('<p>' + translateSwitchForDisplay(deckCode['left']['pSwitch']['top'], corrected) + '</p>');
-  $('#rightDeckTop').html('<p>' + translateSwitchForDisplay(deckCode['right']['pSwitch']['top'], corrected) + '</p>');
+  $('#leftDeckTop').html('<p>' + translateSwitchForDisplay(deckCode['left']['pSwitch']['top']) + '</p>');
+  $('#rightDeckTop').html('<p>' + translateSwitchForDisplay(deckCode['right']['pSwitch']['top']) + '</p>');
 
   if (deckCode['left']['name'] == 'riskyDeck') {
-    $('#leftDeckBottom').html('<p>' + translateSwitchForDisplay(deckCode['left']['pSwitch']['bottom'], corrected) + '</p>');
+    $('#leftDeckBottom').html('<p>' + translateSwitchForDisplay(deckCode['left']['pSwitch']['bottom']) + '</p>');
     activeSeparator = 'left';
   } else {
-    $('#rightDeckBottom').html('<p>' + translateSwitchForDisplay(deckCode['right']['pSwitch']['bottom'], corrected) + '</p>');
+    $('#rightDeckBottom').html('<p>' + translateSwitchForDisplay(deckCode['right']['pSwitch']['bottom']) + '</p>');
     activeSeparator = 'right';
   }
 
@@ -105,8 +105,7 @@ function updateDeckAttributes(deckCode, corrected) {
 
 }
 
-function translateSwitchForDisplay(pSwitch, corrected) {
-  if (corrected == 'true') {
+function translateSwitchForDisplay(pSwitch) {
     translation_dict = {8: '0',
                     4: '-24',
                     6: '-12',
@@ -118,35 +117,7 @@ function translateSwitchForDisplay(pSwitch, corrected) {
                     14: '+36'};
 
     return translation_dict[pSwitch]
-  }
 
-  var out = '';
-
-  // if it's reference, keep label at 50
-  if (pSwitch == 8) {
-    out += '0';
-
-  } else {
-    // else, add the absolute units on to out first
-    absUnits = Math.floor(pSwitch * 6.25);
-    absUnits = pSwitch < 8 ? absUnits + 1 : absUnits;
-    
-    // omitting this information
-    //out += absUnits;
-
-    // then code the direction of shift from reference
-    if (pSwitch > 8) {
-      out += '+';
-    } else {
-      out += '-';
-    }
-
-    // then add the difference
-    subUnits = Math.abs(absUnits - 50);
-    out = out + String(subUnits);
-
-  }
-  return out;
 }
 
 

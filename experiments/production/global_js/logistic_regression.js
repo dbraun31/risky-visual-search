@@ -4,6 +4,6 @@ function get_rt_window(acc, b0, b1) {
     return (y_lo - b0) / b1
 }
 
-function get_pswitch(rt_window, b0=1.086957, b1=-0.000434783) {
+function get_pswitch(rt_window, b0, b1) {
     return b0 + rt_window * b1
 }
