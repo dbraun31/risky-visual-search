@@ -239,13 +239,6 @@ function getDeckLocation(deckOne, deckTwo, deckThree, nDecks) {
 
 }
 
-function getRandomFromBucket(bucket) {
-  // from: https://stackoverflow.com/questions/12987719/javascript-how-to-randomly-sample-items-without-replacement
-  // don't run more times than length of the bucket being indexed
-  var randomIndex = Math.floor(Math.random()*bucket.length);
-  return bucket.splice(randomIndex, 1)[0];
-}
-
 
 function getChosenDeckLocation(key, phase){
   // determine chosen deck location
@@ -337,9 +330,12 @@ function generateTransitionArray(nSwitches, n_trials) {
 } // end generateTransitionArray()
 
 function getRandomFromBucket(bucket) {
+  // from: https://stackoverflow.com/questions/12987719/javascript-how-to-randomly-sample-items-without-replacement
+  // don't run more times than length of the bucket being indexed
   var randomIndex = Math.floor(Math.random()*bucket.length);
   return bucket.splice(randomIndex, 1)[0];
 }
+
 
 // a class tracking the accuracy of the last n trials
 // ended up coding and not needing
@@ -414,3 +410,36 @@ function compute_length(end, start, step_size) {
 function create_id() {
     return Math.random().toString(36).slice(2)
 }
+
+function state_new_cued_run(currentStim, currentTaskColor) {
+	$('.stimSlide').show();
+    $('.choiceSlide').hide();
+	$('#errorContainer').hide();
+	$('#timeoutContainer').hide();
+	$('#cuedStim').hide();
+    $('#cuedStim').html('<p>' + currentStim + '</p>');
+    $('#cuedStim').css({'color': currentTaskColor});
+}
+
+function state_new_choice() {	
+	$('.stimSlide').hide();
+	$('.choiceSlide').show();
+	$('#keyRemindSlide').hide();
+	$('#blockTransitionSlide').hide();
+}
+
+function listen_for_spacebar(phase) {
+	
+    $(document).bind('keydown.listenForSpaceDown', function(e){
+        if (e.which == 32) {
+            $('#keyToggle' + phase).show();
+        }
+    });
+    $(document).bind('keyup.listenForSpaceUp', function(e){
+        if (e.which == 32) {
+            $('#keyToggle' + phase).hide();
+        }
+    });
+
+}
+

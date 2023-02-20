@@ -1,200 +1,160 @@
 
 function getRandomFromBucket(bucket) {
-  var randomIndex = Math.floor(Math.random()*bucket.length);
-  return bucket.splice(randomIndex, 1)[0];
+    var randomIndex = Math.floor(Math.random()*bucket.length);
+    return bucket.splice(randomIndex, 1)[0];
 }
 
 
-function createConditionOrder() {
-  // Returns an array of dicts
-  // Where each dict:
-    // {'id': 'HE', 'pSwitch': {'safe': 11, 'risky': 14}}
+function createConditionOrder(ref=.75, step=.1) {
+    // Returns an array of dicts
+    // Where each dict:
+        // {'id': 'HE', 'pSwitch': {'safe': 11, 'risky': 14}}
 
-  var conditionHolder = [
-    {
-      'name': 'HE',
-      'pSwitch': {'safe': 11, 'risky': 14}
-    },
+    var conditionHolder = [
+        {
+            'name': 'HE',
+            'acc': {
+                'safe': ((ref-2*step)+ref)/2, 
+                'risky': ref-2*step, 
+                'reference': ref}
+        },
 
-    {
-      'name': 'HM',
-      'pSwitch': {'safe': 10, 'risky': 12}
-    },
+        {
+            'name': 'HM',
+            'acc': {
+                'safe': ((ref-step) + (ref))/2, 
+                'risky': ref-step,
+                'reference': ref}
+        },
 
-    {
-      'name': 'EE',
-      'pSwitch': {'safe': 5, 'risky': 2}
-    },
+        {
+            'name': 'EE',
+            'acc': {
+                'safe': ((ref+2*step)+(ref))/2, 
+                'risky': ref+2*step,
+                'reference': ref}
+        },
 
-    {
-      'name': 'EM',
-      'pSwitch': {'safe': 6, 'risky': 4}
+        {
+            'name': 'EM',
+            'acc': {
+                'safe': ((ref+step)+(ref))/2, 
+                'risky': ref+step,
+                'reference': ref}
+        }
+    ]
+
+    var conditionOrder = []
+
+    for (i = 0; i < 4; i++) {
+        conditionOrder.push(getRandomFromBucket(conditionHolder));
     }
-  ]
 
-  var conditionOrder = []
-
-  for (i = 0; i < 4; i++) {
-    conditionOrder.push(getRandomFromBucket(conditionHolder));
-  }
-
-  return conditionOrder;
+    return conditionOrder;
 
 }
 
-function getDeckCode(currentCondition) {
-  // Takes in current condition (see above)
-  // Returns an object sorting the current condition by deck parameters
-    // {'left': {'name:' 'risky', 'pSwitch': {'top': 8, 'bottom': 14}}}
+function getDeckCode(currentCondition, ref) {
+    // Takes in current condition (see above)
+    // Returns an object sorting the current condition by deck parameters
+        // {'left': {'name:' 'risky', 'acc': {'top': 8, 'bottom': 14}}}
 
-  // Initialize the two decks
-  var riskyDeck = {'name': 'riskyDeck'};
-  var safeDeck = {'name': 'safeDeck', 'pSwitch': {'top': currentCondition['pSwitch']['safe']}};
+    // Initialize the two decks
+    var riskyDeck = {'name': 'riskyDeck'};
+    var safeDeck = {'name': 'safeDeck', 'acc': {'top': currentCondition['acc']['safe']}};
 
-  // Determine the location (top / bottom) for the two outcomes of the risky deck randomly
-  var top = Math.random() > .5 ? 8 : currentCondition['pSwitch']['risky'];
-  var bottom = top == 8 ? currentCondition['pSwitch']['risky'] : 8;
+    // Determine the location (top / bottom) for the two outcomes of the risky deck randomly
+    var top = Math.random() > .5 ? ref : currentCondition['acc']['risky'];
+    var bottom = top == ref ? currentCondition['acc']['risky'] : ref;
 
-  // Assign them to riskyDeck
-  riskyDeck['pSwitch'] = {'top': top, 'bottom': bottom};
+    // Assign them to riskyDeck
+    riskyDeck['acc'] = {'top': top, 'bottom': bottom};
 
-  // Shuffle left/right and return
-  return getDeckLocation(riskyDeck, safeDeck, '', 2);
+    // Shuffle left/right and return
+    return getDeckLocation(riskyDeck, safeDeck, '', 2);
 
 }
 
 
 function determineOutcomePswitch(chosenDeckLocation, deckCode) {
-  // Takes in the chosen deck location and deckCode (obv)
-  // Returns dict containing selected pSwitch and the spatial position of the selected outcome:
-    // {'pSwitch': 8, 'horizontal': 'left', 'vertical': 'top'}
+    // Takes in the chosen deck location and deckCode (obv)
+    // Returns dict containing selected pSwitch and the spatial position of the selected outcome:
+        // {'acc': 8, 'horizontal': 'left', 'vertical': 'top'}
 
-  var out = {'horizontal': chosenDeckLocation};
+    var out = {'horizontal': chosenDeckLocation};
 
-  if (deckCode[chosenDeckLocation]['name'] == 'safeDeck') {
-    out['vertical'] = 'Top';
-    out['pSwitch'] = deckCode[chosenDeckLocation]['pSwitch']['top'];
-  } else {
-    if (Math.random() > .5) {
-      out['pSwitch'] = deckCode[chosenDeckLocation]['pSwitch']['top']
-      out['vertical'] = 'Top';
+    if (deckCode[chosenDeckLocation]['name'] == 'safeDeck') {
+        out['vertical'] = 'Top';
+        out['acc'] = deckCode[chosenDeckLocation]['acc']['top'];
     } else {
-      out['pSwitch'] = deckCode[chosenDeckLocation]['pSwitch']['bottom']
-      out['vertical'] = 'Bottom';
+        if (Math.random() > .5) {
+            out['acc'] = deckCode[chosenDeckLocation]['acc']['top']
+            out['vertical'] = 'Top';
+        } else {
+            out['acc'] = deckCode[chosenDeckLocation]['acc']['bottom']
+            out['vertical'] = 'Bottom';
+        }
     }
-  }
 
-  return out;
+    return out;
 
 }
 
 function updateDeckAttributes(deckCode) {
-  // Fill deck attributes
-  $('#leftDeckTop').html('<p>' + translateSwitchForDisplay(deckCode['left']['pSwitch']['top']) + '</p>');
-  $('#rightDeckTop').html('<p>' + translateSwitchForDisplay(deckCode['right']['pSwitch']['top']) + '</p>');
+    // Fill deck attributes
+	console.log(deckCode);
+    $('#leftDeckTop').html('<p>' + translateSwitchForDisplay(deckCode['left']['acc']['top']) + '</p>');
+    $('#rightDeckTop').html('<p>' + translateSwitchForDisplay(deckCode['right']['acc']['top']) + '</p>');
 
-  if (deckCode['left']['name'] == 'riskyDeck') {
-    $('#leftDeckBottom').html('<p>' + translateSwitchForDisplay(deckCode['left']['pSwitch']['bottom']) + '</p>');
-    activeSeparator = 'left';
-  } else {
-    $('#rightDeckBottom').html('<p>' + translateSwitchForDisplay(deckCode['right']['pSwitch']['bottom']) + '</p>');
-    activeSeparator = 'right';
-  }
-
-  return activeSeparator;
-
-}
-
-function translateSwitchForDisplay(pSwitch) {
-    translation_dict = {8: '0',
-                    4: '-24',
-                    6: '-12',
-                    10: '+12',
-                    12: '+24',
-                    5: '-18',
-                    2: '-36',
-                    11: '+18',
-                    14: '+36'};
-
-    return translation_dict[pSwitch]
-
-}
-
-
-
-function updateAttributeColors(deckCode){
-  // clumsy approach, but it should work
-
-  // if left deck is safe deck
-  if (deckCode['left']['name'] == 'safeDeck') {
-
-    updateParam = deckCode['right']['pSwitch']['top'] == 8 ? 'bottom' : 'top';
-    blackParam = updateParam == 'bottom' ? 'top' : 'bottom';
-
-    // if all losses, make font red
-    if (deckCode['left']['pSwitch']['top'] > 8) {
-      $('#leftDeckTop').css({'color': 'rgb(' + String(translateSwitchToColor(deckCode['left']['pSwitch']['top'])) + ', 0, 0)'});
-      $('#rightDeck' + jsUcfirst(updateParam)).css({'color': 'rgb(' + String(translateSwitchToColor(deckCode['right']['pSwitch'][updateParam])) + ', 0, 0)'});
-
-    // if all gains, make font green
+    if (deckCode['left']['name'] == 'riskyDeck') {
+        $('#leftDeckBottom').html('<p>' + translateSwitchForDisplay(deckCode['left']['acc']['bottom']) + '</p>');
+        activeSeparator = 'left';
     } else {
-      $('#leftDeckTop').css({'color': 'rgb(0, ' + String(translateSwitchToColor(deckCode['left']['pSwitch']['top'])) + ', 0)'});
-      $('#rightDeck' + jsUcfirst(updateParam)).css({'color': 'rgb(0, ' + String(translateSwitchToColor(deckCode['right']['pSwitch'][updateParam])) + ', 0)'});
+        $('#rightDeckBottom').html('<p>' + translateSwitchForDisplay(deckCode['right']['acc']['bottom']) + '</p>');
+        activeSeparator = 'right';
     }
 
-    $('#rightDeck' + jsUcfirst(blackParam)).css({'color': 'black'});
-
-  
-  // if right deck is safe deck
-  } else {
-
-    updateParam = deckCode['left']['pSwitch']['top'] == 8 ? 'bottom' : 'top';
-    blackParam = updateParam == 'bottom' ? 'top' : 'bottom';
-
-    // if all losses, make font red
-    if (deckCode['right']['pSwitch']['top'] > 8) {
-      $('#rightDeckTop').css({'color': 'rgb(' + String(translateSwitchToColor(deckCode['right']['pSwitch']['top'])) + ', 0, 0)'});
-      $('#leftDeck' + jsUcfirst(updateParam)).css({'color': 'rgb(' + String(translateSwitchToColor(deckCode['left']['pSwitch'][updateParam])) + ', 0, 0)'});
-
-    // if all gains, make font green
-    } else {
-      $('#rightDeckTop').css({'color': 'rgb(0, ' + String(translateSwitchToColor(deckCode['right']['pSwitch']['top'])) + ', 0)'});
-      $('#leftDeck' + jsUcfirst(updateParam)).css({'color': 'rgb(0, ' + String(translateSwitchToColor(deckCode['left']['pSwitch'][updateParam])) + ', 0)'});
-    }
-
-    $('#leftDeck' + jsUcfirst(blackParam)).css({'color': 'black'});
-
-  }
+    return activeSeparator;
 
 }
 
-function translateSwitchToColor(pSwitch) {
-  // making it so that the ends of the switching limits that subjects will see in the exp (i.e., 2 and 14) correspond to the ends of the color spectrum
-  // thus, need to chop the spectrum in any one direction (255) into the number of segments equal to the 
-  // absolute value of the difference between the end of switching and reference (eg, 14-8 = 6)
-  // function behaves incorrectly for input 8, but that's okay
-
-  colorMin = 100;
-  colorMax = 200;
-
-  return (((colorMax - colorMin) / 6) * Math.abs(pSwitch - 8)) + colorMin;
+function translateSwitchForDisplay(acc) {
+    // rounded absolute value
+    // making it so range is -100:100 given step=.1
+    return String(Math.abs((Math.round((acc - 0.75)*100)*5))) + '%';
 }
 
-function jsUcfirst(string) {
-  // capitalize first letter of string
-  return string.charAt(0).toUpperCase() + string.slice(1);
+
+
+function updateAttributeColors(deckCode, ref){
+    // update colors based on deck positions and conditions
+
+    safe = deckCode['left']['name'] == 'safeDeck' ? 'left' : 'right';
+    risky = safe == 'left' ? 'right' : 'left';
+
+    ref_vert = deckCode[risky]['acc']['top'] == ref ? 'Top' : 'Bottom';
+    update_vert = ref_vert == 'Top' ? 'Bottom' : 'Top';
+
+    // loss or gain condition
+	
+    color_string = deckCode[safe]['acc']['top'] > ref ? 'rgb(0,200,0)' : 'rgb(200,0,0)';
+    
+    $('#'+safe+'DeckTop').css({'color':color_string});
+    $('#'+risky+'Deck'+ref_vert).css({'color':'black'});
+    $('#'+risky+'Deck'+update_vert).css({'color':color_string});
+
 }
 
 
 // OCT 25, 2021 ADDITIONS FOR PY POOL
 function getParam( name, defaultValue ) { 
-   var regexS = "[\?&]"+name+"=([^&#]*)"; 
-   var regex = new RegExp( regexS ); 
-   var tmpURL = window.location.href; 
-   var results = regex.exec( tmpURL ); 
-   if( results == null ) { 
-     return defaultValue; 
-   } else { 
-     return results[1];    
-   } 
+     var regexS = "[\?&]"+name+"=([^&#]*)"; 
+     var regex = new RegExp( regexS ); 
+     var tmpURL = window.location.href; 
+     var results = regex.exec( tmpURL ); 
+     if( results == null ) { 
+         return defaultValue; 
+     } else { 
+         return results[1];      
+     } 
 }

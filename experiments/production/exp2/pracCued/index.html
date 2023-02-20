@@ -17,8 +17,10 @@
 $(document).ready(function(){
 
     // id vars
+    // sona id
     var survey_code = getParam('survey_code', '');
-    var id = create_id();
+    // subject id
+    var subject_id = create_id();
 
     var pilot = getParam('pilot', '');
 
@@ -82,11 +84,11 @@ $(document).ready(function(){
     // FLAG
 
         if (pilot == 'true') {
-            id = 'pilot_' + Math.random().toString(36).slice(2);
+            subject_id = 'pilot_' + Math.random().toString(36).slice(2);
         }
 
         var dataToServer = {
-            'curId': id,
+            'curId': subject_id,
             'experiment': experiment,
             'sessionCode': 'init',
             'currentData': 'Survey ID: ' + survey_code
@@ -380,7 +382,7 @@ function endCued() {
     console.log([intercept, slope]);
     save_csv(sig_data);
     var currentData = {
-        'subject': secret_code,
+        'subject': subject_id,
         'survey_code': survey_code,
         'curTime': curDate.today() + '@' + curDate.timeNow(),
         'userAgent': navigator.userAgent,
@@ -396,20 +398,20 @@ function endCued() {
     }
 
 
-    sendToServer(secret_code, currentData);
+    sendToServer(subject_id, currentData);
 }
 
-function sendToServer(secret_code, currentData) {
+function sendToServer(subject_id, currentData) {
     var dataToServer = {
-        'curId': secret_code,
+        'curId':subject_id,
         'experiment': experimentName,
         'sessionCode': phase,
         'currentData': JSON.stringify(currentData)
     };
 
     var urlArgs = {
-        'id': survey_code,
-        'secret-code': secret_code,
+        'survey-code': survey_code,
+        'subject-code': subject_code,
         'taskCueCode': taskCueCode,
         'experimentStartTime':  experimentStartTime,
         'b0': intercept,
