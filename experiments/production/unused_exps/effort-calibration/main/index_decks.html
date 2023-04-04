@@ -20,7 +20,7 @@
 $(document).ready(function(){
 // id params
 var survey_code = getParam('survey-code', '');
-var subject_code = getParam('subject-code', '');
+var subject_id = getParam('subject-id', '');
 
 var pilot = getParam('pilot', '');
 
@@ -99,7 +99,7 @@ $('#blockTransitionSlide').hide();
 $('#development').hide();
 $('#botCatcher').hide();
 
-if (subject_code.includes('dave')) {
+if (subject_id.includes('dave')) {
         $('#titleSlide').hide();
         $('#development').show();
         $('#submitDevelopment').click(function(){
@@ -457,7 +457,7 @@ function endSegment() {
     var finishTime = new Date() - phaseStartTime;
 
     var currentData = {
-        'subject': subject_code,
+        'subject': subject_id,
         'survey_code': survey_code,
         'curTime': curDate.today() + '@' + curDate.timeNow(),
         'userAgent': navigator.userAgent,
@@ -473,21 +473,21 @@ function endSegment() {
         'trialStruct': trialStruct
     };
 
-    sendToServer(subject_code, currentData);
+    sendToServer(subject_id, currentData);
 
 } // end endSegment()
 
-function sendToServer(subject_code, currentData) {
+function sendToServer(subject_id, currentData) {
 
     var dataToServer = {
-        'curId': subject_code,
+        'curId': subject_id,
         'experiment': experimentName,
         'sessionCode': phase,
         'currentData': JSON.stringify(currentData)
     };
 
     var urlArgs = {
-        'subject-code': subject_code,
+        'subject-code': subject_id,
         'survey-code': survey_code,
         'taskCueCode': taskCueCode,
         'corrected': corrected,

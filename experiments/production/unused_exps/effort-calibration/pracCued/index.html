@@ -8,7 +8,7 @@
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.js' type='text/javascript'></script>
     <link rel='stylesheet' type='text/css' href='../../global_css/globalStyle_decks.css?v=5'>
     <link rel='stylesheet' type='text/css' href='../style/exp2Style.css'>
-    <script src='../js/exp3Functions.js'></script>
+    <script src='../js/exp2Functions.js'></script>
     <script src='../../global_js/globalFunctions_decks.js?v=64'></script>
     <script src='../../global_js/TimTurkTools.js'></script>
 
@@ -114,7 +114,7 @@ $(document).ready(function(){
     $('.interCycleSlide').hide();
     $('#development').hide();
 
-    if (id.includes('dave')) {
+    if (subject_id.includes('dave')) {
         $('#titleSlide').hide();
         $('#development').show();
         $('#submitDevelopment').click(function(){
@@ -361,7 +361,7 @@ function glm(sig_data) {
     ship_data = {data: JSON.stringify(sig_data)}
 
     $.get(
-        url = 'https://davebraun.net/cgi-bin/glm.py?v=2',
+        url = 'https://davebraun.net/cgi-bin/glm.py?v=021',
         data = ship_data,
         success = function(data) {
             let params = eval(data);
@@ -411,7 +411,7 @@ function sendToServer(subject_id, currentData) {
 
     var urlArgs = {
         'survey-code': survey_code,
-        'subject-code': subject_code,
+        'subject-id': subject_id,
         'taskCueCode': taskCueCode,
         'experimentStartTime':  experimentStartTime,
         'b0': intercept,
